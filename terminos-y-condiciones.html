@@ -3,127 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Términos y Condiciones de Uso del portal y servicios de Kia El Marqués. Información legal sobre cotizaciones, garantías y propiedad intelectual.">
-  <title>Términos y Condiciones | Kia El Marqués</title>
+  <meta name="description" content="Términos y Condiciones de Uso del portal y servicios de Kia El Marqués. Información legal, uso de canales de mensajería Meta y garantías.">
+  <title>Términos y Condiciones · Kia El Marqués</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" type="image/svg+xml" href="assets/kia-logo.svg">
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="https://kia.com.ve" class="brand-link" aria-label="Ir a Kia Venezuela">
-        <svg class="brand-logo-icon" viewBox="0 0 24 24" fill="currentColor" role="img" aria-hidden="true">
-          <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
-        </svg>
-        <span class="brand-badge">El Marqués</span>
-      </a>
+  <!-- Topbar Header -->
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand-group">
+        <a href="https://kia.com.ve" aria-label="Ir a Kia Venezuela" style="display: flex; align-items: center;">
+          <svg class="kia-logo-svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
+          </svg>
+        </a>
+        <div class="brand-text">
+          <h1>Kia El Marqués</h1>
+          <p>Concesionario Oficial · Marco Legal</p>
+        </div>
+      </div>
 
-      <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="terms-nav-links">
-        Menú
-      </button>
-
-      <nav aria-label="Navegación principal">
-        <ul id="terms-nav-links" class="nav-links">
-          <li><a href="https://kia.com.ve" class="nav-link" target="_blank" rel="noopener">Kia Venezuela ↗</a></li>
-          <li><a href="politica-de-privacidad.html" class="nav-link">Privacidad</a></li>
-          <li><a href="terminos-y-condiciones.html" class="nav-link" aria-current="page">Términos y Condiciones</a></li>
-        </ul>
+      <nav class="top-actions" aria-label="Navegación legal">
+        <a href="https://kia.com.ve" class="btn btn-outline" target="_blank" rel="noopener">kia.com.ve ↗</a>
+        <a href="politica-de-privacidad.html" class="btn btn-outline">Política de Privacidad</a>
+        <a href="terminos-y-condiciones.html" class="btn btn-primary" aria-current="page">Términos y Condiciones</a>
+        <a href="eliminacion-de-datos.html" class="btn btn-outline">Eliminación de Datos</a>
       </nav>
     </div>
   </header>
 
-  <!-- Legal Main Content -->
-  <main class="legal-main">
-    <div class="container">
-      <article class="legal-article">
+  <!-- Main Legal Container -->
+  <main class="main-content">
+    <div class="shell">
+      <article class="editorial-card">
         
-        <header class="legal-header">
-          <a href="https://kia.com.ve" class="back-link">
-            <span aria-hidden="true">←</span> Volver a kia.com.ve
-          </a>
-          <h1 class="legal-title">Términos y Condiciones de Uso</h1>
-          <p class="legal-meta">Última actualización: Noviembre 2026 | Kia El Marqués</p>
+        <!-- Header -->
+        <header class="editorial-header">
+          <div class="editorial-breadcrumbs">
+            <a href="https://kia.com.ve">Kia Venezuela</a>
+            <span aria-hidden="true">/</span>
+            <span>Marco Legal</span>
+            <span aria-hidden="true">/</span>
+            <span style="color: var(--g100); font-weight: 700;">Términos</span>
+          </div>
+
+          <h1 class="editorial-title">Términos y Condiciones de Uso</h1>
+          <p class="editorial-subtitle">
+            Bases regulatorias, condiciones de cotización y disposiciones de propiedad intelectual aplicables al portal y servicios de Kia El Marqués, incluyendo la interacción en plataformas de Meta.
+          </p>
+
+          <div class="editorial-badges">
+            <span class="badge badge-green">
+              <span class="badge-dot"></span> Documento Vigente
+            </span>
+            <span class="badge badge-gray">Noviembre 2026</span>
+            <span class="badge badge-blue">Red Oficial Kia Venezuela</span>
+          </div>
         </header>
 
-        <div class="legal-content">
+        <!-- Body -->
+        <div class="editorial-body">
           <section>
-            <h2>1. Objeto y Alcance</h2>
+            <h2>1. Objeto y Alcance General</h2>
             <p>
-              Los presentes Términos y Condiciones regulan el acceso, navegación y uso de los portales y servicios informativos pertenecientes a <strong>Kia El Marqués</strong>, concesionario autorizado de la red oficial Kia en Venezuela. El acceso a las páginas de información legal o a los enlaces asociados implica la aceptación plena y sin reservas de las disposiciones aquí establecidas.
+              Los presentes Términos y Condiciones regulan el acceso, navegación y utilización de los canales informativos de <strong>Kia El Marqués</strong>, concesionario autorizado de la red oficial Kia en la República Bolivariana de Venezuela. El acceso a cualquiera de nuestras páginas, formularios o servicios de mensajería automatizada implica el conocimiento y la conformidad integral con estas estipulaciones.
             </p>
             <p>
-              El dominio principal <code>kiaelmarques.com</code> funciona como enlace y redirección hacia el portal oficial de la marca en el país: <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: #ea0029; text-decoration: underline;">kia.com.ve</a>.
+              El dominio principal <code>kiaelmarques.com</code> funciona como enlace de acceso directo y redirección hacia la plataforma central nacional: <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: var(--g100); font-weight: 700; text-decoration: underline;">kia.com.ve</a>.
             </p>
           </section>
 
           <section>
             <h2>2. Propiedad Intelectual e Industrial</h2>
             <p>
-              La denominación comercial <strong>Kia</strong>, su logotipo e isotipo corporativo, el lema mundial <em>"Movement that inspires"</em>, así como los nombres y diseños de los modelos de vehículos, son marcas registradas y propiedad exclusiva de <strong>Kia Corporation</strong>.
+              Todos los signos distintivos, el logotipo corporativo de <strong>Kia</strong>, los eslóganes comerciales como <em>"Movement that inspires"</em>, así como las imágenes, tipografías, renders y especificaciones vehiculares, son marcas y creaciones protegidas pertenecientes a <strong>Kia Corporation</strong> o licenciadas a sus distribuidores autorizados.
             </p>
             <p>
-              Kia El Marqués cuenta con las autorizaciones pertinentes para el uso de estos activos de marca en el marco de su actividad de concesión. Queda prohibida la reproducción, copia, distribución o modificación no autorizada de cualquier contenido, elemento gráfico o código del sitio.
+              Se prohíbe expresamente cualquier reproducción, alteración o explotación comercial no autorizada de estos materiales sin la debida autorización por escrito.
             </p>
           </section>
 
           <section>
-            <h2>3. Carácter Informativo y Cotizaciones</h2>
+            <h2>3. Canales Digitales y Plataformas de Mensajería de Meta (WhatsApp, Facebook e Instagram)</h2>
             <p>
-              Toda la información relativa a modelos, versiones, equipamiento, cilindrada, prestaciones y colores exhibida o enlazada a través de este portal tiene carácter estrictamente ilustrativo y referencial:
+              Al comunicarse con Kia El Marqués a través de canales automatizados o asistidos (incluyendo WhatsApp Business Cloud API, formularios de Facebook Lead Ads o mensajería de Instagram):
             </p>
             <ul>
-              <li><strong>Precios y Moneda:</strong> Los montos informados en cotizaciones o listados corresponden a precios referenciales y pueden variar sin previo aviso de acuerdo con los costos de importación, impuestos aplicables y disponibilidad de inventario.</li>
-              <li><strong>Disponibilidad Vehicular:</strong> La reserva o compra definitiva de cualquier vehículo está sujeta a la disponibilidad real de unidades en inventario y a la firma formal del contrato de compraventa correspondiente.</li>
+              <li>El usuario acepta interactuar para recibir información sobre cotizaciones, citas de servicio técnico y novedades comerciales.</li>
+              <li>El usuario se compromete a no enviar contenido ilícito, ofensivo o spam a través de estos canales de mensajería.</li>
+              <li>El usuario reconoce que el uso de estas plataformas también está sujeto a los Términos del Servicio de WhatsApp y a las Condiciones de la Plataforma Meta.</li>
+              <li>Cualquier usuario puede revocar su consentimiento para recibir mensajes o solicitar la eliminación total de sus datos siguiendo nuestras <a href="eliminacion-de-datos.html" style="color: var(--g100); font-weight: 700; text-decoration: underline;">Instrucciones de Eliminación de Datos de Usuario ↗</a>.</li>
             </ul>
           </section>
 
           <section>
-            <h2>4. Servicios de Taller y Repuestos Oficiales</h2>
+            <h2>4. Carácter Referencial de Cotizaciones y Precios</h2>
             <p>
-              Las citas de mantenimiento, revisiones mecánicas y adquisición de repuestos o accesorios originales en Kia El Marqués están regidas por las condiciones y garantías de fábrica estipuladas por Kia Corporation y la legislación nacional en materia de protección al consumidor y garantías comerciales.
-            </p>
-          </section>
-
-          <section>
-            <h2>5. Limitación de Responsabilidad</h2>
-            <p>
-              Kia El Marqués procura mantener la disponibilidad y exactitud de la información en todo momento, pero no se hace responsable por eventuales interrupciones temporales del servicio web, fallas de conectividad externas o inexactitudes tipográficas involuntarias.
-            </p>
-          </section>
-
-          <section>
-            <h2>6. Enlaces y Redirecciones a Sitios de Terceros</h2>
-            <p>
-              Este sitio enlaza y redirecciona al portal de <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: #ea0029; text-decoration: underline;">kia.com.ve</a>, así como a plataformas bancarias, financieras o de redes sociales. Kia El Marqués no se responsabiliza de los contenidos o políticas de privacidad de sitios externos no gestionados directamente por el concesionario.
-            </p>
-          </section>
-
-          <section>
-            <h2>7. Modificaciones a los Términos</h2>
-            <p>
-              Kia El Marqués podrá actualizar o modificar estos términos en cualquier momento. Las modificaciones surtirán efecto a partir de su publicación en este mismo espacio.
-            </p>
-          </section>
-
-          <section>
-            <h2>8. Ley Aplicable y Jurisdicción</h2>
-            <p>
-              Estos Términos y Condiciones se rigen e interpretan de conformidad con las leyes de la República Bolivariana de Venezuela. Cualquier controversia derivada del uso de este sitio será sometida a los tribunales competentes de la jurisdicción del concesionario.
-            </p>
-          </section>
-
-          <section>
-            <h2>9. Atención y Contacto</h2>
-            <p>
-              Para cualquier consulta o requerimiento relacionado con estos términos:
+              Los datos técnicos, configuraciones, fichas de producto y precios mostrados en comunicaciones y cotizaciones digitales tienen un carácter exclusivamente informativo y referencial:
             </p>
             <ul>
-              <li><strong>Correo Electrónico:</strong> legal@kiaelmarques.com</li>
-              <li><strong>Concesionario:</strong> Kia El Marqués — Caracas, Venezuela</li>
-              <li><strong>Portal Oficial Kia:</strong> <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: #ea0029; text-decoration: underline;">kia.com.ve</a></li>
+              <li><strong>Precios de Lista:</strong> Los valores indicados pueden ser modificados sin previo aviso en función de variaciones arancelarias, costos de importación y tasas oficiales aplicables.</li>
+              <li><strong>Disponibilidad de Unidades:</strong> La asignación de vehículos, colores y versiones está sujeta a los tiempos de despacho y existencias físicas en el concesionario.</li>
+              <li><strong>Perfeccionamiento de la Compra:</strong> Ninguna solicitud o simulación web constituye una venta firme hasta la suscripción formal del contrato de compraventa y cumplimiento de los requisitos de pago.</li>
             </ul>
+          </section>
+
+          <section>
+            <h2>5. Citas de Taller, Mantenimiento y Repuestos Originales</h2>
+            <p>
+              Los servicios de diagnóstico mecánico, mantenimiento preventivo y provisión de repuestos en el taller de Kia El Marqués se ejecutan bajo los protocolos técnicos certificados y las garantías oficiales fijadas por Kia Corporation para el mercado venezolano.
+            </p>
+          </section>
+
+          <section>
+            <h2>6. Uso Responsable del Sitio</h2>
+            <p>El usuario se compromete a:</p>
+            <ul>
+              <li>Suministrar datos fidedignos y verificables en cualquier solicitud de cotización o contacto.</li>
+              <li>No realizar acciones orientadas a vulnerar la seguridad, estabilidad o funcionamiento de los sistemas informáticos del concesionario.</li>
+              <li>Utilizar los contenidos exclusivamente para fines personales y de consulta comercial lícita.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>7. Exclusión de Garantías Técnicas</h2>
+            <p>
+              Kia El Marqués realiza sus mejores esfuerzos para garantizar la estabilidad y veracidad de sus plataformas digitales; no obstante, no asume responsabilidad por interrupciones ajenas a su control, caídas en las APIs de terceros (incluyendo servicios de Meta Platforms) o fallas de conectividad en redes de telecomunicaciones.
+            </p>
+          </section>
+
+          <section>
+            <h2>8. Enlaces a Sitios y Plataformas Externas</h2>
+            <p>
+              El sitio incluye redirecciones al portal nacional <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: var(--g100); font-weight: 700; text-decoration: underline;">kia.com.ve</a> y puede enlazar a aliados financieros o aseguradoras. Kia El Marqués no se hace responsable por las prácticas de privacidad o términos vigentes en sitios de terceros ajenos a su administración directa.
+            </p>
+          </section>
+
+          <section>
+            <h2>9. Modificaciones a los Términos</h2>
+            <p>
+              El concesionario se reserva la potestad de modificar los presentes Términos en cualquier momento. Las modificaciones entrarán en vigor a partir de su publicación en esta página web con indicación expresa de su fecha de emisión.
+            </p>
+          </section>
+
+          <section>
+            <h2>10. Legislación y Jurisdicción Aplicable</h2>
+            <p>
+              Estos Términos y Condiciones se rigen e interpretan bajo la legislación vigente de la República Bolivariana de Venezuela. Cualquier controversia será dirimida ante los tribunales competentes de la jurisdicción del concesionario en la ciudad de Caracas.
+            </p>
+            
+            <div class="editorial-box">
+              <p><strong>Departamento de Contacto y Atención:</strong></p>
+              <p>Para consultas o notificaciones, comuníquese a: <code>marketing@kiaelmarques.com</code>.</p>
+            </div>
           </section>
         </div>
 
@@ -131,29 +168,28 @@
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-top">
+  <!-- Editorial Footer -->
+  <footer class="editorial-footer">
+    <div class="shell">
+      <div class="footer-content">
         <div class="footer-brand">
-          <svg class="footer-logo" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Kia">
+          <svg class="footer-logo" viewBox="0 0 24 24" role="img" aria-hidden="true">
             <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
           </svg>
-          <span><strong>Kia El Marqués</strong></span>
+          <span style="font-weight: 700; color: var(--g100);">Kia El Marqués</span>
         </div>
 
-        <ul class="footer-nav">
+        <ul class="footer-links">
           <li><a href="https://kia.com.ve" target="_blank" rel="noopener">Kia Venezuela</a></li>
           <li><a href="politica-de-privacidad.html">Política de Privacidad</a></li>
           <li><a href="terminos-y-condiciones.html">Términos y Condiciones</a></li>
+          <li><a href="eliminacion-de-datos.html">Eliminación de Datos</a></li>
         </ul>
       </div>
 
-      <div class="footer-bottom">
-        <p>© <span data-current-year>2026</span> Kia El Marqués. Todos los derechos reservados.</p>
-        <p class="footer-disclaimer">
-          La marca Kia y su logotipo pertenecen a Kia Corporation. Concesionario oficial autorizado Kia El Marqués.
-        </p>
+      <div class="footer-disclaimer-row">
+        <span>© <span data-current-year>2026</span> Kia El Marqués. Todos los derechos reservados.</span>
+        <span>Conforme a las Políticas de Desarrolladores de Meta Platforms, Inc.</span>
       </div>
     </div>
   </footer>

@@ -3,33 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kia El Marqués | Redirigiendo...</title>
+  <title>Kia El Marqués · Redirigiendo</title>
   <meta http-equiv="refresh" content="0; url=https://kia.com.ve">
   <link rel="canonical" href="https://kia.com.ve">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" type="image/svg+xml" href="assets/kia-logo.svg">
   <script>
     window.location.replace("https://kia.com.ve");
   </script>
 </head>
-<body style="display: flex; align-items: center; justify-content: center; min-height: 100dvh; text-align: center; padding: 2rem;">
+<body style="align-items: center; justify-content: center;">
 
-  <main style="max-width: 480px; margin: auto;">
-    <div style="width: 140px; margin: 0 auto 1.5rem; color: #ffffff;">
-      <svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Kia">
-        <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
-      </svg>
+  <main class="redirect-card">
+    <svg class="redirect-logo" viewBox="0 0 24 24" role="img" aria-label="Kia">
+      <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
+    </svg>
+
+    <div style="margin-bottom: 14px;">
+      <span class="badge badge-gray">Concesionario Oficial</span>
     </div>
-    <h1 style="font-size: 1.5rem; margin-bottom: 0.75rem; font-weight: 700;">Kia El Marqués</h1>
-    <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">
-      Redirigiendo al portal oficial de Kia Venezuela...
+
+    <h1 class="redirect-title">Kia El Marqués</h1>
+    
+    <div class="redirect-spinner" aria-hidden="true"></div>
+
+    <p class="redirect-desc">
+      Redirigiendo al portal oficial de Kia Venezuela en <strong style="color: var(--g100);">kia.com.ve</strong>...
     </p>
-    <p style="font-size: 0.9rem; color: #94a3b8;">
-      Si no eres redirigido automáticamente, <a href="https://kia.com.ve" style="color: #ea0029; text-decoration: underline; font-weight: 600;">haz clic aquí para ir a kia.com.ve</a>.
-    </p>
-    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; display: flex; justify-content: center; gap: 1.5rem;">
-      <a href="politica-de-privacidad.html" style="color: #94a3b8;">Política de Privacidad</a>
-      <a href="terminos-y-condiciones.html" style="color: #94a3b8;">Términos y Condiciones</a>
+
+    <a href="https://kia.com.ve" class="btn btn-primary" style="margin-bottom: 10px;">
+      Ir a kia.com.ve ↗
+    </a>
+
+    <div class="redirect-footer-links">
+      <a href="politica-de-privacidad.html">Política de Privacidad</a>
+      <span>·</span>
+      <a href="terminos-y-condiciones.html">Términos y Condiciones</a>
+      <span>·</span>
+      <a href="eliminacion-de-datos.html">Eliminación de Datos</a>
     </div>
   </main>
 

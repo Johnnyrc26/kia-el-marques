@@ -3,139 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Política de Privacidad y Tratamiento de Datos Personales de Kia El Marqués. Información legal y derechos de privacidad.">
-  <title>Política de Privacidad | Kia El Marqués</title>
+  <meta name="description" content="Política de Privacidad y Tratamiento de Datos Personales de Kia El Marqués. Información legal, integración con plataformas de Meta y derechos de privacidad.">
+  <title>Política de Privacidad · Kia El Marqués</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" type="image/svg+xml" href="assets/kia-logo.svg">
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="https://kia.com.ve" class="brand-link" aria-label="Ir a Kia Venezuela">
-        <svg class="brand-logo-icon" viewBox="0 0 24 24" fill="currentColor" role="img" aria-hidden="true">
-          <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
-        </svg>
-        <span class="brand-badge">El Marqués</span>
-      </a>
+  <!-- Topbar Header -->
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand-group">
+        <a href="https://kia.com.ve" aria-label="Ir a Kia Venezuela" style="display: flex; align-items: center;">
+          <svg class="kia-logo-svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
+          </svg>
+        </a>
+        <div class="brand-text">
+          <h1>Kia El Marqués</h1>
+          <p>Concesionario Oficial · Marco Legal</p>
+        </div>
+      </div>
 
-      <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="privacy-nav-links">
-        Menú
-      </button>
-
-      <nav aria-label="Navegación principal">
-        <ul id="privacy-nav-links" class="nav-links">
-          <li><a href="https://kia.com.ve" class="nav-link" target="_blank" rel="noopener">Kia Venezuela ↗</a></li>
-          <li><a href="politica-de-privacidad.html" class="nav-link" aria-current="page">Privacidad</a></li>
-          <li><a href="terminos-y-condiciones.html" class="nav-link">Términos y Condiciones</a></li>
-        </ul>
+      <nav class="top-actions" aria-label="Navegación legal">
+        <a href="https://kia.com.ve" class="btn btn-outline" target="_blank" rel="noopener">kia.com.ve ↗</a>
+        <a href="politica-de-privacidad.html" class="btn btn-primary" aria-current="page">Política de Privacidad</a>
+        <a href="terminos-y-condiciones.html" class="btn btn-outline">Términos y Condiciones</a>
+        <a href="eliminacion-de-datos.html" class="btn btn-outline">Eliminación de Datos</a>
       </nav>
     </div>
   </header>
 
-  <!-- Legal Main Content -->
-  <main class="legal-main">
-    <div class="container">
-      <article class="legal-article">
+  <!-- Main Legal Container -->
+  <main class="main-content">
+    <div class="shell">
+      <article class="editorial-card">
         
-        <header class="legal-header">
-          <a href="https://kia.com.ve" class="back-link">
-            <span aria-hidden="true">←</span> Volver a kia.com.ve
-          </a>
-          <h1 class="legal-title">Política de Privacidad</h1>
-          <p class="legal-meta">Última actualización: Noviembre 2026 | Kia El Marqués</p>
+        <!-- Header -->
+        <header class="editorial-header">
+          <div class="editorial-breadcrumbs">
+            <a href="https://kia.com.ve">Kia Venezuela</a>
+            <span aria-hidden="true">/</span>
+            <span>Marco Legal</span>
+            <span aria-hidden="true">/</span>
+            <span style="color: var(--g100); font-weight: 700;">Privacidad</span>
+          </div>
+
+          <h1 class="editorial-title">Política de Privacidad</h1>
+          <p class="editorial-subtitle">
+            Lineamientos de protección, tratamiento de datos personales y garantías de seguridad para clientes y usuarios de Kia El Marqués, incluyendo la interacción mediante plataformas de Meta (Facebook, Instagram y WhatsApp).
+          </p>
+
+          <div class="editorial-badges">
+            <span class="badge badge-green">
+              <span class="badge-dot"></span> Documento Vigente
+            </span>
+            <span class="badge badge-gray">Noviembre 2026</span>
+            <span class="badge badge-blue">Conforme a Políticas de Meta</span>
+          </div>
         </header>
 
-        <div class="legal-content">
+        <!-- Body -->
+        <div class="editorial-body">
           <section>
             <h2>1. Identidad y Domicilio del Responsable</h2>
             <p>
-              <strong>Kia El Marqués</strong>, concesionario oficial autorizado de la red Kia en Venezuela, con sede operativa en El Marqués, Caracas, es el responsable del tratamiento legítimo, confidencial e informado de los datos personales suministrados por los usuarios, clientes y visitantes de nuestros servicios digitales y físicos.
+              <strong>Kia El Marqués</strong>, concesionario oficial de la red Kia en Venezuela, con sede de operaciones en la Urbanización El Marqués, Caracas, es la entidad responsable del tratamiento legítimo, confidencial y seguro de los datos personales proporcionados por usuarios, clientes y solicitantes a través de canales físicos y digitales (incluyendo sitios web, formularios publicitarios de Meta Lead Ads y la API de mensajería de WhatsApp Business).
             </p>
           </section>
 
           <section>
             <h2>2. Datos Personales que Recopilamos</h2>
-            <p>Podemos recabar y tratar las siguientes categorías de información:</p>
+            <p>
+              Recabamos los datos estrictamente necesarios para brindar asesoría automotriz, cotizaciones y atención posventa:
+            </p>
             <ul>
-              <li><strong>Datos de Identificación y Contacto:</strong> Nombres, apellidos, número de cédula o documento de identidad, dirección de correo electrónico y teléfono de contacto.</li>
-              <li><strong>Datos de Interés y Cotización:</strong> Modelo de vehículo Kia de interés, versión, tipo de transmisión, modalidad de pago o solicitud de información comercial.</li>
-              <li><strong>Datos de Postventa y Servicio Técnico:</strong> Número de identificación vehicular (VIN), kilometraje, placa y registro de mantenimientos en taller.</li>
-              <li><strong>Datos de Navegación:</strong> Dirección IP, tipo de navegador, sistema operativo y métricas de navegación mediante cookies técnicas necesarias.</li>
+              <li><strong>Datos de Identificación y Contacto:</strong> Nombres, apellidos, número de cédula o identificación fiscal, correo electrónico y número telefónico.</li>
+              <li><strong>Datos recopilados a través de la Plataforma Meta:</strong> Información proporcionada voluntariamente mediante formularios instantáneos de Facebook/Instagram (Lead Ads), número de teléfono de WhatsApp en chats de atención al cliente y metadatos de interacción mediante las herramientas para desarrolladores de Meta Platforms, Inc.</li>
+              <li><strong>Datos de Interés Vehicular:</strong> Modelos Kia de interés, versión, tipo de combustible (gasolina, híbrido o eléctrico) y método de financiamiento solicitado.</li>
+              <li><strong>Datos Técnicos Posventa:</strong> Número de Identificación Vehicular (VIN), placa, kilometraje y registro de servicios mecánicos preventivos.</li>
+              <li><strong>Datos de Navegación:</strong> Métricas técnicas recopiladas a través de cookies de sesión para garantizar la seguridad y fluidez de la plataforma.</li>
             </ul>
           </section>
 
           <section>
-            <h2>3. Finalidad del Tratamiento de los Datos</h2>
-            <h3>Finalidades Principales:</h3>
+            <h2>3. Finalidades del Tratamiento</h2>
+            <h3>Finalidades Primarias (necesarias para el servicio):</h3>
             <ul>
-              <li>Atender, canalizar y responder solicitudes de cotización, disponibilidad de vehículos e información técnica.</li>
-              <li>Agendamiento de citas de mantenimiento preventivo, correctivo y servicios posventa oficiales.</li>
-              <li>Gestión de garantías de fábrica, repuestos originales y notificaciones de llamados a revisión (recalls).</li>
-              <li>Formalización administrativa de procesos de compraventa vehicular.</li>
+              <li>Procesar solicitudes de cotización, disponibilidad de inventario y reservas vehiculares.</li>
+              <li>Responder mensajes y consultas técnicas a través de la API oficial de WhatsApp Business y Meta Messenger.</li>
+              <li>Coordinar citas en taller autorizado para mantenimientos preventivos y correctivos.</li>
+              <li>Tramitar la activación y cumplimiento de garantías oficiales de fábrica con Kia Corporation.</li>
+              <li>Atender notificaciones preventivas y programas de llamados a revisión técnica (recalls).</li>
             </ul>
 
             <h3>Finalidades Secundarias:</h3>
             <ul>
-              <li>Envío de comunicaciones comerciales sobre promociones, nuevos modelos y eventos de Kia El Marqués.</li>
-              <li>Evaluación de la calidad de servicio y satisfacción del cliente.</li>
+              <li>Envío de comunicaciones comerciales sobre aperturas, promociones y lanzamientos exclusivos de la red.</li>
+              <li>Encuestas voluntarias de satisfacción y calidad de atención en concesionario.</li>
             </ul>
           </section>
 
           <section>
-            <h2>4. Medidas de Seguridad y Protección</h2>
+            <h2>4. Protección de Datos de la Plataforma Meta (Meta Platform Terms)</h2>
             <p>
-              Kia El Marqués implementa medidas de seguridad organizativas, técnicas y físicas orientadas a proteger la información personal frente a pérdida, uso indebido, acceso no autorizado, divulgación o alteración. El acceso a los datos está restringido únicamente al personal autorizado que requiera dicha información para la prestación del servicio.
-            </p>
-          </section>
-
-          <section>
-            <h2>5. Transferencia de Información</h2>
-            <p>
-              Kia El Marqués no comercializa ni cede datos personales a terceros sin su consentimiento, salvo las transferencias estrictamente indispensables para:
+              En estricto cumplimiento de los Términos de la Plataforma Meta y las Políticas para Desarrolladores de Meta:
             </p>
             <ul>
-              <li>La red oficial de <strong>Kia Corporation</strong> y distribuidores autorizados para el procesamiento de garantías de fábrica.</li>
-              <li>Entidades bancarias o aseguradoras aliadas cuando el usuario solicite explícitamente la tramitación de financiamiento o pólizas.</li>
-              <li>Requerimientos de autoridades judiciales o administrativas en cumplimiento del ordenamiento legal vigente.</li>
+              <li><strong>No venta de datos:</strong> Kia El Marqués no comercializa, no vende, no alquila ni transfiere datos de usuarios obtenidos a través de Meta a redes publicitarias, intermediarios de datos (data brokers) o servicios de vigilancia.</li>
+              <li><strong>Uso limitado y específico:</strong> Los datos obtenidos mediante la API de WhatsApp o Lead Ads se utilizan únicamente para responder a la solicitud directa formulada por el usuario.</li>
+              <li><strong>Retención responsable:</strong> Los datos de leads que no culminen en una relación comercial o contractual son purgados de forma periódica.</li>
             </ul>
           </section>
 
           <section>
-            <h2>6. Derechos de los Titulares (Acceso, Rectificación, Cancelación y Oposición)</h2>
+            <h2>5. Medidas de Seguridad y Custodia</h2>
             <p>
-              Los titulares de datos personales tienen derecho a consultar la información almacenada, solicitar su corrección en caso de ser inexacta o desactualizada, y requerir su supresión cuando ya no sea necesaria para los fines contratados:
+              Aplicamos rigurosas salvaguardas tecnológicas y organizativas bajo estándares internacionales de la industria automotriz para prevenir la alteración, pérdida, consulta o acceso no autorizado a su información. El personal con acceso a datos opera bajo estrictos acuerdos de confidencialidad.
             </p>
-            <div class="legal-box">
-              <p><strong>Canal para el ejercicio de derechos de privacidad:</strong></p>
-              <p>Para ejercer sus derechos, envíe una solicitud a <code>privacidad@kiaelmarques.com</code> indicando su nombre completo, copia de su documento de identidad y el derecho específico que desea ejercer. Responderemos a la brevedad conforme a los plazos legales.</p>
+          </section>
+
+          <section>
+            <h2>6. Transferencia de Datos</h2>
+            <p>
+              Sus datos no serán vendidos, cedidos ni comercializados a terceros. Únicamente se compartirán en los siguientes supuestos operativos indispensables:
+            </p>
+            <ul>
+              <li>Con <strong>Kia Corporation</strong> y distribuidores autorizados para la validación de garantías globales y repuestos originales.</li>
+              <li>Con proveedores de infraestructura y servicios en la nube necesarios para la operación de la API de mensajería (como Meta Platforms, Inc. para la entrega de mensajes de WhatsApp).</li>
+              <li>Con instituciones financieras y compañías de seguros autorizadas, únicamente bajo instrucción explícita del cliente para trámites de crédito vehicular.</li>
+              <li>Con autoridades judiciales o administrativas competentes en cumplimiento de la normativa legal aplicable.</li>
+            </ul>
+          </section>
+
+          <section id="eliminacion-de-datos">
+            <h2>7. Eliminación de Datos de Usuario (User Data Deletion Callback / Request)</h2>
+            <p>
+              Conforme a los requerimientos técnicos y legales exigidos por <strong>Meta Platforms</strong>, proporcionamos un mecanismo directo y sencillo para que cualquier usuario solicite la eliminación permanente de sus datos:
+            </p>
+            
+            <div class="editorial-box">
+              <p><strong>¿Cómo solicitar la eliminación de tus datos?</strong></p>
+              <p>Envía un correo electrónico a <code>marketing@kiaelmarques.com</code> con el asunto <strong>"Solicitud de Eliminación de Datos de Usuario"</strong> indicando tu nombre completo y el número telefónico o correo utilizado en la interacción.</p>
+              <p>También puedes seguir las instrucciones detalladas paso a paso en nuestra página dedicada: <a href="eliminacion-de-datos.html" style="color: var(--g100); font-weight: 700; text-decoration: underline;">Instrucciones de Eliminación de Datos de Usuario ↗</a>.</p>
+              <p>Procesaremos la eliminación dentro de un plazo de 48 a 72 horas hábiles y emitiremos la confirmación formal correspondiente.</p>
             </div>
           </section>
 
           <section>
-            <h2>7. Uso de Cookies</h2>
+            <h2>8. Ejercicio de Derechos de Privacidad (ARCO)</h2>
             <p>
-              Este sitio web utiliza cookies técnicas para garantizar la correcta navegación y visualización de contenidos. El usuario puede deshabilitar el uso de cookies desde las opciones de configuración de su navegador en cualquier momento.
+              Como titular de sus datos personales, tiene pleno derecho a solicitar en cualquier momento el acceso, rectificación, cancelación u oposición al tratamiento de su información. Para formular cualquier solicitud, diríjase por escrito a <code>marketing@kiaelmarques.com</code> indicando su nombre completo, copia de su documento de identidad y la descripción específica de su solicitud. Responderemos en un plazo máximo de 10 días hábiles.
             </p>
           </section>
 
           <section>
-            <h2>8. Actualizaciones a esta Política</h2>
+            <h2>9. Uso de Cookies y Píxeles de Rastreo</h2>
             <p>
-              Kia El Marqués se reserva la facultad de actualizar periódicamente este aviso de privacidad para reflejar mejoras en nuestros servicios o cambios regulatorios. La versión vigente estará siempre accesible en esta misma página con su fecha de última modificación.
+              Este portal web utiliza cookies técnicas para garantizar la navegación segura. En caso de utilizar tecnologías de medición publicitaria de terceros (como el píxel de Meta), estas se rigen por las configuraciones de privacidad del usuario en su respectiva cuenta de la plataforma.
             </p>
           </section>
 
           <section>
-            <h2>9. Contacto de Privacidad</h2>
+            <h2>10. Actualizaciones al Documento</h2>
             <p>
-              Para cualquier consulta sobre el tratamiento de sus datos personales, contáctenos en:
+              Kia El Marqués podrá modificar periódicamente esta política para adecuarla a requerimientos técnicos, legislativos o institucionales. La versión vigente y actualizada estará siempre publicada en este portal con indicación de su fecha de emisión.
+            </p>
+          </section>
+
+          <section>
+            <h2>11. Canales de Contacto</h2>
+            <p>
+              Para dudas o aclaratorias vinculadas a este instrumento legal:
             </p>
             <ul>
-              <li><strong>Correo Electrónico:</strong> privacidad@kiaelmarques.com</li>
-              <li><strong>Concesionario:</strong> Kia El Marqués — Caracas, Venezuela</li>
-              <li><strong>Portal Oficial Red Kia:</strong> <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: #ea0029; text-decoration: underline;">kia.com.ve</a></li>
+              <li><strong>Correo Electrónico:</strong> <a href="mailto:marketing@kiaelmarques.com" style="color: var(--g100); text-decoration: underline; font-weight: 700;">marketing@kiaelmarques.com</a></li>
+              <li><strong>Sede:</strong> Concesionario Kia El Marqués · Caracas, Venezuela</li>
+              <li><strong>Portal Oficial de la Marca:</strong> <a href="https://kia.com.ve" target="_blank" rel="noopener" style="color: var(--g100); font-weight: 700; text-decoration: underline;">kia.com.ve</a></li>
             </ul>
           </section>
         </div>
@@ -144,29 +191,28 @@
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-top">
+  <!-- Editorial Footer -->
+  <footer class="editorial-footer">
+    <div class="shell">
+      <div class="footer-content">
         <div class="footer-brand">
-          <svg class="footer-logo" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Kia">
+          <svg class="footer-logo" viewBox="0 0 24 24" role="img" aria-hidden="true">
             <path d="M13.923 14.175c0 .046.015.072.041.072a.123.123 0 0 0 .058-.024l7.48-4.854a.72.72 0 0 1 .432-.13h1.644c.252 0 .422.168.422.42v3.139c0 .38-.084.6-.42.801l-1.994 1.2a.137.137 0 0 1-.067.024c-.024 0-.048-.019-.048-.088v-3.663c0-.043-.012-.071-.041-.071a.113.113 0 0 0-.058.024l-5.466 3.551a.733.733 0 0 1-.42.127h-3.624c-.254 0-.422-.168-.422-.422V9.757c0-.033-.015-.064-.044-.064a.118.118 0 0 0-.057.024L7.732 11.88c-.036.024-.046.041-.046.058 0 .014.008.029.032.055l2.577 2.575c.034.034.058.06.058.089 0 .024-.039.043-.084.043H7.94c-.183 0-.324-.026-.423-.125l-1.562-1.56a.067.067 0 0 0-.048-.024.103.103 0 0 0-.048.015l-2.61 1.57a.72.72 0 0 1-.423.122H.425C.168 14.7 0 14.53 0 14.279v-3.08c0-.38.084-.6.422-.8L2.43 9.192a.103.103 0 0 1 .052-.016c.032 0 .048.03.048.1V13.4c0 .043.01.063.041.063a.144.144 0 0 0 .06-.024L9.407 9.36a.733.733 0 0 1 .446-.124h3.648c.252 0 .422.168.422.42l-.002 4.518z"/>
           </svg>
-          <span><strong>Kia El Marqués</strong></span>
+          <span style="font-weight: 700; color: var(--g100);">Kia El Marqués</span>
         </div>
 
-        <ul class="footer-nav">
+        <ul class="footer-links">
           <li><a href="https://kia.com.ve" target="_blank" rel="noopener">Kia Venezuela</a></li>
           <li><a href="politica-de-privacidad.html">Política de Privacidad</a></li>
           <li><a href="terminos-y-condiciones.html">Términos y Condiciones</a></li>
+          <li><a href="eliminacion-de-datos.html">Eliminación de Datos</a></li>
         </ul>
       </div>
 
-      <div class="footer-bottom">
-        <p>© <span data-current-year>2026</span> Kia El Marqués. Todos los derechos reservados.</p>
-        <p class="footer-disclaimer">
-          La marca Kia y su logotipo pertenecen a Kia Corporation. Concesionario oficial autorizado Kia El Marqués.
-        </p>
+      <div class="footer-disclaimer-row">
+        <span>© <span data-current-year>2026</span> Kia El Marqués. Todos los derechos reservados.</span>
+        <span>Conforme a las Políticas de Desarrolladores de Meta Platforms, Inc.</span>
       </div>
     </div>
   </footer>
