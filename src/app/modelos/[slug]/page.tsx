@@ -180,8 +180,10 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
           </section>
           */}
 
-          {/* Tabs Unificadas: Ficha Técnica (Especificaciones de Fábrica) & Ficha Comercial (Resumen Ejecutivo) */}
+          {/* Tabs Unificadas: Ficha Técnica & Ficha Comercial - Comentado temporalmente por solicitud del cliente (descomentar para reactivar sin volver a montar) */}
+          {/*
           <ModelTabsSection model={model} />
+          */}
 
           {/* Interactive Lead & Vehicle Discovery Form */}
           <section id="cotizar" className="model-quiz-section">
