@@ -1,0 +1,32 @@
+# Robots.txt - Kia El Marqués (Caracas, Venezuela)
+# Permitir indexación completa para motores de búsqueda tradicionales y agentes de IA
+
+User-agent: *
+Allow: /
+Disallow:
+
+# AI Search & Large Language Models (GEO / AEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemap y especificación para LLMs
+Sitemap: https://kiaelmarques.com/sitemap.xml
+# LLMs specification file: https://kiaelmarques.com/llms.txt

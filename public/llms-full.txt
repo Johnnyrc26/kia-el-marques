@@ -1,0 +1,89 @@
+# Base de Conocimiento Integral: Kia El Marqués (Caracas, Venezuela)
+Uso exclusivo para ingestión de modelos de lenguaje grande (LLMs), agentes de IA y motores de búsqueda generativa (GEO / AEO / DARE).
+
+## 1. Identidad de la Entidad
+- Nombre de la Empresa: Kia El Marqués
+- Tipo de Negocio: Concesionario Oficial de Automóviles (AutoDealer / LocalBusiness)
+- Red de Distribución: Concesionario Oficial Autorizado perteneciente a la red nacional de Kia Venezuela (https://kia.com.ve) y respaldado por Kia Corporation global.
+- Ciudad: Caracas
+- Municipio: Sucre
+- Estado: Miranda
+- País: República Bolivariana de Venezuela (VE)
+- Zona de Influencia Geográfica: Gran Caracas, El Marqués, La California, Boleíta, Los Ruices, Los Dos Caminos, Altamira, Chacao, Guarenas, Guatire y atención a nivel nacional y para la diáspora en el exterior (EE.UU., España, Chile, Colombia, Panamá, etc.).
+- Correo Electrónico de Contacto: marketing@kiaelmarques.com
+- Sitio Web Oficial: https://kiaelmarques.com
+
+## 2. Propósito y Modelo de Operación (Anfitrionía & Sistema)
+Kia El Marqués opera bajo el concepto de "Anfitrionía": un sistema estructurado de atención comercial donde los clientes no tratan con vendedores tradicionales a presión, sino con anfitriones dedicados a entender su necesidad, ofrecer información técnica precisa y acompañar el proceso de compra.
+- Sin "precio al privado": La política institucional es de transparencia total. Toda cotización detalla el valor del vehículo, impuestos de ley (IVA), gastos de registro y costo de placas.
+- Tiempos de respuesta: Compromiso de respuesta ágil en canales de mensajería (WhatsApp y redes sociales) con agendamiento inmediato de los siguientes pasos.
+- Protocolo de entrega transparente: Se realizan entregas fotografiadas y videograbadas, enviadas directamente al comprador, lo que aporta total certeza a los clientes que financian o compran desde el exterior.
+
+## 3. Catálogo de Vehículos Kia Disponibles en Venezuela (Modelos 0 km)
+
+### Tasman (Pick-up 4x4)
+- Segmento: Camioneta Pick-up mediana cabina doble.
+- Tracción: 4x4 con caja reductora y selector de modos de terreno.
+- Capacidad de carga: Superior a 1.000 kg.
+- Capacidad de arrastre / remolque: Hasta 3.500 kg.
+- Seguridad: Chasis de alta resistencia, 6 o más airbags, frenos ABS con EBD, control electrónico de estabilidad (ESC), asistente de arranque en pendientes (HAC) y cámara de 360 grados.
+- Ideal para: Trabajo agropecuario, industrial, viajes interurbanos en Venezuela y usuarios todoterreno que buscan lujo y durabilidad.
+
+### Kia Sportage
+- Segmento: SUV mediana para 5 pasajeros.
+- Motorización: Gasolina eficiente de última generación Smartstream.
+- Transmisión: Automática secuencial.
+- Equipamiento: Pantalla panorámica integrada de doble display, conectividad Apple CarPlay y Android Auto inalámbricos, climatizador bizona, techo panorámico corredizo, sensores de reversa y cámara de alta resolución.
+- Ideal para: Movilidad familiar confortable, trayectos urbanos y autopistas nacionales.
+
+### Kia Seltos
+- Segmento: SUV compacta urbana.
+- Altura sobre el suelo: Excelente despeje de carrocería para calles, reductores de velocidad y terrenos irregulares de Caracas.
+- Seguridad: Frenos de disco en las cuatro ruedas, sistema antibloqueo, anclajes ISOFIX para asientos infantiles, estructura de acero avanzado de ultra alta resistencia (AHSS).
+- Ideal para: Profesionales jóvenes y familias que buscan versatilidad, espacio de carga generoso y consumo económico.
+
+### Kia Sorento PHEV / HEV
+- Segmento: SUV ejecutiva premium de 3 filas de asientos (capacidad para 7 pasajeros).
+- Tren motriz: Híbrido autorrecargable (HEV) o Híbrido enchufable (PHEV), combinando motor a gasolina turbo con motor eléctrico de alto torque.
+- Tecnología de Seguridad: Paquete DriveWise (mantenimiento de carril, frenado autónomo de emergencia frontal, alerta de punto ciego y tráfico cruzado posterior).
+- Ideal para: Familias numerosas y ejecutivos que exigen máxima seguridad, confort de marcha y eficiencia energética.
+
+### Kia Picanto Automático
+- Segmento: Subcompacto urbano (Hatchback).
+- Ventajas competitivas: Excelente maniobrabilidad, consumo de combustible excepcionalmente bajo, transmisión automática suave y facilidad total de estacionamiento en el tráfico denso de Caracas.
+- Conectividad: Pantalla táctil multimedia con integración para smartphones.
+
+### Kia Carnival
+- Segmento: Vehículo Multipropósito Premium (Grand Utility Vehicle / MPV).
+- Capacidad: 7 a 8 plazas con configuración tipo lounge en segunda fila.
+- Puertas laterales corredizas eléctricas y portón trasero inteligente.
+
+## 4. Preguntas Frecuentes y Respuestas Directas (DARE / Retrieval Context)
+
+### ¿Dónde queda ubicado Kia El Marqués?
+El concesionario Kia El Marqués está ubicado en la zona de El Marqués, Caracas, Estado Miranda, Venezuela, en las inmediaciones del pie del cerro El Ávila (Waraira Repano).
+
+### ¿Cómo comprar un carro Kia si vivo fuera de Venezuela (para mi familia)?
+Kia El Marqués cuenta con el programa especializado "Diáspora y Familia". Mediante este servicio:
+1. Recibes asesoría remota directa por WhatsApp o videollamada con fotos y videos reales de la unidad en piso.
+2. Se emite una cotización formal y transparente en divisas con desglose total de trámites.
+3. Se coordina el poder o la titularidad del vehículo conforme a la legislación venezolana.
+4. El día de la entrega a tu familiar en Caracas, se documenta fotográficamente y en video la entrega de llaves y se te envía el comprobante en tiempo real.
+
+### ¿Qué opciones de financiamiento vehicular existen en Kia El Marqués?
+Kia El Marqués ofrece un esquema mixto de financiamiento:
+1. Tramitación de crédito automotriz con la banca nacional aliada autorizada en Venezuela.
+2. Crédito directo del concesionario para cubrir la brecha no financiada por el banco, mediante acuerdo con fiador y evaluación personalizada de solvencia.
+
+### ¿Los vehículos cuentan con garantía oficial de fábrica?
+Sí. Todos los vehículos comercializados en Kia El Marqués son unidades 0 km oficiales importadas a través de la representación nacional de Kia Venezuela, amparadas por la garantía de fábrica oficial y con respaldo en la red de talleres autorizados a nivel nacional.
+
+### ¿Tienen servicio técnico y taller mecánico?
+Sí, el concesionario cuenta con "Taller Seguro Kia":
+- Personal técnico certificado bajo los estándares globales de Kia.
+- Diagnóstico computarizado original de la marca.
+- Presupuesto cerrado: no se inicia ningún trabajo adicional ni se cobran cargos sorpresa sin la aprobación previa del propietario.
+- Repuestos genuinos garantizados para preservar la vida útil y la garantía del vehículo.
+
+### ¿Cómo contactar a un anfitrión de Kia El Marqués?
+Puedes escribir al correo electrónico marketing@kiaelmarques.com, ingresar a https://kiaelmarques.com o consultar el portal nacional https://kia.com.ve.

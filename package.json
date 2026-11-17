@@ -1,0 +1,25 @@
+{
+  "name": "kia-el-marques",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portal oficial y showroom digital de Kia El Marqués (Caracas, Venezuela) con SEO y DARE (GEO).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "lucide-react": "^1.16.0",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}
