@@ -48,7 +48,7 @@ export default function LocationContact() {
           {/* Botón Agendar Visita WhatsApp - Comentado temporalmente */}
           {/*
           <a
-            href="https://wa.me/584120000000?text=Hola%20Kia%20El%20Marqu%C3%A9s,%20deseo%20agendar%20una%20visita%20al%20showroom."
+            href="https://wa.me/584228846784?text=Hola%20Kia%20El%20Marqu%C3%A9s,%20deseo%20agendar%20una%20visita%20al%20showroom."
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary"

@@ -8,6 +8,9 @@ import { getStore } from '@netlify/blobs';
 const LEADS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'leads.json');
 const TMP_LEADS_PATH = path.join('/tmp', 'leads.json');
 
+// In-memory cache for ultra-fast serverless responses
+let memoryLeads: LeadSubmission[] = [...INITIAL_LEADS];
+
 // Helper to safely get the Netlify Blob store
 function getBlobStore() {
   try {
@@ -17,28 +20,20 @@ function getBlobStore() {
   }
 }
 
-// Ensure the local storage file exists (dev fallback)
-function ensureLocalFile() {
-  try {
-    const dir = path.dirname(LEADS_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    if (!fs.existsSync(LEADS_FILE_PATH)) {
-      fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(INITIAL_LEADS, null, 2), 'utf-8');
-    }
-  } catch {
-    // Serverless environments may have read-only filesystems
-  }
-}
-
-// Helper to prevent hanging if remote DB is paused or unreachable
-function withTimeout<T>(promise: Promise<T>, ms = 2500): Promise<T> {
-  let timer: NodeJS.Timeout;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error('Supabase request timed out')), ms);
+// Timeout wrapper that guarantees fast failure
+function withFastTimeout<T>(promise: Promise<T>, ms = 1200): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Timeout exceeded')), ms);
+    promise
+      .then((res) => {
+        clearTimeout(timer);
+        resolve(res);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
   });
-  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
 export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
@@ -49,7 +44,10 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
     status: 'nuevo',
   };
 
-  // 1. Immutable Server Log Backup (Permanently readable via Netlify CLI logs)
+  // 1. Update in-memory cache immediately
+  memoryLeads = [leadWithMeta, ...memoryLeads.filter((l) => l.id !== leadWithMeta.id)];
+
+  // 2. Immutable Server Log Backup (Permanently queryable via Netlify CLI logs)
   console.log('[PROSPECTO_RECIBIDO_KIA]', JSON.stringify({
     id: leadWithMeta.id,
     fecha: leadWithMeta.created_at,
@@ -62,23 +60,15 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
     tiempo: leadWithMeta.timeline,
   }));
 
-  // 2. Netlify Blobs (Primary Cloud Persistence for Serverless)
-  try {
-    const store = getBlobStore();
-    if (store) {
-      const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
-      const updated = [leadWithMeta, ...existing.filter((l) => l.id !== leadWithMeta.id)];
-      await store.setJSON('all_leads', updated);
-    }
-  } catch (err) {
-    console.warn('Netlify Blobs save note:', err);
-  }
-
   // 3. Writable /tmp disk backup
   try {
     let tmpList: LeadSubmission[] = [];
     if (fs.existsSync(TMP_LEADS_PATH)) {
-      tmpList = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
+      try {
+        tmpList = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
+      } catch {
+        tmpList = [];
+      }
     }
     tmpList.unshift(leadWithMeta);
     fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(tmpList, null, 2), 'utf-8');
@@ -86,20 +76,22 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
     // ignore
   }
 
-  // 4. Local dev file backup
+  // 4. Netlify Blobs (Cloud Persistence with fast timeout)
   try {
-    ensureLocalFile();
-    if (fs.existsSync(LEADS_FILE_PATH)) {
-      const fileContent = fs.readFileSync(LEADS_FILE_PATH, 'utf-8');
-      const existing: LeadSubmission[] = JSON.parse(fileContent || '[]');
-      existing.unshift(leadWithMeta);
-      fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(existing, null, 2), 'utf-8');
+    const store = getBlobStore();
+    if (store) {
+      const saveBlobPromise = (async () => {
+        const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
+        const updated = [leadWithMeta, ...existing.filter((l) => l.id !== leadWithMeta.id)];
+        await store.setJSON('all_leads', updated);
+      })();
+      await withFastTimeout(saveBlobPromise, 1500);
     }
-  } catch {
-    // EROFS in serverless, handled gracefully
+  } catch (err) {
+    console.warn('Netlify Blobs save note:', err);
   }
 
-  // 5. Attempt sync with Supabase if active
+  // 5. Attempt sync with Supabase only if explicitly active
   try {
     if (supabase) {
       const insertPromise = supabase.from('vehicle_leads').insert([
@@ -117,33 +109,32 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
           status: 'nuevo',
         },
       ]);
-      const { error } = (await withTimeout(insertPromise as any, 2500)) as { error?: any };
-      if (error) {
-        console.warn('Supabase insert note:', error.message);
-      }
+      await withFastTimeout(insertPromise as any, 1200);
     }
   } catch {
-    // Supabase paused/unavailable
+    // ignore
   }
 
   return leadWithMeta;
 }
 
 export async function getLeads(): Promise<LeadSubmission[]> {
-  // 1. Try Netlify Blobs (Primary Cloud Persistence)
+  // 1. Try Netlify Blobs with strict fast timeout
   try {
     const store = getBlobStore();
     if (store) {
-      const blobLeads = (await store.get('all_leads', { type: 'json' })) as LeadSubmission[];
+      const blobPromise = store.get('all_leads', { type: 'json' });
+      const blobLeads = (await withFastTimeout(blobPromise, 1500)) as LeadSubmission[];
       if (blobLeads && Array.isArray(blobLeads) && blobLeads.length > 0) {
+        memoryLeads = blobLeads;
         return blobLeads;
       }
     }
-  } catch (err) {
-    console.warn('Netlify Blobs get note:', err);
+  } catch {
+    // fallback immediately
   }
 
-  // 2. Try Supabase
+  // 2. Try Supabase only if explicitly configured
   try {
     if (supabase) {
       const selectPromise = supabase
@@ -151,13 +142,14 @@ export async function getLeads(): Promise<LeadSubmission[]> {
         .select('*')
         .order('created_at', { ascending: false });
 
-      const { data, error } = (await withTimeout(selectPromise as any, 2500)) as { data?: any; error?: any };
-      if (!error && data && data.length > 0) {
-        return data as LeadSubmission[];
+      const { data, error } = (await withFastTimeout(selectPromise as any, 1200)) as { data?: any; error?: any };
+      if (!error && data && Array.isArray(data) && data.length > 0) {
+        memoryLeads = data as LeadSubmission[];
+        return memoryLeads;
       }
     }
   } catch {
-    // Supabase unreachable
+    // fallback immediately
   }
 
   // 3. Fallback to /tmp disk
@@ -177,8 +169,8 @@ export async function getLeads(): Promise<LeadSubmission[]> {
   try {
     if (fs.existsSync(LEADS_FILE_PATH)) {
       const content = fs.readFileSync(LEADS_FILE_PATH, 'utf-8');
-      const parsed: LeadSubmission[] = JSON.parse(content || '[]');
-      if (parsed.length > 0) {
+      const parsed = JSON.parse(content || '[]');
+      if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed;
       }
     }
@@ -186,23 +178,31 @@ export async function getLeads(): Promise<LeadSubmission[]> {
     // ignore
   }
 
+  // 5. In-memory fallback
+  if (memoryLeads && memoryLeads.length > 0) {
+    return memoryLeads;
+  }
+
   return INITIAL_LEADS;
 }
 
 export async function updateLeadStatus(id: string, newStatus: LeadSubmission['status']): Promise<boolean> {
-  // Update in Netlify Blobs
+  memoryLeads = memoryLeads.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
+
   try {
     const store = getBlobStore();
     if (store) {
-      const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
-      const updated = existing.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
-      await store.setJSON('all_leads', updated);
+      const updatePromise = (async () => {
+        const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
+        const updated = existing.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
+        await store.setJSON('all_leads', updated);
+      })();
+      await withFastTimeout(updatePromise, 1500);
     }
-  } catch (err) {
-    console.warn('Netlify Blobs update note:', err);
+  } catch {
+    // ignore
   }
 
-  // Update in /tmp
   try {
     if (fs.existsSync(TMP_LEADS_PATH)) {
       const leads: LeadSubmission[] = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
@@ -216,73 +216,31 @@ export async function updateLeadStatus(id: string, newStatus: LeadSubmission['st
     // ignore
   }
 
-  // Update local file if writable
-  try {
-    if (fs.existsSync(LEADS_FILE_PATH)) {
-      const content = fs.readFileSync(LEADS_FILE_PATH, 'utf-8');
-      const leads: LeadSubmission[] = JSON.parse(content || '[]');
-      const index = leads.findIndex((l) => l.id === id);
-      if (index !== -1) {
-        leads[index].status = newStatus;
-        fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(leads, null, 2), 'utf-8');
-      }
-    }
-  } catch {
-    // ignore
-  }
-
-  // Update Supabase
-  try {
-    if (supabase) {
-      await supabase.from('vehicle_leads').update({ status: newStatus }).eq('id', id);
-    }
-  } catch {
-    // ignore
-  }
-
   return true;
 }
 
 export async function deleteLead(id: string): Promise<boolean> {
-  // Delete from Netlify Blobs
+  memoryLeads = memoryLeads.filter((l) => l.id !== id);
+
   try {
     const store = getBlobStore();
     if (store) {
-      const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
-      const filtered = existing.filter((l) => l.id !== id);
-      await store.setJSON('all_leads', filtered);
+      const deletePromise = (async () => {
+        const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
+        const filtered = existing.filter((l) => l.id !== id);
+        await store.setJSON('all_leads', filtered);
+      })();
+      await withFastTimeout(deletePromise, 1500);
     }
-  } catch (err) {
-    console.warn('Netlify Blobs delete note:', err);
+  } catch {
+    // ignore
   }
 
-  // Delete from /tmp
   try {
     if (fs.existsSync(TMP_LEADS_PATH)) {
       const leads: LeadSubmission[] = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
       const filtered = leads.filter((l) => l.id !== id);
       fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(filtered, null, 2), 'utf-8');
-    }
-  } catch {
-    // ignore
-  }
-
-  // Delete from local file
-  try {
-    if (fs.existsSync(LEADS_FILE_PATH)) {
-      const content = fs.readFileSync(LEADS_FILE_PATH, 'utf-8');
-      const leads: LeadSubmission[] = JSON.parse(content || '[]');
-      const filtered = leads.filter((l) => l.id !== id);
-      fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(filtered, null, 2), 'utf-8');
-    }
-  } catch {
-    // ignore
-  }
-
-  // Delete from Supabase
-  try {
-    if (supabase) {
-      await supabase.from('vehicle_leads').delete().eq('id', id);
     }
   } catch {
     // ignore

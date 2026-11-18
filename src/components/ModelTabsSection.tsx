@@ -328,7 +328,7 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
                 const greeting = encodeURIComponent(
                   `¡Hola ${firstName}! Te contacto desde la web oficial de Kia El Marqués para consultar disponibilidad y cotización del Kia ${model.name}.`
                 );
-                const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${greeting}` : 'https://wa.me/584225422120';
+                const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${greeting}` : 'https://wa.me/584228846784';
 
                 return (
                   <div key={adv.slug} className="advisor-modal-item">

@@ -161,7 +161,7 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
 
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <a
-            href={`https://wa.me/584225422120?text=${waText}`}
+            href={`https://wa.me/584228846784?text=${waText}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary"

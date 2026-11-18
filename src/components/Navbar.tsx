@@ -149,7 +149,7 @@ export default function Navbar() {
           {/* WhatsApp Asesor - Comentado temporalmente */}
           {/*
           <a
-            href="https://wa.me/584120000000?text=Hola%20Kia%20El%20Marqu%C3%A9s,%20estoy%20interesado%20en%20conocer%20la%20disponibilidad%20de%20los%20modelos%20Kia."
+            href="https://wa.me/584228846784?text=Hola%20Kia%20El%20Marqu%C3%A9s,%20estoy%20interesado%20en%20conocer%20la%20disponibilidad%20de%20los%20modelos%20Kia."
             className="btn btn-nav-advisor"
             target="_blank"
             rel="noopener noreferrer"
@@ -210,7 +210,7 @@ export default function Navbar() {
               {/* WhatsApp Asesor Móvil - Comentado temporalmente */}
               {/*
               <a
-                href="https://wa.me/584120000000?text=Hola%20Kia%20El%20Marqu%C3%A9s,%20deseo%20asesor%C3%ADa%20personalizada."
+                href="https://wa.me/584228846784?text=Hola%20Kia%20El%20Marqu%C3%A9s,%20deseo%20asesor%C3%ADa%20personalizada."
                 className="btn btn-primary btn-block"
                 target="_blank"
                 rel="noopener noreferrer"

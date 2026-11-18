@@ -128,8 +128,8 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
     `¡Hola ${firstName}! Te contacto desde tu perfil oficial como ${roleTerm} de Kia El Marqués. Me gustaría recibir asesoría y cotización sobre los modelos Kia 0 km.`
   );
   
-  const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${waGreeting}` : 'https://wa.me/584225422120';
-  const telUrl = cleanPhone ? `tel:+${cleanPhone}` : 'tel:+584225422120';
+  const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${waGreeting}` : 'https://wa.me/584228846784';
+  const telUrl = cleanPhone ? `tel:+${cleanPhone}` : 'tel:+584228846784';
   const mailUrl = `mailto:${advisor.email}`;
   const currentCardUrl = `https://kiaelmarques.com/asesor/${advisor.slug}`;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(currentCardUrl)}`;
@@ -535,7 +535,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
                   </a>
 
                   <a
-                    href={`https://wa.me/${cleanPhone || '584225422120'}?text=${encodeURIComponent(`¡Hola ${firstName}! Me interesa el ${ficha.modelName}. ¿Me brindas cotización y disponibilidad?`)}`}
+                    href={`https://wa.me/${cleanPhone || '584228846784'}?text=${encodeURIComponent(`¡Hola ${firstName}! Me interesa el ${ficha.modelName}. ¿Me brindas cotización y disponibilidad?`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-primary"
