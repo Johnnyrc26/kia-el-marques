@@ -166,7 +166,7 @@ export const vehicleModels: VehicleModel[] = [
     tagline: 'El crossover con altura ideal para el dinamismo urbano.',
     description:
       'Diseñada para la ciudad contemporánea. Excelente despeje del suelo que supera baches e irregularidades de Caracas sin esfuerzo, interior tecnológico espacioso y consumo eficiente para el día a día.',
-    image: '/assets/models/seltos.png?v=4',
+    image: '/assets/models/seltos.png?v=5',
     specs: ['Despeje Elevado', 'Smartstream 1.5L', 'Maletero 433 L', 'Transmisión IVT'],
     ctaLabel: 'Ver Ficha Seltos',
     sheetPdf: '/docs/fichas/ficha_seltos.pdf',

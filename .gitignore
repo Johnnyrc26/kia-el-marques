@@ -8,3 +8,6 @@ build/
 .vercel
 .env*.local
 src/data/leads.json
+
+# Local Netlify folder
+.netlify
