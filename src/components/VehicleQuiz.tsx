@@ -160,18 +160,23 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
         </p>
 
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {/* Botón WhatsApp Anfitrión - Comentado temporalmente */}
-          {/*
           <a
-            href={`https://wa.me/584120000000?text=${waText}`}
+            href={`https://wa.me/584225422120?text=${waText}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary"
-            style={{ padding: '12px 24px', fontSize: '14px', backgroundColor: '#25D366' }}
+            style={{
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: 700,
+              backgroundColor: '#25D366',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
           >
-            Abrir WhatsApp con un Anfitrión ↗
+            <span>Continuar a WhatsApp Oficial ↗</span>
           </a>
-          */}
           <button
             type="button"
             onClick={() => {
