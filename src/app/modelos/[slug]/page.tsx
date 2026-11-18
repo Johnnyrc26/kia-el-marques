@@ -104,7 +104,7 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
         <div className="shell">
           {/* Breadcrumbs */}
           <nav className="editorial-breadcrumbs" aria-label="Ruta de navegación">
-            <Link href="/">Inicio</Link>
+            <Link href="/elmarques">Inicio</Link>
             <ChevronRight size={13} className="breadcrumb-arrow" aria-hidden="true" />
             <span className="breadcrumb-current">{model.name}</span>
           </nav>

@@ -1,19 +1,5 @@
-import JsonLd from '@/components/JsonLd';
-import Hero from '@/components/Hero';
-import ModelsShowroom from '@/components/ModelsShowroom';
-import FaqSection from '@/components/FaqSection';
-import LocationContact from '@/components/LocationContact';
+import { redirect } from 'next/navigation';
 
-export default function HomePage() {
-  return (
-    <>
-      <JsonLd />
-      <Hero />
-      <main>
-        <ModelsShowroom />
-        <FaqSection />
-        <LocationContact />
-      </main>
-    </>
-  );
+export default function RootPage() {
+  redirect('https://kia.com.ve');
 }

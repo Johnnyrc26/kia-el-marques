@@ -23,7 +23,7 @@ export default function EliminacionDatosPage() {
         <article className="editorial-card">
           <header className="editorial-header">
             <div className="editorial-breadcrumbs">
-              <Link href="/">Kia El Marqués</Link>
+              <Link href="/elmarques">Kia El Marqués</Link>
               <span aria-hidden="true">/</span>
               <Link href="/politica-de-privacidad">Marco Legal</Link>
               <span aria-hidden="true">/</span>

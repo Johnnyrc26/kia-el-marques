@@ -131,7 +131,7 @@ export default function AsesoresIndexPage() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '48px' }}>
-          <Link href="/" className="btn btn-outline" style={{ fontSize: '13px' }}>
+          <Link href="/elmarques" className="btn btn-outline" style={{ fontSize: '13px' }}>
             ← Volver al Portal de Kia El Marqués
           </Link>
         </div>

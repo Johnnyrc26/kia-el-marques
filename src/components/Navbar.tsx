@@ -45,7 +45,7 @@ export default function Navbar() {
       <div className="shell topbar-inner">
         {/* Brand Group */}
         <div className="brand-group">
-          <Link href="/" aria-label="Kia El Marqués Inicio" className="brand-link" onClick={closeAll}>
+          <Link href="/elmarques" aria-label="Kia El Marqués Inicio" className="brand-link" onClick={closeAll}>
             <svg 
               className="kia-logo-svg" 
               viewBox="0 9.15 24 5.65" 
@@ -86,7 +86,7 @@ export default function Navbar() {
                       <span className="mega-menu-title">Gama Oficial Kia Venezuela 2026</span>
                       <p className="mega-menu-desc">Garantía oficial de 5 años o 100.000 km en todos los modelos.</p>
                     </div>
-                    <Link href="/#modelos" className="mega-menu-all-link" onClick={closeAll}>
+                    <Link href="/elmarques#modelos" className="mega-menu-all-link" onClick={closeAll}>
                       Ver showroom completo <ArrowRight size={14} />
                     </Link>
                   </div>
@@ -121,12 +121,12 @@ export default function Navbar() {
             </li>
 
             <li>
-              <Link href="/#faq" className="nav-link" onClick={closeAll}>
+              <Link href="/elmarques#faq" className="nav-link" onClick={closeAll}>
                 Garantía & FAQs
               </Link>
             </li>
             <li>
-              <Link href="/#contacto" className="nav-link" onClick={closeAll}>
+              <Link href="/elmarques#contacto" className="nav-link" onClick={closeAll}>
                 Ubicación & Mapa
               </Link>
             </li>
@@ -200,9 +200,9 @@ export default function Navbar() {
             <div className="mobile-section">
               <span className="mobile-section-title">Explora</span>
               <ul className="mobile-nav-list">
-                <li><Link href="/#modelos" onClick={closeAll}>Modelos Kia 0 km</Link></li>
-                <li><Link href="/#faq" onClick={closeAll}>Garantía Oficial & FAQs</Link></li>
-                <li><Link href="/#contacto" onClick={closeAll}>Ubicación, Mapa y Horarios</Link></li>
+                <li><Link href="/elmarques#modelos" onClick={closeAll}>Modelos Kia 0 km</Link></li>
+                <li><Link href="/elmarques#faq" onClick={closeAll}>Garantía Oficial & FAQs</Link></li>
+                <li><Link href="/elmarques#contacto" onClick={closeAll}>Ubicación, Mapa y Horarios</Link></li>
               </ul>
             </div>
 

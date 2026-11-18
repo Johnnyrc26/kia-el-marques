@@ -186,7 +186,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
         
         {/* Breadcrumbs */}
         <nav className="editorial-breadcrumbs" aria-label="Ruta de navegación" style={{ marginTop: '20px', marginBottom: '20px' }}>
-          <Link href="/">Inicio</Link>
+          <Link href="/elmarques">Inicio</Link>
           <ChevronRight size={13} className="breadcrumb-arrow" aria-hidden="true" />
           <span className="breadcrumb-current">{advisor.name}</span>
         </nav>

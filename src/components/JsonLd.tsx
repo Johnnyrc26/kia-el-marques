@@ -8,7 +8,7 @@ export default function JsonLd() {
         name: 'Kia El Marqués',
         alternateName: 'Concesionario Kia El Marqués Caracas',
         legalName: 'Kia El Marqués Concesionario Oficial',
-        url: 'https://kiaelmarques.com',
+        url: 'https://kiaelmarques.com/elmarques',
         logo: 'https://kiaelmarques.com/assets/kia-logo.svg',
         image: 'https://kiaelmarques.com/assets/models/tasman-2026.webp',
         description:
@@ -139,7 +139,7 @@ export default function JsonLd() {
       {
         '@type': 'WebSite',
         '@id': 'https://kiaelmarques.com/#website',
-        url: 'https://kiaelmarques.com',
+        url: 'https://kiaelmarques.com/elmarques',
         name: 'Kia El Marqués',
         description: 'Portal oficial del concesionario Kia El Marqués en Caracas, Venezuela.',
         publisher: {

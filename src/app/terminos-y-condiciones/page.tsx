@@ -23,7 +23,7 @@ export default function TerminosCondicionesPage() {
         <article className="editorial-card">
           <header className="editorial-header">
             <div className="editorial-breadcrumbs">
-              <Link href="/">Kia El Marqués</Link>
+              <Link href="/elmarques">Kia El Marqués</Link>
               <span aria-hidden="true">/</span>
               <span>Marco Legal</span>
               <span aria-hidden="true">/</span>

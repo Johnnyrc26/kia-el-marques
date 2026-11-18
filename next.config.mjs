@@ -11,6 +11,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/',
+        destination: 'https://kia.com.ve',
+        permanent: false,
+      },
+      {
         source: '/politica-de-privacidad.html',
         destination: '/politica-de-privacidad',
         permanent: true,

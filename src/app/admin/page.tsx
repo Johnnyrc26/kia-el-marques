@@ -284,7 +284,7 @@ export default function AdminPage() {
           </form>
 
           <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px solid #e2e8f0' }}>
-            <Link href="/" style={{ fontSize: '12.5px', color: '#64748b', textDecoration: 'none' }}>
+            <Link href="/elmarques" style={{ fontSize: '12.5px', color: '#64748b', textDecoration: 'none' }}>
               ← Volver al Showroom Público
             </Link>
           </div>
