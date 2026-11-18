@@ -29,15 +29,7 @@ interface ModelTabsSectionProps {
 
 export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
   const [activeTab, setActiveTab] = useState<'tecnica' | 'comercial'>('comercial');
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [showAdvisorModal, setShowAdvisorModal] = useState(false);
-
-  const getWaUrl = (color: string | null) => {
-    const text = color
-      ? `¡Hola! Me interesa el Kia ${model.name} en color ${color}. ¿Me brindas cotización con IVA y disponibilidad en El Marqués?`
-      : `¡Hola! Me interesa el Kia ${model.name}. ¿Me brindas cotización con IVA y disponibilidad en El Marqués?`;
-    return `https://wa.me/584225422120?text=${encodeURIComponent(text)}`;
-  };
 
   return (
     <section className="editorial-card model-tabs-section" id="especificaciones">
@@ -240,25 +232,19 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
               </p>
 
               <div className="commercial-colors-grid">
-                {model.availableColors.map((color, idx) => {
-                  const isSelected = selectedColor === color.name;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      className={`commercial-color-card ${isSelected ? 'active' : ''}`}
-                      onClick={() => setSelectedColor(isSelected ? null : color.name)}
-                      title={`Seleccionar color ${color.name}`}
-                    >
-                      <span
-                        className="commercial-color-swatch"
-                        style={{ backgroundColor: color.hex || '#cbd5e1' }}
-                        aria-hidden="true"
-                      />
-                      <span className="commercial-color-text">{color.name}</span>
-                    </button>
-                  );
-                })}
+                {model.availableColors.map((color, idx) => (
+                  <div
+                    key={idx}
+                    className="commercial-color-chip"
+                  >
+                    <span
+                      className="commercial-color-swatch"
+                      style={{ backgroundColor: color.hex || '#cbd5e1' }}
+                      aria-hidden="true"
+                    />
+                    <span className="commercial-color-text">{color.name}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Tarjeta Destacada de Cotización Integrada */}

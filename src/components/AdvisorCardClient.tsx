@@ -228,16 +228,6 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
               {initials}
             </div>
 
-            {/* Badges de Verificación */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '10px' }}>
-              <span className="badge badge-blue">
-                {advisor.role}
-              </span>
-              <span className="badge badge-gray">
-                Kia El Marqués · Caracas
-              </span>
-            </div>
-
             {/* Nombre del Asesor */}
             <h1
               style={{
@@ -246,11 +236,21 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
                 color: 'var(--g100)',
                 lineHeight: 1.2,
                 letterSpacing: '-0.02em',
-                marginBottom: '8px',
+                marginBottom: '10px',
               }}
             >
               {advisor.name}
             </h1>
+
+            {/* Badges de Verificación */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '14px' }}>
+              <span className="badge badge-blue">
+                {advisor.role}
+              </span>
+              <span className="badge badge-gray">
+                Kia El Marqués · Caracas
+              </span>
+            </div>
 
             <p
               style={{
