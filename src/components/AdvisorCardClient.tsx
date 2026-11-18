@@ -133,7 +133,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
   const mailUrl = `mailto:${advisor.email}`;
   const currentCardUrl = `https://kiaelmarques.com/asesor/${advisor.slug}`;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(currentCardUrl)}`;
-  const mapsUrl = "https://maps.google.com/?q=Avenida+Romulo+Gallegos+con+Avenida+Sanz+Edificio+AUTOCENTRO+MDS+Caracas";
+  const mapsUrl = "https://maps.app.goo.gl/F2atjrsEg4N3kUBp8";
 
   // Generador de tarjeta vCard (.vcf)
   const handleDownloadVCard = () => {
@@ -150,7 +150,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
       `TITLE:${advisor.role}`,
       cleanPhone ? `TEL;TYPE=CELL,VOICE:+${cleanPhone}` : '',
       `EMAIL;TYPE=WORK,INTERNET:${advisor.email}`,
-      'ADR;TYPE=WORK:;;Av. Rómulo Gallegos con Av. Sanz, Edif. AUTOCENTRO MDS PB;Caracas;Miranda;1070;Venezuela',
+      'ADR;TYPE=WORK:;;Av. Rómulo Gallegos, Kia El Marqués;Caracas;Distrito Capital;1073;Venezuela',
       `URL:${currentCardUrl}`,
       `NOTE:Asesor Comercial Oficial Kia El Marqués Caracas.`,
       'END:VCARD',

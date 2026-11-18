@@ -4,7 +4,7 @@ export const faqsData: FaqItem[] = [
   {
     question: '¿Dónde está ubicado el concesionario oficial Kia El Marqués en Caracas?',
     answer:
-      'Estamos situados en la 1073 Av. Rómulo Gallegos, El Marqués, Caracas 1073, Miranda, Venezuela, garantizándote respaldo directo de fábrica, inventario 0 km con entrega inmediata, garantía oficial y servicio técnico certificado.',
+      'Estamos situados en Kia El Marqués, Av. Rómulo Gallegos, Caracas 1073, Distrito Capital, garantizándote respaldo directo de fábrica, inventario 0 km con entrega inmediata, garantía oficial y servicio técnico certificado.',
     defaultOpen: true,
   },
   {

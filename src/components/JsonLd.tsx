@@ -19,16 +19,17 @@ export default function JsonLd() {
         paymentAccepted: 'Transferencia Bancaria, Crédito Bancario, Financiamiento Directo',
         address: {
           '@type': 'PostalAddress',
-          streetAddress: '1073 Av. Rómulo Gallegos, El Marqués',
+          streetAddress: 'Av. Rómulo Gallegos, El Marqués',
           postalCode: '1073',
           addressLocality: 'Caracas',
-          addressRegion: 'Miranda',
+          addressRegion: 'Distrito Capital',
           addressCountry: 'VE',
         },
+        hasMap: 'https://maps.app.goo.gl/F2atjrsEg4N3kUBp8',
         geo: {
           '@type': 'GeoCoordinates',
-          latitude: 10.495,
-          longitude: -66.828,
+          latitude: 10.4950722,
+          longitude: -66.8117436,
         },
         openingHoursSpecification: [
           {

@@ -14,7 +14,7 @@ export default function LocationContact() {
             Visítanos en Kia&nbsp;El&nbsp;Marqués
           </h2>
           <p className="section-subtitle" style={{ maxWidth: '780px' }}>
-            Estamos situados en la 1073 Av.&nbsp;Rómulo Gallegos, Caracas 1073, Miranda, Venezuela. Showroom de flota 0&nbsp;km, asesoría directa de fábrica y taller de servicio&nbsp;especializado.
+            Estamos situados en la Av.&nbsp;Rómulo Gallegos, Caracas 1073, Distrito Capital. Showroom de flota 0&nbsp;km, asesoría directa de fábrica y taller de servicio&nbsp;especializado.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export default function LocationContact() {
               Kia El&nbsp;Marqués · Caracas
             </h3>
             <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.5, maxWidth: '640px' }}>
-              1073 Av.&nbsp;Rómulo Gallegos, Caracas 1073, Miranda. Atención personalizada, entrega de vehículos 0&nbsp;km con garantía oficial de 5&nbsp;años o 100.000&nbsp;km y repuestos&nbsp;genuinos.
+              Av.&nbsp;Rómulo Gallegos, Caracas 1073, Distrito Capital. Atención personalizada, entrega de vehículos 0&nbsp;km con garantía oficial de 5&nbsp;años o 100.000&nbsp;km y repuestos&nbsp;genuinos.
             </p>
           </div>
 
@@ -66,7 +66,7 @@ export default function LocationContact() {
             {/* Google Maps Embed */}
             <div className="map-frame-wrapper">
               <iframe
-                src="https://maps.google.com/maps?q=1073+Av.+R%C3%B3mulo+Gallegos,+Caracas+1073,+Miranda,+Venezuela&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=10.4950722,-66.8117436&t=&z=17&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="320"
                 style={{ border: 0, display: 'block', borderRadius: 'var(--radius-md)' }}
@@ -77,7 +77,7 @@ export default function LocationContact() {
               />
               <div className="map-external-cta">
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=1073+Av.+R%C3%B3mulo+Gallegos,+Caracas+1073,+Miranda,+Venezuela"
+                  href="https://maps.app.goo.gl/F2atjrsEg4N3kUBp8"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline btn-block"
@@ -95,7 +95,7 @@ export default function LocationContact() {
                 <MapPin size={16} className="contact-icon" />
                 <div>
                   <strong>Dirección exacta:</strong>
-                  <span>1073 Av.&nbsp;Rómulo Gallegos, Caracas 1073, Miranda, Venezuela.</span>
+                  <span>Kia El Marqués, Av. Rómulo Gallegos, Caracas 1073, Distrito Capital.</span>
                 </div>
               </li>
               <li>
