@@ -2518,6 +2518,25 @@ footer.editorial-footer {
   text-overflow: ellipsis;
 }
 
+/* Quiz Models Grid (8 modelos: 2 filas x 4 columnas en desktop, 4 filas x 2 en mobile sin espacios vacíos) */
+.quiz-models-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 820px) {
+  .quiz-models-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 440px) {
+  .quiz-models-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Commercial CTA Card */
 .commercial-cta-card {
   background: linear-gradient(145deg, #1f242b 0%, #13171c 100%);
@@ -2876,19 +2895,26 @@ footer.editorial-footer {
 
 .model-tech-boxes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 14px;
   margin-bottom: 28px;
 }
 
 .tech-spec-box {
-  background: var(--g1);
-  border: 1px solid var(--g10);
-  border-radius: var(--radius-md);
-  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.tech-spec-box:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .tech-spec-label {

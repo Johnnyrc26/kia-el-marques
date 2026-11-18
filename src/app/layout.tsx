@@ -72,10 +72,10 @@ export const metadata: Metadata = {
       'Concesionario oficial autorizado de la red Kia en Caracas. Venta de modelos 0 km, financiamiento transparente, atención a la diáspora y taller seguro.',
     images: [
       {
-        url: '/assets/models/tasman-2026.webp',
+        url: '/assets/kia-og.png',
         width: 1200,
         height: 630,
-        alt: 'Tasman Pick-up en Kia El Marqués Caracas',
+        alt: 'Kia El Marqués · Concesionario Oficial Caracas',
       },
     ],
   },
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     title: 'Kia El Marqués · Concesionario Oficial Kia en Caracas',
     description:
       'Concesionario oficial autorizado Kia en Caracas, Venezuela. Venta de 0 km, financiamiento transparente y taller seguro.',
-    images: ['/assets/models/tasman-2026.webp'],
+    images: ['/assets/kia-og.png'],
   },
   other: {
     'facebook-domain-verification': 'mdykkimzpkwdnnrnmtkl47ajmxvr7a',

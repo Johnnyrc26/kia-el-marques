@@ -46,10 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'Kia El Marqués Caracas',
       images: [
         {
-          url: '/assets/models/tasman-2026.webp',
+          url: '/assets/kia-og.png',
           width: 1200,
           height: 630,
-          alt: `${advisor.name} - Asesor Oficial Kia El Marqués`,
+          alt: `${advisor.name} · Asesor Oficial Kia El Marqués`,
         },
       ],
       locale: 'es_VE',
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: ['/assets/models/tasman-2026.webp'],
+      images: ['/assets/kia-og.png'],
     },
   };
 }

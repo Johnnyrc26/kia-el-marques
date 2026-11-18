@@ -223,7 +223,7 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
             <p style={{ fontSize: '13.5px', color: 'var(--g60)', marginBottom: '18px' }}>
               Selecciona el vehículo que mejor se ajusta a lo que tienes en mente:
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+            <div className="quiz-models-grid">
               {vehicleModels.map((m) => (
                 <button
                   type="button"
