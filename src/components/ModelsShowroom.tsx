@@ -26,6 +26,7 @@ export default function ModelsShowroom() {
                   alt={model.name}
                   width={400}
                   height={225}
+                  style={{ width: '100%', height: 'auto' }}
                   loading="lazy"
                 />
               </Link>

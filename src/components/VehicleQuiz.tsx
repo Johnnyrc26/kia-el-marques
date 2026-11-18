@@ -188,7 +188,7 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
   }
 
   return (
-    <div style={{ background: '#ffffff', border: '1px solid var(--g10)', borderRadius: 'var(--radius-lg)', padding: 'clamp(24px, 4vw, 36px)', boxShadow: 'var(--shadow-card)' }}>
+    <div className="quiz-box" style={{ background: '#ffffff', border: '1px solid var(--g10)', borderRadius: 'var(--radius-lg)', padding: 'clamp(20px, 4vw, 36px)', boxShadow: 'var(--shadow-card)' }}>
       {/* Quiz Progress */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid var(--g10)' }}>
         <div>
@@ -239,26 +239,23 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
                     setStep(2);
                   }}
                   style={{
-                    padding: '14px',
+                    padding: '14px 16px',
                     borderRadius: 'var(--radius-md)',
                     border: formData.model_interest === m.name ? '2px solid var(--g100)' : '1px solid var(--g10)',
                     background: formData.model_interest === m.name ? 'var(--g1)' : '#ffffff',
                     fontWeight: 700,
-                    fontSize: '13px',
+                    fontSize: '14px',
                     textAlign: 'left',
                     cursor: 'pointer',
                     color: 'var(--g100)',
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span>{m.name}</span>
-                    <span style={{ fontSize: '11px', color: 'var(--blue)' }}>Elegir&nbsp;→</span>
-                  </span>
-                  <span style={{ fontSize: '11px', color: 'var(--g60)', fontWeight: 500 }}>{m.category}</span>
+                  <span style={{ fontSize: '14.5px', fontWeight: 700 }}>{m.name}</span>
+                  <span style={{ fontSize: '11.5px', color: 'var(--blue)', fontWeight: 600 }}>Elegir&nbsp;→</span>
                 </button>
               ))}
             </div>
@@ -409,25 +406,20 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
               <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--g90)', display: 'block', marginBottom: '8px' }}>
                 ¿Para cuándo estimas concretar?
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                {['Inmediato (este mes)', 'En 1 a 3 meses', 'Explorando opciones'].map((time) => (
+              <div className="quiz-timeline-grid">
+                {[
+                  { value: 'Inmediato (este mes)', title: 'Inmediato', desc: 'Menos de 30 días' },
+                  { value: 'En 1 a 3 meses', title: '1 a 3 meses', desc: 'Próxima compra' },
+                  { value: 'Explorando opciones', title: 'Explorando', desc: 'Planificando a futuro' },
+                ].map((item) => (
                   <button
                     type="button"
-                    key={time}
-                    onClick={() => handleSelect('timeline', time)}
-                    style={{
-                      padding: '12px',
-                      borderRadius: 'var(--radius-sm)',
-                      border: formData.timeline === time ? '2px solid var(--g100)' : '1px solid var(--g10)',
-                      background: formData.timeline === time ? 'var(--g1)' : '#ffffff',
-                      fontSize: '12.5px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      textAlign: 'center',
-                      color: 'var(--g100)',
-                    }}
+                    key={item.value}
+                    onClick={() => handleSelect('timeline', item.value)}
+                    className={`quiz-timeline-btn ${formData.timeline === item.value ? 'active' : ''}`}
                   >
-                    {time}
+                    <span className="quiz-timeline-title">{item.title}</span>
+                    <span className="quiz-timeline-desc">{item.desc}</span>
                   </button>
                 ))}
               </div>

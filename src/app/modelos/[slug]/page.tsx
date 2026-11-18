@@ -109,7 +109,8 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
             <span className="breadcrumb-current">{model.name}</span>
           </nav>
 
-          {/* Model Hero Header - Comentado temporalmente por solicitud del cliente (descomentar para reactivar sin volver a montar)
+          {/* Model Hero Header - Comentado por solicitud del cliente */}
+          {/*
           <section className="model-hero-card">
             <div className="model-hero-grid">
               <div className="model-hero-info">
@@ -143,15 +144,13 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
                   ))}
                 </div>
 
-                <div className="model-actions-row" style={{ display: 'none' }}>
+                <div className="model-actions-row">
                   <a
-                    href={`https://wa.me/584120000000?text=${waLeadText}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="#cotizar"
                     className="btn btn-primary btn-model-whatsapp"
                   >
                     <MessageCircle size={16} />
-                    <span>Cotizar por WhatsApp&nbsp;↗</span>
+                    <span>Solicitar Propuesta Oficial&nbsp;↓</span>
                   </a>
                   <a
                     href={model.sheetPdf}
@@ -180,10 +179,8 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
           </section>
           */}
 
-          {/* Tabs Unificadas: Ficha Técnica & Ficha Comercial - Comentado temporalmente por solicitud del cliente (descomentar para reactivar sin volver a montar) */}
-          {/*
+          {/* Tabs Unificadas: Ficha Técnica & Ficha Comercial */}
           <ModelTabsSection model={model} />
-          */}
 
           {/* Interactive Lead & Vehicle Discovery Form */}
           <section id="cotizar" className="model-quiz-section">

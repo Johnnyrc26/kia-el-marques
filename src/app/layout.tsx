@@ -111,6 +111,12 @@ export default function RootLayout({
         <script
           type="text/javascript"
           dangerouslySetInnerHTML={{
+            __html: `(function(){var isBridgeErr=function(m){if(!m)return false;var s=String(m).toLowerCase();return s.indexOf('java object is gone')!==-1||(s.indexOf('postmessage')!==-1&&s.indexOf('java')!==-1)||s.indexOf('fb_instant_games')!==-1;};window.addEventListener('error',function(e){if(isBridgeErr(e.message)||isBridgeErr(e.error&&e.error.message)){e.preventDefault();if(e.stopImmediatePropagation)e.stopImmediatePropagation();return true;}},true);window.addEventListener('unhandledrejection',function(e){if(isBridgeErr(e.reason&&(e.reason.message||e.reason))){e.preventDefault();}});})();`,
+          }}
+        />
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
             __html: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "zfjnef6hsi");`,
           }}
         />

@@ -163,9 +163,6 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
                   <Sparkles size={13} aria-hidden="true" />
                   <span>Resumen Ejecutivo Homologado</span>
                 </span>
-                <span className="badge badge-gray">
-                  <span>Entrega Inmediata</span>
-                </span>
               </div>
               <h2 className="tab-panel-title">
                 Propuesta Comercial y Garantía Oficial · {model.name}
@@ -175,18 +172,15 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
               </p>
             </div>
 
-            {/* Botón Descargar Ficha Oficial - Comentado temporalmente */}
-            {/*
+            {/* CTA para invitar a llenar el formulario */}
             <a
-              href={model.sheetPdf}
-              download
+              href="#cotizar"
               className="btn btn-primary tab-download-btn"
-              title="Descargar Ficha Comercial Oficial"
+              title="Solicitar cotización oficial y disponibilidad de entrega inmediata"
             >
-              <FileDown size={15} />
-              <span>Descargar Ficha Oficial PDF ↓</span>
+              <Sparkles size={15} />
+              <span>Consultar Disponibilidad · Llenar Formulario ↓</span>
             </a>
-            */}
           </div>
 
           <div className="commercial-tab-content-grid">
@@ -245,24 +239,20 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
                 ))}
               </div>
 
-              {/* Banner Rápido de Cotización - Comentado temporalmente */}
-              {/*
-              <div className="commercial-cta-callout">
+              {/* Banner de Invitación a Llenar Formulario para Entrega Inmediata */}
+              <div className="commercial-cta-callout" style={{ marginTop: '24px' }}>
                 <div>
-                  <strong>¿Deseas cotizar este modelo con tu color preferido?</strong>
-                  <p>Te enviamos la proforma con IVA y desglose exacto sin&nbsp;compromiso.</p>
+                  <strong>¿Deseas consultar unidades disponibles para Entrega Inmediata?</strong>
+                  <p>Completa el formulario interactivo en 1 minuto y un asesor comercial te enviará la propuesta con IVA y desglose exacto sin compromiso.</p>
                 </div>
                 <a
-                  href={`https://wa.me/584120000000?text=${encodeURIComponent(`Hola Kia El Marqués, deseo cotizar el ${model.name} con ficha comercial oficial.`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#cotizar"
                   className="btn btn-primary btn-sm"
                   style={{ whiteSpace: 'nowrap' }}
                 >
-                  Cotizar por WhatsApp ↗
+                  Llenar Formulario de Cotización ↓
                 </a>
               </div>
-              */}
             </div>
           </div>
         </div>
