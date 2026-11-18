@@ -2970,7 +2970,17 @@ footer.editorial-footer {
 
 .model-quiz-header {
   text-align: center;
-  margin-bottom: 24px;
+  max-width: 680px;
+  margin: 0 auto 28px;
+}
+
+.model-quiz-header .section-desc {
+  font-size: 15px;
+  color: var(--g60);
+  line-height: 1.6;
+  max-width: 620px;
+  margin: 0 auto;
+  text-wrap: balance;
 }
 
 .quiz-container-wrap {

@@ -190,7 +190,7 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
                 Cuéntanos qué buscas en tu {model.name}
               </h2>
               <p className="section-desc">
-                Sin registros obligatorios ni procesos engorrosos. Dinos tus preferencias de color, financiamiento y uso para preparar tu propuesta oficial personalizada.
+                Indícanos tus prioridades de uso y plan de compra para preparar tu propuesta comercial oficial con entrega directa en Caracas.
               </p>
             </div>
 

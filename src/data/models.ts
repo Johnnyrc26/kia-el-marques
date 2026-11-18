@@ -166,14 +166,14 @@ export const vehicleModels: VehicleModel[] = [
     tagline: 'El crossover con altura ideal para el dinamismo urbano.',
     description:
       'Diseñada para la ciudad contemporánea. Excelente despeje del suelo que supera baches e irregularidades de Caracas sin esfuerzo, interior tecnológico espacioso y consumo eficiente para el día a día.',
-    image: '/assets/models/seltos.png',
+    image: '/assets/models/seltos.png?v=4',
     specs: ['Despeje Elevado', 'Smartstream 1.5L', 'Maletero 433 L', 'Transmisión IVT'],
     ctaLabel: 'Ver Ficha Seltos',
     sheetPdf: '/docs/fichas/ficha_seltos.pdf',
     sheetImage: '/images/fichas/Ficha_Comercial_Kia_Seltos_1_Hoja.png',
     gallery: [
       {
-        src: '/assets/models/seltos.png',
+        src: '/assets/models/seltos.png?v=4',
         alt: 'Seltos Vista Oficial',
         caption: 'SUV Urbana Versátil · Estilo moderno y eficiencia para Caracas',
       },
