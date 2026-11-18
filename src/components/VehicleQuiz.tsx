@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Check } from 'lucide-react';
 import { vehicleModels } from '@/data/models';
 import { LeadSubmission } from '@/types';
 
@@ -135,11 +136,24 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
 
     return (
       <div className="editorial-box" style={{ textAlign: 'center', padding: '36px 24px', background: 'var(--g1)', borderRadius: 'var(--radius-lg)' }}>
-        <div style={{ display: 'inline-flex', padding: '12px', background: 'var(--green-bg)', borderRadius: '50%', color: 'var(--green)', marginBottom: '14px' }}>
-          ✓
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            boxShadow: '0 0 0 8px rgba(16, 185, 129, 0.15), 0 10px 25px -5px rgba(16, 185, 129, 0.3)',
+            color: '#ffffff',
+            marginBottom: '20px',
+          }}
+        >
+          <Check size={32} strokeWidth={3} />
         </div>
         <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--g100)', marginBottom: '8px' }}>
-          ¡Excelente, {formData.full_name}! Hemos recibido tus preferencias.
+          ¡Excelente, {formData.full_name?.trim()}! Hemos recibido tus preferencias.
         </h3>
         <p style={{ fontSize: '14px', color: 'var(--g60)', maxWidth: '520px', margin: '0 auto 20px', lineHeight: 1.6 }}>
           Tu interés en el <strong>{formData.model_interest}</strong> para {formData.primary_use.toLowerCase()} ha sido registrado en nuestro sistema.
