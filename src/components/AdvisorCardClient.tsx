@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -85,6 +85,40 @@ const OFFICIAL_FICHAS = [
 export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
   const [showQrModal, setShowQrModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showDock, setShowDock] = useState(false);
+  const [bottomOffset, setBottomOffset] = useState(24);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+
+      // Detectar footer para que el dock flote antes del footer y nunca lo solape
+      const footer = document.querySelector('.editorial-footer') || document.querySelector('footer');
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect();
+        const overlap = windowHeight - footerRect.top;
+        if (overlap > 0) {
+          // El footer entró en pantalla: elevamos el dock para que se quede exactamente 24px antes del footer
+          setBottomOffset(overlap + 24);
+        } else {
+          setBottomOffset(20);
+        }
+      } else {
+        setBottomOffset(20);
+      }
+
+      setShowDock(scrollY > 260);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const cleanPhone = advisor.phone.replace(/[^0-9]/g, '');
   const firstName = advisor.name.split(' ')[0] || advisor.name;
@@ -231,58 +265,102 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
             </p>
 
             {/* Botones de Acción Primaria */}
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+            <div style={{ width: '100%', maxWidth: '440px', display: 'flex', flexDirection: 'column', gap: '10px', margin: '0 auto' }}>
+              {/* Botón Principal: WhatsApp ancho completo */}
               <a
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"
                 style={{
+                  width: '100%',
                   backgroundColor: '#25D366',
                   borderColor: '#25D366',
-                  padding: '12px 24px',
-                  fontSize: '14px',
+                  padding: '13px 20px',
+                  fontSize: '14.5px',
                   fontWeight: 700,
-                  boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)',
-                  flexGrow: 1,
-                  maxWidth: '300px',
+                  boxShadow: '0 4px 14px rgba(37, 211, 102, 0.28)',
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
+                  gap: '8px',
+                  borderRadius: 'var(--radius-md)',
                 }}
               >
-                <MessageCircle size={18} />
+                <MessageCircle size={19} />
                 <span>Escribir por WhatsApp</span>
               </a>
 
-              <a
-                href={mailUrl}
-                className="btn btn-outline"
-                style={{ padding: '12px 20px', fontSize: '14px', fontWeight: 600 }}
+              {/* Fila Secundaria Equilibrada: Email + Cómo llegar + QR */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 46px',
+                  gap: '8px',
+                  width: '100%',
+                }}
               >
-                <Mail size={16} />
-                <span>Enviar Email</span>
-              </a>
+                <a
+                  href={mailUrl}
+                  className="btn btn-outline"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '11px 8px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    borderRadius: 'var(--radius-md)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <Mail size={15} />
+                  <span>Enviar Email</span>
+                </a>
 
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-outline"
-                style={{ padding: '12px 20px', fontSize: '14px', fontWeight: 600 }}
-                title="Ver ubicación del concesionario en Google Maps"
-              >
-                <MapPin size={16} />
-                <span>Cómo llegar</span>
-              </a>
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '11px 8px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    borderRadius: 'var(--radius-md)',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Ver ubicación del concesionario en Google Maps"
+                >
+                  <MapPin size={15} />
+                  <span>Cómo llegar</span>
+                </a>
 
-              <button
-                type="button"
-                onClick={() => setShowQrModal(true)}
-                className="btn btn-outline"
-                style={{ padding: '12px 16px' }}
-                title="Ver código QR para compartir"
-              >
-                <QrCode size={18} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setShowQrModal(true)}
+                  className="btn btn-outline"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0',
+                    width: '46px',
+                    height: '100%',
+                    minHeight: '42px',
+                    borderRadius: 'var(--radius-md)',
+                  }}
+                  title="Ver código QR para compartir"
+                  aria-label="Ver código QR"
+                >
+                  <QrCode size={18} />
+                </button>
+              </div>
             </div>
 
           </div>
@@ -584,38 +662,18 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
         </div>
       )}
 
-      {/* Barra Flotante Inferior en Móviles */}
+      {/* Barra de Acciones Flotante / Dock Responsivo (Activa al hacer scroll y se detiene antes del footer) */}
       <div
-        className="advisor-mobile-sticky-bar"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: '#ffffff',
-          borderTop: '1px solid var(--g10)',
-          padding: '12px 16px',
-          display: 'flex',
-          gap: '10px',
-          zIndex: 90,
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.08)',
-        }}
+        className={`advisor-floating-dock ${showDock ? 'visible' : ''}`}
+        style={{ bottom: `${bottomOffset}px` }}
       >
         <a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-primary"
-          style={{
-            flex: 2,
-            backgroundColor: '#25D366',
-            borderColor: '#25D366',
-            justifyContent: 'center',
-            fontSize: '13.5px',
-            fontWeight: 700,
-          }}
+          className="advisor-dock-btn-wa"
         >
-          <MessageCircle size={17} />
+          <MessageCircle size={18} />
           <span>WhatsApp a {firstName}</span>
         </a>
 
@@ -623,14 +681,8 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-outline"
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            fontSize: '12.5px',
-            padding: '10px 8px',
-          }}
-          title="Ver ubicación en Google Maps"
+          className="advisor-dock-btn-map"
+          title="Ver ubicación del concesionario en Google Maps"
         >
           <MapPin size={16} />
           <span>Cómo llegar</span>
