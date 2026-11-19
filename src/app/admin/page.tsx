@@ -26,9 +26,13 @@ import {
   FileText,
   ChevronDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  UserCheck,
+  Send,
+  Share2
 } from 'lucide-react';
 import { LeadSubmission } from '@/types';
+import { ADVISORS, Advisor } from '@/data/advisors';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -40,6 +44,7 @@ export default function AdminPage() {
   const [filterStatus, setFilterStatus] = useState('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeadSubmission | null>(null);
+  const [assigningLead, setAssigningLead] = useState<LeadSubmission | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [justRefreshed, setJustRefreshed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +123,85 @@ export default function AdminPage() {
       });
     } catch (err) {
       console.error('Error updating status:', err);
+    }
+  };
+
+  const formatWhatsAppPhone = (phone?: string): string => {
+    if (!phone) return '';
+    const digits = phone.replace(/[^0-9]/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('58')) return digits;
+    if (digits.startsWith('0')) return '58' + digits.slice(1);
+    if (digits.length === 10 && digits.startsWith('4')) return '58' + digits;
+    return digits.length > 7 ? '58' + digits : digits;
+  };
+
+  const handleForwardToAdvisor = async (lead: LeadSubmission, advisor: Advisor) => {
+    // 1. Prepara el enlace con código de país 58 para que el asesor pueda contactar al cliente con 1 tap
+    const cleanClientPhone = formatWhatsAppPhone(lead.phone);
+    const clientDirectWa = `https://wa.me/${cleanClientPhone}?text=${encodeURIComponent(
+      `Hola ${lead.full_name}, te saluda ${advisor.name} de Kia El Marqués. Recibí tu solicitud sobre el ${lead.model_interest} y con gusto te atenderé.`
+    )}`;
+
+    // 2. Ficha comercial ejecutiva formateada sin caracteres que corrompan en la redirección de WhatsApp
+    const message =
+`*KIA EL MARQUÉS · FICHA DE PROSPECTO*
+
+Hola ${advisor.name}, se te ha asignado un nuevo prospecto comercial desde el Showroom Digital:
+
+*• Cliente:* ${lead.full_name}
+*• Teléfono:* ${lead.phone}
+${lead.email ? `*• Email:* ${lead.email}\n` : ''}
+*• Vehículo de Interés:* Kia ${lead.model_interest}
+*• Color Preferido:* ${lead.favorite_color || 'Color a coordinar'}
+*• Uso Principal:* ${lead.primary_use || 'No especificado'}
+*• Perfil:* ${lead.buyer_type || 'No especificado'}
+*• Modalidad de Pago:* ${lead.financing_interest || 'No especificado'}
+*• Plazo Estimado:* ${lead.timeline || 'Por coordinar'}
+${lead.notes ? `*• Comentarios del Cliente:* "${lead.notes}"\n` : ''}
+*Contactar al cliente con 1 toque:*
+${clientDirectWa}
+
+_Por favor confirmar recepción._`;
+
+    // 3. Abrir WhatsApp del asesor
+    const cleanAdvisorPhone = formatWhatsAppPhone(advisor.phone);
+    const advisorWaUrl = `https://wa.me/${cleanAdvisorPhone}?text=${encodeURIComponent(message)}`;
+    window.open(advisorWaUrl, '_blank');
+
+    // 4. Actualización optimista local
+    const newStatus = (!lead.status || lead.status === 'nuevo') ? 'en_seguimiento' : lead.status;
+    const updatedLead: LeadSubmission = {
+      ...lead,
+      advisor_name: advisor.name,
+      advisor_slug: advisor.slug,
+      status: newStatus,
+    };
+
+    setLeads((prev) => prev.map((l) => (l.id === lead.id ? updatedLead : l)));
+    if (selectedLead && selectedLead.id === lead.id) {
+      setSelectedLead(updatedLead);
+    }
+    setAssigningLead(null);
+
+    // 5. Persistir en la API
+    try {
+      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      await fetch('/api/leads', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${savedKey}`,
+        },
+        body: JSON.stringify({
+          id: lead.id,
+          advisor_name: advisor.name,
+          advisor_slug: advisor.slug,
+          status: newStatus,
+        }),
+      });
+    } catch (err) {
+      console.error('Error al persistir asesor en prospecto:', err);
     }
   };
 
@@ -584,7 +668,7 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {paginatedLeads.map((lead, index) => {
-                    const rawPhone = lead.phone.replace(/[^0-9]/g, '');
+                    const rawPhone = formatWhatsAppPhone(lead.phone);
                     const waText = encodeURIComponent(
                       `Hola ${lead.full_name}, te saluda tu anfitrión de Kia El Marqués. Recibimos tu solicitud sobre el ${lead.model_interest} (${lead.favorite_color || 'Color a coordinar'}). ¿En qué momento te resulta oportuno revisar la cotización oficial?`
                     );
@@ -788,11 +872,34 @@ export default function AdminPage() {
                                 fontSize: '12px',
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
                               }}
-                              title="Chatear por WhatsApp con mensaje pre-redactado"
+                              title="Chatear directamente con el cliente por WhatsApp"
                             >
                               <MessageCircle size={14} />
                               <span>WhatsApp</span>
                             </a>
+
+                            <button
+                              type="button"
+                              onClick={() => setAssigningLead(lead)}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                padding: '6px 11px',
+                                borderRadius: '7px',
+                                background: '#eff6ff',
+                                border: '1px solid #bfdbfe',
+                                color: '#0284c7',
+                                fontWeight: 700,
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease',
+                              }}
+                              title="Reenviar ficha completa al WhatsApp de un asesor oficial"
+                            >
+                              <UserCheck size={14} />
+                              <span>Asesor ↗</span>
+                            </button>
 
                             <button
                               type="button"
@@ -1067,7 +1174,7 @@ export default function AdminPage() {
                     </span>
                   </div>
                   <a
-                    href={`https://wa.me/${selectedLead.phone.replace(/[^0-9]/g, '')}`}
+                    href={`https://wa.me/${formatWhatsAppPhone(selectedLead.phone)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ background: '#25D366', color: '#fff', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
@@ -1119,6 +1226,45 @@ export default function AdminPage() {
                   <div style={{ fontSize: '13px' }}>
                     <strong style={{ color: '#0f172a' }}>Plazo de Compra:</strong> <span style={{ color: '#334155' }}>{selectedLead.timeline}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Asignación y Reenvío a Asesor */}
+              <div style={{ background: '#eff6ff', padding: '14px 16px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Asesor Comercial Asignado
+                    </span>
+                    <div style={{ fontSize: '13.5px', color: '#0f172a', fontWeight: 700, marginTop: '2px' }}>
+                      {selectedLead.advisor_name ? (
+                        <span>👤 {selectedLead.advisor_name}</span>
+                      ) : (
+                        <span style={{ color: '#64748b', fontWeight: 500 }}>Sin asesor asignado aún</span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAssigningLead(selectedLead)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      background: '#0284c7',
+                      border: 'none',
+                      color: '#ffffff',
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: '0 1px 2px rgba(2,132,199,0.25)',
+                    }}
+                  >
+                    <UserCheck size={15} />
+                    <span>{selectedLead.advisor_name ? 'Reasignar / Reenviar ↗' : 'Enviar a un Asesor por WhatsApp ↗'}</span>
+                  </button>
                 </div>
               </div>
 
@@ -1204,6 +1350,187 @@ export default function AdminPage() {
                 </button>
               </div>
 
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Asignación / Reenvío al WhatsApp de un Asesor */}
+      {assigningLead && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setAssigningLead(null)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              maxWidth: '540px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)',
+              padding: '28px',
+              position: 'relative',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', marginBottom: '18px' }}>
+              <div>
+                <span className="badge badge-green" style={{ marginBottom: '6px', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <Send size={12} />
+                  <span>Reenvío Comercial Directo</span>
+                </span>
+                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Enviar Ficha a Asesor Oficial
+                </h2>
+                <p style={{ fontSize: '12.5px', color: '#64748b', marginTop: '4px', marginBottom: 0, lineHeight: 1.4 }}>
+                  Selecciona el asesor al que deseas reenviar la ficha de <strong>{assigningLead.full_name}</strong> ({assigningLead.model_interest}) por WhatsApp:
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAssigningLead(null)}
+                style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', flexShrink: 0 }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Ficha Resumen del Prospecto */}
+            <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '18px', fontSize: '12.5px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <strong style={{ color: '#0f172a' }}>{assigningLead.full_name}</strong>
+                  <span style={{ color: '#64748b', marginLeft: '6px' }}>({assigningLead.phone})</span>
+                </div>
+                <span style={{ fontWeight: 800, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: '4px', fontSize: '11.5px' }}>
+                  {assigningLead.model_interest}
+                </span>
+              </div>
+              {assigningLead.advisor_name && (
+                <div style={{ marginTop: '6px', fontSize: '11.5px', color: '#0369a1', fontWeight: 600 }}>
+                  Actualmente asignado a: {assigningLead.advisor_name}
+                </div>
+              )}
+            </div>
+
+            {/* Lista de Asesores Oficiales */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {ADVISORS.map((adv) => {
+                const advInitials = adv.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join('')
+                  .toUpperCase();
+                const isCurrentAdvisor = assigningLead.advisor_name === adv.name;
+
+                return (
+                  <div
+                    key={adv.slug}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 14px',
+                      borderRadius: '10px',
+                      border: isCurrentAdvisor ? '1.5px solid #0284c7' : '1px solid #e2e8f0',
+                      background: isCurrentAdvisor ? '#f0f9ff' : '#ffffff',
+                      transition: 'all 0.15s ease',
+                      gap: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          background: isCurrentAdvisor ? '#0284c7' : '#05141f',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 700,
+                          fontSize: '12px',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {advInitials}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>{adv.name}</span>
+                          {isCurrentAdvisor && (
+                            <span style={{ fontSize: '10px', background: '#0284c7', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                              Asignado
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                          {adv.role} · <span style={{ fontFamily: 'monospace' }}>{adv.phoneFormatted || `+${adv.phone}`}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleForwardToAdvisor(assigningLead, adv)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 14px',
+                        borderRadius: '8px',
+                        background: '#25D366',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        boxShadow: '0 1px 3px rgba(37,211,102,0.3)',
+                        transition: 'transform 0.1s ease',
+                      }}
+                      onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.97)')}
+                      onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                      title={`Enviar ficha comercial al WhatsApp de ${adv.name}`}
+                    >
+                      <MessageCircle size={14} />
+                      <span>Enviar WhatsApp ↗</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: '18px', paddingTop: '14px', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setAssigningLead(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#64748b',
+                  fontSize: '12.5px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>

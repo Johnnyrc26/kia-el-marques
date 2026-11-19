@@ -217,15 +217,15 @@ export async function getLeads(): Promise<LeadSubmission[]> {
   return INITIAL_LEADS;
 }
 
-export async function updateLeadStatus(id: string, newStatus: LeadSubmission['status']): Promise<boolean> {
-  memoryLeads = memoryLeads.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
+export async function updateLead(id: string, updates: Partial<LeadSubmission>): Promise<boolean> {
+  memoryLeads = memoryLeads.map((l) => (l.id === id ? { ...l, ...updates } : l));
 
   try {
     const store = getBlobStore();
     if (store) {
       const updatePromise = (async () => {
         const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
-        const updated = existing.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
+        const updated = existing.map((l) => (l.id === id ? { ...l, ...updates } : l));
         await store.setJSON('all_leads', updated);
       })();
       await withFastTimeout(updatePromise, 5000);
@@ -239,7 +239,7 @@ export async function updateLeadStatus(id: string, newStatus: LeadSubmission['st
       const leads: LeadSubmission[] = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
       const index = leads.findIndex((l) => l.id === id);
       if (index !== -1) {
-        leads[index].status = newStatus;
+        leads[index] = { ...leads[index], ...updates };
         fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(leads, null, 2), 'utf-8');
       }
     }
@@ -248,6 +248,10 @@ export async function updateLeadStatus(id: string, newStatus: LeadSubmission['st
   }
 
   return true;
+}
+
+export async function updateLeadStatus(id: string, newStatus: LeadSubmission['status']): Promise<boolean> {
+  return updateLead(id, { status: newStatus });
 }
 
 export async function deleteLead(id: string): Promise<boolean> {

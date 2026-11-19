@@ -463,7 +463,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
               Solicita tu Cotización 0 km con {advisor.name}
             </h2>
             <p style={{ fontSize: '14px', color: 'var(--g60)', maxWidth: '520px', margin: '0 auto', lineHeight: 1.5 }}>
-              Completa el formulario interactivo para que {advisor.name} te prepare una cotización formal inmediata con entrega y financiamiento en Caracas.
+              Completa el formulario interactivo para que tu asesor especializado te prepare una cotización formal inmediata con entrega y financiamiento en nuestra sede de El Marqués.
             </p>
           </div>
 

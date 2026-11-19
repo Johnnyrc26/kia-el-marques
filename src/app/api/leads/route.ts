@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { saveLead, getLeads, updateLeadStatus, deleteLead } from '@/lib/leadsStorage';
+import { saveLead, getLeads, updateLeadStatus, updateLead, deleteLead } from '@/lib/leadsStorage';
+import { LeadSubmission } from '@/types';
 
 export async function POST(req: Request) {
   try {
@@ -38,12 +39,18 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { id, status } = await req.json();
-    if (!id || !status) {
-      return NextResponse.json({ error: 'Faltan parámetros' }, { status: 400 });
+    const body = await req.json();
+    const { id, status, advisor_name, advisor_slug } = body;
+    if (!id) {
+      return NextResponse.json({ error: 'Falta el id del prospecto' }, { status: 400 });
     }
 
-    await updateLeadStatus(id, status);
+    const updates: Partial<LeadSubmission> = {};
+    if (status !== undefined) updates.status = status;
+    if (advisor_name !== undefined) updates.advisor_name = advisor_name;
+    if (advisor_slug !== undefined) updates.advisor_slug = advisor_slug;
+
+    await updateLead(id, updates);
     return NextResponse.json({ success: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
