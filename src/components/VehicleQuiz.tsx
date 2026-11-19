@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Check, MessageCircle, AlertCircle } from 'lucide-react';
 import { vehicleModels } from '@/data/models';
 import { LeadSubmission } from '@/types';
 
@@ -92,9 +92,16 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ full_name?: string; phone?: string }>({});
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelect = (field: keyof LeadSubmission, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field as 'full_name' | 'phone']) {
+      setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const nextStep = () => {
@@ -107,13 +114,32 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.full_name.trim() || !formData.phone.trim()) {
-      setErrorMsg('Por favor completa tu nombre y número de WhatsApp.');
+
+    const errors: { full_name?: string; phone?: string } = {};
+    if (!formData.full_name.trim()) {
+      errors.full_name = 'Por favor ingresa tu nombre y apellido.';
+    }
+    const cleanPhoneDigits = formData.phone.replace(/[^0-9]/g, '');
+    if (!formData.phone.trim()) {
+      errors.phone = 'Por favor ingresa tu número de WhatsApp.';
+    } else if (cleanPhoneDigits.length < 7) {
+      errors.phone = 'Ingresa un número de WhatsApp válido (mínimo 7 dígitos).';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setErrorMsg('Por favor completa los campos requeridos para continuar.');
+      if (errors.full_name) {
+        nameInputRef.current?.focus();
+      } else if (errors.phone) {
+        phoneInputRef.current?.focus();
+      }
       return;
     }
 
     setIsSubmitting(true);
     setErrorMsg('');
+    setFieldErrors({});
 
     const targetPhone = advisor?.phone ? advisor.phone.replace(/[^0-9]/g, '') : '584228846784';
     const cleanName = formData.full_name.trim();
@@ -532,8 +558,8 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                   Nombre y Apellido *
                 </label>
                 <input
+                  ref={nameInputRef}
                   type="text"
-                  required
                   placeholder="Ej. Carlos Mendoza"
                   value={formData.full_name}
                   onChange={(e) => handleSelect('full_name', e.target.value)}
@@ -541,11 +567,20 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                     width: '100%',
                     padding: '10px 14px',
                     borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--g20)',
+                    border: fieldErrors.full_name ? '2px solid var(--kia-red)' : '1px solid var(--g20)',
+                    backgroundColor: fieldErrors.full_name ? '#fff1f2' : '#ffffff',
                     fontSize: '13px',
                     fontFamily: 'var(--sans)',
+                    outline: 'none',
+                    transition: 'border-color 0.15s ease',
                   }}
                 />
+                {fieldErrors.full_name && (
+                  <div style={{ color: 'var(--kia-red)', fontSize: '11.5px', marginTop: '4px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <AlertCircle size={13} />
+                    <span>{fieldErrors.full_name}</span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -553,20 +588,29 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                   Número de WhatsApp *
                 </label>
                 <input
+                  ref={phoneInputRef}
                   type="tel"
-                  required
-                  placeholder="+58 412 1234567 o internacional"
+                  placeholder="Ej. 0412 1234567 o internacional"
                   value={formData.phone}
                   onChange={(e) => handleSelect('phone', e.target.value)}
                   style={{
                     width: '100%',
                     padding: '10px 14px',
                     borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--g20)',
+                    border: fieldErrors.phone ? '2px solid var(--kia-red)' : '1px solid var(--g20)',
+                    backgroundColor: fieldErrors.phone ? '#fff1f2' : '#ffffff',
                     fontSize: '13px',
                     fontFamily: 'var(--sans)',
+                    outline: 'none',
+                    transition: 'border-color 0.15s ease',
                   }}
                 />
+                {fieldErrors.phone && (
+                  <div style={{ color: 'var(--kia-red)', fontSize: '11.5px', marginTop: '4px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <AlertCircle size={13} />
+                    <span>{fieldErrors.phone}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -612,8 +656,23 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
             </div>
 
             {errorMsg && (
-              <div style={{ color: 'var(--kia-red)', fontSize: '12.5px', marginBottom: '10px', fontWeight: 600 }}>
-                {errorMsg}
+              <div
+                style={{
+                  color: 'var(--kia-red)',
+                  backgroundColor: '#fff1f2',
+                  border: '1px solid #fecdd3',
+                  padding: '8px 12px',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '12.5px',
+                  marginBottom: '12px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <AlertCircle size={15} />
+                <span>{errorMsg}</span>
               </div>
             )}
           </div>
@@ -634,8 +693,31 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
               Siguiente →
             </button>
           ) : (
-            <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ padding: '10px 24px' }}>
-              {isSubmitting ? 'Enviando...' : 'Enviar Consulta ↗'}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn btn-primary"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#25D366',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontWeight: 800,
+                fontSize: '14px',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <MessageCircle size={18} />
+              <span>
+                {isSubmitting
+                  ? 'Conectando con WhatsApp...'
+                  : advisor
+                  ? `Solicitar Cotización a ${advisor.name.split(' ')[0]} ↗`
+                  : 'Solicitar Cotización por WhatsApp ↗'}
+              </span>
             </button>
           )}
         </div>
