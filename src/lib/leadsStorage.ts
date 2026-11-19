@@ -20,8 +20,8 @@ function getBlobStore() {
   }
 }
 
-// Timeout wrapper that guarantees fast failure
-function withFastTimeout<T>(promise: Promise<T>, ms = 1200): Promise<T> {
+// Timeout wrapper
+function withFastTimeout<T>(promise: Promise<T>, ms = 5000): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Timeout exceeded')), ms);
     promise
@@ -58,6 +58,7 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
     uso: leadWithMeta.primary_use,
     financiamiento: leadWithMeta.financing_interest,
     tiempo: leadWithMeta.timeline,
+    asesor: leadWithMeta.advisor_name || 'Showroom General',
   }));
 
   // 3. Writable /tmp disk backup
@@ -76,7 +77,7 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
     // ignore
   }
 
-  // 4. Netlify Blobs (Cloud Persistence with fast timeout)
+  // 4. Netlify Blobs (Cloud Persistence with 5s timeout)
   try {
     const store = getBlobStore();
     if (store) {
@@ -85,10 +86,25 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
         const updated = [leadWithMeta, ...existing.filter((l) => l.id !== leadWithMeta.id)];
         await store.setJSON('all_leads', updated);
       })();
-      await withFastTimeout(saveBlobPromise, 1500);
+      await withFastTimeout(saveBlobPromise, 5000);
     }
   } catch (err) {
     console.warn('Netlify Blobs save note:', err);
+  }
+
+  // 5. Alerta Push Inmediata (Llega al teléfono al instante, sin depender de la base de datos)
+  try {
+    fetch('https://ntfy.sh/kia_elmarques_leads_caracas_2026', {
+      method: 'POST',
+      headers: {
+        'Title': `Nuevo Prospecto: ${leadWithMeta.full_name} (${leadWithMeta.advisor_name ? `Asesor: ${leadWithMeta.advisor_name}` : 'General'})`,
+        'Priority': 'urgent',
+        'Tags': 'car,incoming_envelope',
+      },
+      body: `Asesor: ${leadWithMeta.advisor_name || 'Showroom General'}\nModelo: ${leadWithMeta.model_interest}\nTeléfono: ${leadWithMeta.phone}\nEmail: ${leadWithMeta.email || 'N/A'}\nFinanciamiento: ${leadWithMeta.financing_interest || 'N/A'}\nUso: ${leadWithMeta.primary_use || 'N/A'}\nFecha: ${leadWithMeta.created_at}`,
+    }).catch(() => {});
+  } catch {
+    // ignore
   }
 
   // 5. Attempt sync with Supabase only if explicitly active
@@ -109,7 +125,7 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
           status: 'nuevo',
         },
       ]);
-      await withFastTimeout(insertPromise as any, 1200);
+      await withFastTimeout(insertPromise as any, 2000);
     }
   } catch {
     // ignore
@@ -119,15 +135,22 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
 }
 
 export async function getLeads(): Promise<LeadSubmission[]> {
-  // 1. Try Netlify Blobs with strict fast timeout
+  // 1. Try Netlify Blobs
   try {
     const store = getBlobStore();
     if (store) {
       const blobPromise = store.get('all_leads', { type: 'json' });
-      const blobLeads = (await withFastTimeout(blobPromise, 1500)) as LeadSubmission[];
+      const blobLeads = (await withFastTimeout(blobPromise, 5000)) as LeadSubmission[];
       if (blobLeads && Array.isArray(blobLeads) && blobLeads.length > 0) {
-        memoryLeads = blobLeads;
-        return blobLeads;
+        const ids = new Set(blobLeads.map((l) => l.id));
+        const merged = [...blobLeads];
+        for (const initLead of INITIAL_LEADS) {
+          if (!ids.has(initLead.id)) {
+            merged.push(initLead);
+          }
+        }
+        memoryLeads = merged;
+        return merged;
       }
     }
   } catch {
@@ -142,9 +165,16 @@ export async function getLeads(): Promise<LeadSubmission[]> {
         .select('*')
         .order('created_at', { ascending: false });
 
-      const { data, error } = (await withFastTimeout(selectPromise as any, 1200)) as { data?: any; error?: any };
+      const { data, error } = (await withFastTimeout(selectPromise as any, 2000)) as { data?: any; error?: any };
       if (!error && data && Array.isArray(data) && data.length > 0) {
-        memoryLeads = data as LeadSubmission[];
+        const ids = new Set(data.map((l: any) => l.id));
+        const merged = [...data];
+        for (const initLead of INITIAL_LEADS) {
+          if (!ids.has(initLead.id)) {
+            merged.push(initLead);
+          }
+        }
+        memoryLeads = merged as LeadSubmission[];
         return memoryLeads;
       }
     }
@@ -158,29 +188,30 @@ export async function getLeads(): Promise<LeadSubmission[]> {
       const tmpContent = fs.readFileSync(TMP_LEADS_PATH, 'utf-8');
       const parsed = JSON.parse(tmpContent || '[]');
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        const ids = new Set(parsed.map((l: any) => l.id));
+        const merged = [...parsed];
+        for (const initLead of INITIAL_LEADS) {
+          if (!ids.has(initLead.id)) {
+            merged.push(initLead);
+          }
+        }
+        return merged;
       }
     }
   } catch {
     // ignore
   }
 
-  // 4. Fallback to local leads.json (development)
-  try {
-    if (fs.existsSync(LEADS_FILE_PATH)) {
-      const content = fs.readFileSync(LEADS_FILE_PATH, 'utf-8');
-      const parsed = JSON.parse(content || '[]');
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch {
-    // ignore
-  }
-
-  // 5. In-memory fallback
+  // 4. In-memory fallback
   if (memoryLeads && memoryLeads.length > 0) {
-    return memoryLeads;
+    const ids = new Set(memoryLeads.map((l) => l.id));
+    const merged = [...memoryLeads];
+    for (const initLead of INITIAL_LEADS) {
+      if (!ids.has(initLead.id)) {
+        merged.push(initLead);
+      }
+    }
+    return merged;
   }
 
   return INITIAL_LEADS;
@@ -197,7 +228,7 @@ export async function updateLeadStatus(id: string, newStatus: LeadSubmission['st
         const updated = existing.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
         await store.setJSON('all_leads', updated);
       })();
-      await withFastTimeout(updatePromise, 1500);
+      await withFastTimeout(updatePromise, 5000);
     }
   } catch {
     // ignore
@@ -230,7 +261,7 @@ export async function deleteLead(id: string): Promise<boolean> {
         const filtered = existing.filter((l) => l.id !== id);
         await store.setJSON('all_leads', filtered);
       })();
-      await withFastTimeout(deletePromise, 1500);
+      await withFastTimeout(deletePromise, 5000);
     }
   } catch {
     // ignore

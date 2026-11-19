@@ -3127,14 +3127,14 @@ footer.editorial-footer {
 /* Advisor Floating Action Dock */
 .advisor-floating-dock {
   position: fixed;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
-  transform: translate(-50%, 25px);
+  transform: translate(-50%, 16px);
   opacity: 0;
   pointer-events: none;
   width: calc(100% - 32px);
   max-width: 440px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(5, 20, 31, 0.12);
@@ -3144,8 +3144,9 @@ footer.editorial-footer {
   align-items: center;
   gap: 8px;
   z-index: 90;
-  box-shadow: 0 12px 32px rgba(5, 20, 31, 0.14);
-  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), bottom 0.15s ease-out;
+  box-shadow: 0 10px 30px rgba(5, 20, 31, 0.15);
+  transition: opacity 0.18s ease-out, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
 }
 
 .advisor-floating-dock.visible {

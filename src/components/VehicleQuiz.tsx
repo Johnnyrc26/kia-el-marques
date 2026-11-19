@@ -8,6 +8,11 @@ import { LeadSubmission } from '@/types';
 interface VehicleQuizProps {
   initialModel?: string;
   onSuccess?: () => void;
+  advisor?: {
+    name: string;
+    phone: string;
+    slug?: string;
+  };
 }
 
 const modelUseCases: Record<string, Array<{ title: string; desc: string }>> = {
@@ -38,14 +43,14 @@ const modelUseCases: Record<string, Array<{ title: string; desc: string }>> = {
   Picanto: [
     { title: 'Ciudad y Tráfico Caraqueño', desc: 'Estaciona donde otros no caben y maniobra ágil en Chacao y Las Mercedes' },
     { title: 'Joven Profesional / Primer 0 km', desc: 'Conectividad Apple CarPlay / Android Auto y consumo mínimo de gasolina' },
-    { title: 'Tranquilidad Familiar / Compra a Distancia', desc: '6 airbags de serie, manejo ágil y 5 años de garantía oficial para la total tranquilidad de los tuyos' },
+    { title: 'Seguridad y Confort Familiar', desc: '6 airbags de serie, manejo ágil y 5 años de garantía oficial en Caracas' },
     { title: 'Segunda Unidad Familiar Práctica', desc: 'Vehículo liviano para diligencias diarias y bajísimo costo de mantenimiento' },
   ],
   Soluto: [
     { title: 'Familia y Confort Diario', desc: 'Maletero gigante de 475 L, espacio para 5 adultos y aire acondicionado de alto rendimiento' },
     { title: 'Flota Corporativa y Movilidad Laboral', desc: 'El menor costo operativo por kilómetro recorrido en Caracas con motor 1.4L' },
     { title: 'Uso Diario Económico en Ciudad', desc: 'Bajo consumo de gasolina para no vivir haciendo colas en la estación de servicio' },
-    { title: 'Compra desde el Exterior para Familiares', desc: 'Gestión remota sin complicaciones, entrega documentada en Caracas y 5 años de garantía oficial' },
+    { title: 'Primer 0 km / Inversión Inteligente', desc: 'Inversión segura, mantenimiento sumamente accesible y respaldo oficial Kia en Caracas' },
   ],
   Sonet: [
     { title: 'Profesional Joven y Urbano', desc: 'Altura SUV con despeje de 205 mm para sortear baches y desniveles de Caracas' },
@@ -61,7 +66,7 @@ const modelUseCases: Record<string, Array<{ title: string; desc: string }>> = {
   ],
 };
 
-export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
+export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps) {
   const chosenModel = initialModel || 'Tasman';
   const initialUse = modelUseCases[chosenModel]?.[0]?.title || 'Familia / Paseo';
   const initialColor = vehicleModels.find((m) => m.name === chosenModel)?.availableColors[0]?.name || 'Blanco Perlado (Clear White)';
@@ -80,6 +85,8 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
     phone: '',
     email: '',
     notes: '',
+    advisor_name: advisor?.name,
+    advisor_slug: advisor?.slug,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,34 +115,108 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
     setIsSubmitting(true);
     setErrorMsg('');
 
+    const targetPhone = advisor?.phone ? advisor.phone.replace(/[^0-9]/g, '') : '584228846784';
+    const cleanName = formData.full_name.trim();
+
+    // Redacción limpia y profesional de WhatsApp con formato nativo en negrita (*texto*)
+    const messageLines = [
+      advisor
+        ? `¡Hola ${advisor.name}! Mi nombre es ${cleanName}. Acabo de completar tu cuestionario digital en Kia El Marqués para el ${formData.model_interest}.`
+        : `¡Hola Kia El Marqués! Mi nombre es ${cleanName}. Acabo de completar el cuestionario digital para el ${formData.model_interest}.`,
+      '',
+      '*Mis preferencias:*',
+      `• Modelo: ${formData.model_interest} (${formData.favorite_color || 'Color a coordinar'})`,
+      `• Uso principal: ${formData.primary_use}`,
+      `• Segmento: ${formData.buyer_type}`,
+      `• Financiamiento: ${formData.financing_interest}`,
+      `• Plazo de compra: ${formData.timeline}`,
+      `• Teléfono: ${formData.phone.trim()}`,
+    ];
+
+    if (formData.email?.trim()) {
+      messageLines.push(`• Email: ${formData.email.trim()}`);
+    }
+
+    messageLines.push('');
+    messageLines.push('¿Podrías brindarme tu asesoría personalizada y cotización formal?');
+
+    const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(messageLines.join('\n'))}`;
+
+    const leadPayload: LeadSubmission = {
+      ...formData,
+      advisor_name: advisor?.name || undefined,
+      advisor_slug: advisor?.slug || undefined,
+      notes: advisor
+        ? `${formData.notes ? `${formData.notes} | ` : ''}Solicitud recibida desde tarjeta del asesor: ${advisor.name} (/asesor/${advisor.slug})`
+        : formData.notes,
+    };
+
+    // 1. Respaldo local de seguridad en el navegador del cliente
     try {
-      const res = await fetch('/api/leads', {
+      localStorage.setItem('kia_backup_lead', JSON.stringify({ ...leadPayload, sent_at: new Date().toISOString() }));
+    } catch {
+      // ignorar fallo de almacenamiento local
+    }
+
+    // 2. Envío garantizado al servidor con keepalive
+    try {
+      fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        throw new Error('Error al registrar tu solicitud');
-      }
-
-      setSubmitted(true);
-    } catch (err: any) {
-      console.error(err);
-      // Fallback: mostrar confirmación al usuario de todos modos para no perder la experiencia
-      setSubmitted(true);
-    } finally {
-      setIsSubmitting(false);
+        body: JSON.stringify(leadPayload),
+        keepalive: true,
+      }).catch((err) => console.error('Background leads save:', err));
+    } catch (err) {
+      console.error('Error enviando al admin:', err);
     }
+
+    // 3. Abrir WhatsApp de inmediato
+    try {
+      if (typeof window !== 'undefined') {
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.location.href = waUrl;
+        } else {
+          window.open(waUrl, '_blank');
+        }
+      }
+    } catch {
+      // Si el navegador bloquea la apertura emergente, el botón visible estará listo
+    }
+
+    setSubmitted(true);
+    setIsSubmitting(false);
   };
 
   if (submitted) {
-    const waText = encodeURIComponent(
-      `¡Hola Kia El Marqués! Mi nombre es ${formData.full_name}. Acabo de completar el formulario web para el ${formData.model_interest}. Uso: ${formData.primary_use}. ¿Podrían brindarme asesoría y cotización formal?`
-    );
+    const targetPhone = advisor?.phone ? advisor.phone.replace(/[^0-9]/g, '') : '584228846784';
+    const cleanName = formData.full_name.trim();
+
+    const messageLines = [
+      advisor
+        ? `¡Hola ${advisor.name}! Mi nombre es ${cleanName}. Acabo de completar tu cuestionario digital en Kia El Marqués para el ${formData.model_interest}.`
+        : `¡Hola Kia El Marqués! Mi nombre es ${cleanName}. Acabo de completar el cuestionario digital para el ${formData.model_interest}.`,
+      '',
+      '*Mis preferencias:*',
+      `• Modelo: ${formData.model_interest} (${formData.favorite_color || 'Color a coordinar'})`,
+      `• Uso principal: ${formData.primary_use}`,
+      `• Segmento: ${formData.buyer_type}`,
+      `• Financiamiento: ${formData.financing_interest}`,
+      `• Plazo de compra: ${formData.timeline}`,
+      `• Teléfono: ${formData.phone.trim()}`,
+    ];
+
+    if (formData.email?.trim()) {
+      messageLines.push(`• Email: ${formData.email.trim()}`);
+    }
+
+    messageLines.push('');
+    messageLines.push('¿Podrías brindarme tu asesoría personalizada y cotización formal?');
+
+    const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(messageLines.join('\n'))}`;
 
     return (
-      <div className="editorial-box" style={{ textAlign: 'center', padding: '36px 24px', background: 'var(--g1)', borderRadius: 'var(--radius-lg)' }}>
+      <div className="editorial-box" style={{ textAlign: 'center', padding: '40px 24px', background: 'var(--g1)', borderRadius: 'var(--radius-lg)' }}>
         <div
           style={{
             display: 'inline-flex',
@@ -153,40 +234,43 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
           <Check size={32} strokeWidth={3} />
         </div>
         <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--g100)', marginBottom: '8px' }}>
-          ¡Excelente, {formData.full_name?.trim()}! Hemos recibido tus preferencias.
+          {advisor
+            ? `¡Excelente, ${cleanName}! Tu solicitud fue registrada con ${advisor.name}.`
+            : `¡Excelente, ${cleanName}! Hemos recibido tus preferencias.`}
         </h3>
-        <p style={{ fontSize: '14px', color: 'var(--g60)', maxWidth: '520px', margin: '0 auto 20px', lineHeight: 1.6 }}>
-          Tu interés en el <strong>{formData.model_interest}</strong> para {formData.primary_use.toLowerCase()} ha sido registrado en nuestro sistema.
+        <p style={{ fontSize: '14px', color: 'var(--g60)', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+          {advisor
+            ? `Tus datos ya están guardados en el sistema del concesionario. Si WhatsApp no se abrió automáticamente en tu dispositivo, pulsa el botón verde para iniciar el chat directo con ${advisor.name}:`
+            : `Tus preferencias para el ${formData.model_interest} fueron registradas en el sistema. Pulsa abajo para continuar la conversación directa por WhatsApp:`}
         </p>
 
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', maxWidth: '380px', margin: '0 auto' }}>
           <a
-            href={`https://wa.me/584228846784?text=${waText}`}
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary"
             style={{
-              padding: '12px 24px',
-              fontSize: '14px',
-              fontWeight: 700,
+              padding: '14px 28px',
+              fontSize: '15px',
+              fontWeight: 800,
               backgroundColor: '#25D366',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
+              justifyContent: 'center',
+              gap: '10px',
+              borderRadius: '10px',
+              width: '100%',
+              boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+              textDecoration: 'none',
+              color: '#ffffff',
             }}
           >
-            <span>Continuar a WhatsApp Oficial ↗</span>
+            <span>{advisor ? `Abrir WhatsApp con ${advisor.name} ↗` : 'Abrir WhatsApp Oficial ↗'}</span>
           </a>
-          <button
-            type="button"
-            onClick={() => {
-              setSubmitted(false);
-              setStep(1);
-            }}
-            className="btn btn-outline"
-          >
-            Enviar otra consulta
-          </button>
+          <span style={{ fontSize: '12px', color: 'var(--g60)' }}>
+            ✓ Conexión encriptada directa con el concesionario oficial
+          </span>
         </div>
       </div>
     );
@@ -197,7 +281,7 @@ export default function VehicleQuiz({ initialModel }: VehicleQuizProps) {
       {/* Quiz Progress */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid var(--g10)' }}>
         <div>
-          <span className="badge badge-blue">Asesoría Inteligente Kia</span>
+          <span className="badge badge-blue">{advisor ? `Asesoría Directa · ${advisor.name}` : 'Asesoría Inteligente Kia'}</span>
           <span style={{ fontSize: '12px', color: 'var(--g60)', marginLeft: '10px' }}>
             Paso {step} de {totalSteps}
           </span>

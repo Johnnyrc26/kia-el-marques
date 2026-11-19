@@ -25,7 +25,7 @@ export default function JsonLd() {
           addressRegion: 'Distrito Capital',
           addressCountry: 'VE',
         },
-        hasMap: 'https://maps.app.goo.gl/F2atjrsEg4N3kUBp8',
+        hasMap: 'https://maps.app.goo.gl/VSse49KmZ6AMWpnZ8',
         geo: {
           '@type': 'GeoCoordinates',
           latitude: 10.4950722,

@@ -265,6 +265,7 @@ export default function AdminPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoFocus
+              autoComplete="current-password"
               style={{
                 padding: '12px 16px',
                 borderRadius: '8px',
@@ -559,11 +560,11 @@ export default function AdminPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontWeight: 700, textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em' }}>
-                    <th style={{ padding: '12px 18px', width: '28%' }}>Cliente & Contacto</th>
-                    <th style={{ padding: '12px 18px', width: '22%' }}>Vehículo de Interés</th>
+                    <th style={{ padding: '12px 18px', width: '26%' }}>Cliente & Contacto</th>
+                    <th style={{ padding: '12px 18px', width: '20%' }}>Vehículo de Interés</th>
                     <th style={{ padding: '12px 18px', width: '24%' }}>Propósito & Pago</th>
                     <th style={{ padding: '12px 18px', width: '14%' }}>Fecha & Seguimiento</th>
-                    <th style={{ padding: '12px 18px', width: '12%', textAlign: 'right' }}>Contacto</th>
+                    <th style={{ padding: '12px 18px', width: '16%', minWidth: '180px', textAlign: 'right' }}>Contacto & Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -636,6 +637,13 @@ export default function AdminPage() {
                               {lead.email && (
                                 <div style={{ color: '#64748b', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {lead.email}
+                                </div>
+                              )}
+                              {lead.advisor_name && (
+                                <div style={{ marginTop: '3px' }}>
+                                  <span style={{ fontSize: '10px', color: '#0369a1', background: '#e0f2fe', border: '1px solid #bae6fd', padding: '1px 6px', borderRadius: '4px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    👤 {lead.advisor_name}
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -746,8 +754,8 @@ export default function AdminPage() {
                         </td>
 
                         {/* Columna 5: Acciones de Contacto */}
-                        <td style={{ padding: '14px 18px', verticalAlign: 'middle', textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
-                          <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+                        <td style={{ padding: '14px 18px', verticalAlign: 'middle', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={(e) => e.stopPropagation()}>
+                          <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end' }}>
                             <a
                               href={waUrl}
                               target="_blank"
@@ -757,12 +765,13 @@ export default function AdminPage() {
                                 alignItems: 'center',
                                 gap: '5px',
                                 padding: '6px 12px',
-                                borderRadius: '6px',
+                                borderRadius: '7px',
                                 background: '#25D366',
                                 color: '#ffffff',
                                 textDecoration: 'none',
                                 fontWeight: 700,
                                 fontSize: '12px',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
                               }}
                               title="Chatear por WhatsApp con mensaje pre-redactado"
                             >
@@ -774,32 +783,42 @@ export default function AdminPage() {
                               type="button"
                               onClick={() => setSelectedLead(lead)}
                               style={{
-                                padding: '6px 8px',
-                                borderRadius: '6px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '7px',
                                 background: '#f8fafc',
-                                border: '1px solid #cbd5e1',
-                                color: '#334155',
+                                border: '1.5px solid #cbd5e1',
+                                color: '#475569',
                                 cursor: 'pointer',
+                                transition: 'all 0.15s ease',
                               }}
                               title="Ver ficha completa"
                             >
-                              <Eye size={14} />
+                              <Eye size={15} />
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleDeleteLead(lead.id!)}
                               style={{
-                                padding: '6px 7px',
-                                borderRadius: '6px',
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#94a3b8',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '7px',
+                                background: '#fff1f2',
+                                border: '1.5px solid #fecdd3',
+                                color: '#e11d48',
                                 cursor: 'pointer',
+                                transition: 'all 0.15s ease',
                               }}
-                              title="Eliminar registro"
+                              title="Eliminar este prospecto"
                             >
-                              <Trash2 size={13} />
+                              <Trash2 size={15} />
                             </button>
                           </div>
                         </td>
@@ -855,6 +874,13 @@ export default function AdminPage() {
                 <span style={{ fontSize: '12px', color: '#64748b' }}>
                   Registrado el {formatDate(selectedLead.created_at)}
                 </span>
+                {selectedLead.advisor_name && (
+                  <div style={{ marginTop: '4px' }}>
+                    <span style={{ fontSize: '11.5px', color: '#0369a1', background: '#e0f2fe', border: '1px solid #bae6fd', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      👤 Asesor Asignado: {selectedLead.advisor_name}
+                    </span>
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -990,6 +1016,32 @@ export default function AdminPage() {
                     }}
                   />
                 </div>
+              </div>
+
+              {/* Botón de Eliminación en Modal */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteLead(selectedLead.id!)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    background: '#fff1f2',
+                    border: '1.5px solid #fecdd3',
+                    color: '#e11d48',
+                    fontSize: '12.5px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  title="Eliminar este prospecto definitivamente"
+                >
+                  <Trash2 size={14} />
+                  <span>Eliminar Prospecto</span>
+                </button>
               </div>
 
             </div>

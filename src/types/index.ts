@@ -60,5 +60,7 @@ export interface LeadSubmission {
   financing_interest: string;
   timeline: string;
   notes?: string;
+  advisor_name?: string;
+  advisor_slug?: string;
   status?: 'nuevo' | 'contactado' | 'en_seguimiento' | 'cerrado' | 'descartado';
 }

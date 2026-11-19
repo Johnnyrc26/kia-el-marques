@@ -16,6 +16,7 @@ import {
   FileDown
 } from 'lucide-react';
 import { Advisor } from '@/data/advisors';
+import VehicleQuiz from '@/components/VehicleQuiz';
 
 interface AdvisorCardClientProps {
   advisor: Advisor;
@@ -86,10 +87,12 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
   const [showQrModal, setShowQrModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showDock, setShowDock] = useState(false);
-  const [bottomOffset, setBottomOffset] = useState(24);
+  const [bottomOffset, setBottomOffset] = useState(20);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateDock = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
@@ -99,8 +102,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
         const footerRect = footer.getBoundingClientRect();
         const overlap = windowHeight - footerRect.top;
         if (overlap > 0) {
-          // El footer entró en pantalla: elevamos el dock para que se quede exactamente 24px antes del footer
-          setBottomOffset(overlap + 24);
+          setBottomOffset(overlap + 16);
         } else {
           setBottomOffset(20);
         }
@@ -108,12 +110,21 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
         setBottomOffset(20);
       }
 
-      setShowDock(scrollY > 260);
+      setShowDock(scrollY > 180);
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateDock);
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
-    handleScroll();
+    updateDock();
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
@@ -133,7 +144,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
   const mailUrl = `mailto:${advisor.email}`;
   const currentCardUrl = `https://kiaelmarques.com/asesor/${advisor.slug}`;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(currentCardUrl)}`;
-  const mapsUrl = "https://maps.app.goo.gl/F2atjrsEg4N3kUBp8";
+  const mapsUrl = "https://maps.app.goo.gl/VSse49KmZ6AMWpnZ8";
 
   // Generador de tarjeta vCard (.vcf)
   const handleDownloadVCard = () => {
@@ -444,7 +455,22 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
           </a>
         </section>
 
-        {/* 3. Sección: Fichas Técnicas Oficiales */}
+        {/* 3. Formulario Comercial Directo con el Asesor */}
+        <section style={{ marginBottom: '40px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <span className="section-tag" style={{ marginBottom: '8px' }}>Atención Personalizada</span>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--g100)', letterSpacing: '-0.02em', marginBottom: '8px' }}>
+              Solicita tu Cotización 0 km con {advisor.name}
+            </h2>
+            <p style={{ fontSize: '14px', color: 'var(--g60)', maxWidth: '520px', margin: '0 auto', lineHeight: 1.5 }}>
+              Completa el formulario interactivo para que {advisor.name} te prepare una cotización formal inmediata con entrega y financiamiento en Caracas.
+            </p>
+          </div>
+
+          <VehicleQuiz advisor={{ name: advisor.name, phone: advisor.phone, slug: advisor.slug }} />
+        </section>
+
+        {/* 4. Sección: Fichas Técnicas Oficiales */}
         <section
           style={{
             background: '#ffffff',
