@@ -29,7 +29,8 @@ import {
   ChevronRight,
   UserCheck,
   Send,
-  Share2
+  Share2,
+  AlertTriangle
 } from 'lucide-react';
 import { LeadSubmission } from '@/types';
 import { ADVISORS, Advisor } from '@/data/advisors';
@@ -45,6 +46,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeadSubmission | null>(null);
   const [assigningLead, setAssigningLead] = useState<LeadSubmission | null>(null);
+  const [leadToDelete, setLeadToDelete] = useState<LeadSubmission | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [justRefreshed, setJustRefreshed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -136,6 +139,95 @@ export default function AdminPage() {
     return digits.length > 7 ? '58' + digits : digits;
   };
 
+  const resolveColorSwatch = (colorName?: string): { hex: string; isSpecial: boolean; isLight: boolean } => {
+    if (!colorName) return { hex: '#94a3b8', isSpecial: true, isLight: false };
+    const lower = colorName.toLowerCase().trim();
+
+    if (
+      lower.includes('cualquiera') ||
+      lower.includes('piso') ||
+      lower.includes('no definido') ||
+      lower.includes('por coordinar') ||
+      lower.includes('por definir')
+    ) {
+      return { hex: '#94a3b8', isSpecial: true, isLight: false };
+    }
+
+    // Whites
+    if (lower.includes('white') || lower.includes('blanco')) {
+      return { hex: '#ffffff', isSpecial: false, isLight: true };
+    }
+    // Titanium / Silvers
+    if (lower.includes('titanium') || lower.includes('titanio')) {
+      return { hex: '#a8adb2', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('silver') || lower.includes('plata') || lower.includes('cerámica') || lower.includes('ceramic')) {
+      return { hex: '#c0c2c4', isSpecial: false, isLight: true };
+    }
+    // Grays
+    if (lower.includes('interstellar') || lower.includes('interestelar')) {
+      return { hex: '#3f4448', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('gravity') || lower.includes('grafito') || lower.includes('gravedad')) {
+      return { hex: '#363c40', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('steel gray') || lower.includes('gris acero')) {
+      return { hex: '#71767c', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('panthera') || lower.includes('metal')) {
+      return { hex: '#3e4147', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('platina') || lower.includes('platino') || lower.includes('astro')) {
+      return { hex: '#4b5563', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('gray') || lower.includes('gris')) {
+      return { hex: '#64748b', isSpecial: false, isLight: false };
+    }
+    // Blacks
+    if (lower.includes('black') || lower.includes('negro') || lower.includes('aurora')) {
+      return { hex: '#111111', isSpecial: false, isLight: false };
+    }
+    // Blues
+    if (lower.includes('blue stone') || lower.includes('azul pizarra')) {
+      return { hex: '#34495e', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('denim') || lower.includes('vesta') || lower.includes('astra')) {
+      return { hex: '#1e3a5f', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('ocean') || lower.includes('océano') || lower.includes('deep chroma') || lower.includes('profundo')) {
+      return { hex: '#0f2744', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('pluton') || lower.includes('plutón')) {
+      return { hex: '#2563eb', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('mineral') || lower.includes('smoke') || lower.includes('humo')) {
+      return { hex: '#1e4e66', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('imperial')) {
+      return { hex: '#102a43', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('blue') || lower.includes('azul')) {
+      return { hex: '#2563eb', isSpecial: false, isLight: false };
+    }
+    // Reds & Oranges
+    if (lower.includes('red') || lower.includes('rojo')) {
+      return { hex: '#b22222', isSpecial: false, isLight: false };
+    }
+    if (lower.includes('orange') || lower.includes('naranja') || lower.includes('mars') || lower.includes('marte')) {
+      return { hex: '#ea580c', isSpecial: false, isLight: false };
+    }
+    // Greens
+    if (lower.includes('green') || lower.includes('verde') || lower.includes('olive') || lower.includes('oliva')) {
+      return { hex: '#2e4c38', isSpecial: false, isLight: false };
+    }
+    // Beiges & Tan
+    if (lower.includes('beige') || lower.includes('tan') || lower.includes('champagne')) {
+      return { hex: '#d4b996', isSpecial: false, isLight: false };
+    }
+
+    return { hex: '#64748b', isSpecial: false, isLight: false };
+  };
+
   const handleForwardToAdvisor = async (lead: LeadSubmission, advisor: Advisor) => {
     // 1. Prepara el enlace con código de país 58 para que el asesor pueda contactar al cliente con 1 tap
     const cleanClientPhone = formatWhatsAppPhone(lead.phone);
@@ -205,13 +297,18 @@ _Por favor confirmar recepción._`;
     }
   };
 
-  const handleDeleteLead = async (leadId: string) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar permanentemente este prospecto?')) return;
+  const handleConfirmDelete = async () => {
+    if (!leadToDelete) return;
+    const leadId = leadToDelete.id!;
+    setIsDeleting(true);
+
     setLeads((prev) => prev.filter((l) => l.id !== leadId));
     if (selectedLead?.id === leadId) setSelectedLead(null);
+    setLeadToDelete(null);
+    setIsDeleting(false);
 
     try {
-      const savedKey = sessionStorage.getItem('kia_admin_pass') || 'kia2026';
+      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
       await fetch(`/api/leads?id=${encodeURIComponent(leadId)}`, {
         method: 'DELETE',
         headers: {
@@ -662,8 +759,8 @@ _Por favor confirmar recepción._`;
                     <th style={{ padding: '12px 18px', width: '26%' }}>Cliente & Contacto</th>
                     <th style={{ padding: '12px 18px', width: '20%' }}>Vehículo de Interés</th>
                     <th style={{ padding: '12px 18px', width: '24%' }}>Propósito & Pago</th>
-                    <th style={{ padding: '12px 18px', width: '14%' }}>Fecha & Seguimiento</th>
-                    <th style={{ padding: '12px 18px', width: '16%', minWidth: '180px', textAlign: 'right' }}>Contacto & Acciones</th>
+                    <th style={{ padding: '12px 18px', width: '15%' }}>Fecha & Seguimiento</th>
+                    <th style={{ padding: '12px 18px', width: '15%', minWidth: '130px', textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -767,20 +864,43 @@ _Por favor confirmar recepción._`;
                               {lead.model_interest}
                             </span>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', color: '#475569', fontSize: '12px' }}>
-                            <span
-                              style={{
-                                width: '10px',
-                                height: '10px',
-                                borderRadius: '50%',
-                                backgroundColor: '#94a3b8',
-                                border: '1px solid rgba(0,0,0,0.2)',
-                                display: 'inline-block',
-                                flexShrink: 0,
-                              }}
-                            />
-                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {lead.favorite_color || 'Color no definido'}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '4px', color: '#334155', fontSize: '12px' }}>
+                            {(() => {
+                              const colorSwatch = resolveColorSwatch(lead.favorite_color);
+                              if (colorSwatch.isSpecial) {
+                                return (
+                                  <span
+                                    style={{
+                                      width: '12px',
+                                      height: '12px',
+                                      borderRadius: '50%',
+                                      background: 'conic-gradient(from 180deg at 50% 50%, #f43f5e 0deg, #fbbf24 72deg, #10b981 144deg, #06b6d4 216deg, #6366f1 288deg, #f43f5e 360deg)',
+                                      border: '1px solid rgba(0,0,0,0.15)',
+                                      display: 'inline-block',
+                                      flexShrink: 0,
+                                    }}
+                                    title="Sin color específico / Disponible en piso"
+                                  />
+                                );
+                              }
+                              return (
+                                <span
+                                  style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    borderRadius: '50%',
+                                    backgroundColor: colorSwatch.hex,
+                                    border: colorSwatch.isLight ? '1.5px solid #94a3b8' : '1.5px solid rgba(15, 23, 42, 0.25)',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                    display: 'inline-block',
+                                    flexShrink: 0,
+                                  }}
+                                  title={lead.favorite_color}
+                                />
+                              );
+                            })()}
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
+                              {lead.favorite_color || 'Color a coordinar'}
                             </span>
                           </div>
                         </td>
@@ -852,79 +972,35 @@ _Por favor confirmar recepción._`;
                           </div>
                         </td>
 
-                        {/* Columna 5: Acciones de Contacto */}
+                        {/* Columna 5: Acciones */}
                         <td style={{ padding: '14px 18px', verticalAlign: 'middle', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={(e) => e.stopPropagation()}>
                           <div style={{ display: 'inline-flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                            <a
-                              href={waUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                padding: '6px 12px',
-                                borderRadius: '7px',
-                                background: '#25D366',
-                                color: '#ffffff',
-                                textDecoration: 'none',
-                                fontWeight: 700,
-                                fontSize: '12px',
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-                              }}
-                              title="Chatear directamente con el cliente por WhatsApp"
-                            >
-                              <MessageCircle size={14} />
-                              <span>WhatsApp</span>
-                            </a>
-
-                            <button
-                              type="button"
-                              onClick={() => setAssigningLead(lead)}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                padding: '6px 11px',
-                                borderRadius: '7px',
-                                background: '#eff6ff',
-                                border: '1px solid #bfdbfe',
-                                color: '#0284c7',
-                                fontWeight: 700,
-                                fontSize: '12px',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease',
-                              }}
-                              title="Reenviar ficha completa al WhatsApp de un asesor oficial"
-                            >
-                              <UserCheck size={14} />
-                              <span>Asesor ↗</span>
-                            </button>
-
                             <button
                               type="button"
                               onClick={() => setSelectedLead(lead)}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '32px',
-                                height: '32px',
+                                gap: '6px',
+                                padding: '7px 12px',
                                 borderRadius: '7px',
-                                background: '#f8fafc',
-                                border: '1.5px solid #cbd5e1',
-                                color: '#475569',
+                                background: '#05141f',
+                                border: '1px solid #05141f',
+                                color: '#ffffff',
+                                fontSize: '12px',
+                                fontWeight: 700,
                                 cursor: 'pointer',
                                 transition: 'all 0.15s ease',
                               }}
-                              title="Ver ficha completa"
+                              title="Ver ficha completa y opciones de contacto"
                             >
-                              <Eye size={15} />
+                              <Eye size={14} />
+                              <span>Ver Ficha</span>
                             </button>
 
                             <button
                               type="button"
-                              onClick={() => handleDeleteLead(lead.id!)}
+                              onClick={() => setLeadToDelete(lead)}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -1161,6 +1237,61 @@ _Por favor confirmar recepción._`;
             {/* Content Details */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               
+              {/* Acciones Comerciales Directas */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                <a
+                  href={`https://wa.me/${formatWhatsAppPhone(selectedLead.phone)}?text=${encodeURIComponent(
+                    `Hola ${selectedLead.full_name}, te saluda tu anfitrión de Kia El Marqués. Recibimos tu solicitud sobre el ${selectedLead.model_interest} (${selectedLead.favorite_color || 'Color a coordinar'}). ¿En qué momento te resulta oportuno revisar la cotización oficial?`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '11px 16px',
+                    borderRadius: '9px',
+                    background: '#25D366',
+                    color: '#ffffff',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    boxShadow: '0 2px 4px rgba(37,211,102,0.25)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  title="Contactar al cliente con mensaje pre-redactado"
+                >
+                  <MessageCircle size={16} />
+                  <span>WhatsApp Cliente</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => setAssigningLead(selectedLead)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '11px 16px',
+                    borderRadius: '9px',
+                    background: '#0284c7',
+                    border: 'none',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 4px rgba(2,132,199,0.25)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  title="Reenviar ficha completa al WhatsApp de un asesor oficial"
+                >
+                  <UserCheck size={16} />
+                  <span>{selectedLead.advisor_name ? 'Reenviar a Asesor ↗' : 'Enviar a un Asesor ↗'}</span>
+                </button>
+              </div>
+
               {/* Contacto Directo */}
               <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -1169,24 +1300,28 @@ _Por favor confirmar recepción._`;
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Phone size={15} color="#0284c7" />
-                    <span style={{ fontWeight: 700, fontSize: '14px', fontFamily: 'monospace' }}>
+                    <a
+                      href={`tel:${selectedLead.phone}`}
+                      style={{ fontWeight: 700, fontSize: '14px', fontFamily: 'monospace', color: '#0284c7', textDecoration: 'none' }}
+                    >
                       {selectedLead.phone}
-                    </span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(selectedLead.phone, `phone_modal_${selectedLead.id}`)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#94a3b8' }}
+                      title="Copiar teléfono"
+                    >
+                      {copiedId === `phone_modal_${selectedLead.id}` ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
+                    </button>
                   </div>
-                  <a
-                    href={`https://wa.me/${formatWhatsAppPhone(selectedLead.phone)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ background: '#25D366', color: '#fff', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                  >
-                    <MessageCircle size={13} />
-                    <span>WhatsApp</span>
-                  </a>
                 </div>
                 {selectedLead.email && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', color: '#475569', fontSize: '13px' }}>
                     <Mail size={15} color="#64748b" />
-                    <span>{selectedLead.email}</span>
+                    <a href={`mailto:${selectedLead.email}`} style={{ color: '#475569', textDecoration: 'none' }}>
+                      {selectedLead.email}
+                    </a>
                   </div>
                 )}
               </div>
@@ -1202,9 +1337,44 @@ _Por favor confirmar recepción._`;
 
                 <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Color Preferido</span>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', marginTop: '3px' }}>
-                    {selectedLead.favorite_color || 'Cualquiera'}
-                  </div>
+                  {(() => {
+                    const modalColor = resolveColorSwatch(selectedLead.favorite_color);
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                        {modalColor.isSpecial ? (
+                          <span
+                            style={{
+                              width: '14px',
+                              height: '14px',
+                              borderRadius: '50%',
+                              background: 'conic-gradient(from 180deg at 50% 50%, #f43f5e 0deg, #fbbf24 72deg, #10b981 144deg, #06b6d4 216deg, #6366f1 288deg, #f43f5e 360deg)',
+                              border: '1px solid rgba(0,0,0,0.2)',
+                              display: 'inline-block',
+                              flexShrink: 0,
+                            }}
+                            title="Color flexible / En piso"
+                          />
+                        ) : (
+                          <span
+                            style={{
+                              width: '14px',
+                              height: '14px',
+                              borderRadius: '50%',
+                              backgroundColor: modalColor.hex,
+                              border: modalColor.isLight ? '1.5px solid #94a3b8' : '1.5px solid rgba(15, 23, 42, 0.3)',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+                              display: 'inline-block',
+                              flexShrink: 0,
+                            }}
+                            title={selectedLead.favorite_color}
+                          />
+                        )}
+                        <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                          {selectedLead.favorite_color || 'Cualquiera disponible en piso'}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -1328,7 +1498,7 @@ _Por favor confirmar recepción._`;
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => handleDeleteLead(selectedLead.id!)}
+                  onClick={() => setLeadToDelete(selectedLead)}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1530,6 +1700,111 @@ _Por favor confirmar recepción._`;
                 }}
               >
                 Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Eliminación */}
+      {leadToDelete && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 10001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => !isDeleting && setLeadToDelete(null)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              maxWidth: '440px',
+              width: '100%',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)',
+              padding: '28px',
+              position: 'relative',
+              textAlign: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: '#fee2e2',
+                color: '#dc2626',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px auto',
+              }}
+            >
+              <AlertTriangle size={28} />
+            </div>
+
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 8px 0' }}>
+              ¿Eliminar este prospecto?
+            </h3>
+
+            <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: 1.5, margin: '0 0 22px 0' }}>
+              Estás a punto de eliminar la ficha comercial de <strong style={{ color: '#0f172a' }}>{leadToDelete.full_name}</strong> ({leadToDelete.model_interest}).
+              <br />
+              <span style={{ fontSize: '12.5px', color: '#ef4444', fontWeight: 600, display: 'inline-block', marginTop: '6px' }}>
+                Esta acción es permanente y no se puede deshacer.
+              </span>
+            </p>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setLeadToDelete(null)}
+                disabled={isDeleting}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '8px',
+                  border: '1.5px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#475569',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 4px rgba(220,38,38,0.25)',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                <Trash2 size={15} />
+                <span>{isDeleting ? 'Eliminando...' : 'Sí, eliminar permanentemente'}</span>
               </button>
             </div>
           </div>
