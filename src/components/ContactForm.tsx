@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { ADVISORS } from '@/data/advisors';
-import { MessageCircle, ShieldCheck } from 'lucide-react';
+import { MessageCircle, ShieldCheck, ChevronDown } from 'lucide-react';
 
 export default function ContactForm() {
-  const [selectedSlug, setSelectedSlug] = useState(ADVISORS[0].slug);
+  const [selectedSlug, setSelectedSlug] = useState('');
 
-  const currentAdvisor = ADVISORS.find((a) => a.slug === selectedSlug) || ADVISORS[0];
-  const cleanPhone = currentAdvisor.phone.replace(/[^0-9]/g, '');
+  const currentAdvisor = ADVISORS.find((a) => a.slug === selectedSlug);
+  const cleanPhone = currentAdvisor ? currentAdvisor.phone.replace(/[^0-9]/g, '') : '584228846784';
   const waText = encodeURIComponent(
-    `¡Hola ${currentAdvisor.name}! Te contacto desde la web oficial de Kia El Marqués. Me gustaría recibir asesoría personalizada sobre los modelos 0 km y planes de financiamiento.`
+    currentAdvisor
+      ? `¡Hola ${currentAdvisor.name}! Te contacto desde la web oficial de Kia El Marqués. Me gustaría recibir asesoría personalizada sobre los modelos 0 km y planes de financiamiento.`
+      : `¡Hola Kia El Marqués! Te contacto desde la web oficial. Me gustaría recibir asesoría sobre disponibilidad de vehículos 0 km y cotización formal.`
   );
   const waUrl = `https://wa.me/${cleanPhone}?text=${waText}`;
 
@@ -62,29 +64,54 @@ export default function ContactForm() {
         >
           Elige a tu asesor comercial:
         </label>
-        <select
-          value={selectedSlug}
-          onChange={(e) => setSelectedSlug(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px 14px',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--g20)',
-            fontSize: '14px',
-            fontFamily: 'var(--sans)',
-            fontWeight: 600,
-            color: 'var(--g100)',
-            backgroundColor: 'var(--g1)',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
-        >
-          {ADVISORS.map((a) => (
-            <option key={a.slug} value={a.slug}>
-              {a.name} · {a.role}
+        <div style={{ position: 'relative', width: '100%' }}>
+          <select
+            value={selectedSlug}
+            onChange={(e) => setSelectedSlug(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 42px 12px 14px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--g20)',
+              fontSize: '14px',
+              fontFamily: 'var(--sans)',
+              fontWeight: 600,
+              color: selectedSlug ? 'var(--g100)' : 'var(--g60)',
+              backgroundColor: '#ffffff',
+              cursor: 'pointer',
+              outline: 'none',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              lineHeight: 1.5,
+              boxShadow: 'var(--shadow-subtle)',
+            }}
+          >
+            <option value="" disabled selected>
+              -- Elige a tu asesor comercial --
             </option>
-          ))}
-        </select>
+            {ADVISORS.map((a) => (
+              <option key={a.slug} value={a.slug} style={{ color: 'var(--g100)' }}>
+                {a.name} · {a.role}
+              </option>
+            ))}
+          </select>
+          <div
+            style={{
+              position: 'absolute',
+              right: '14px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--g60)',
+            }}
+          >
+            <ChevronDown size={18} strokeWidth={2.2} />
+          </div>
+        </div>
       </div>
 
       {/* Single Main Action Button */}
@@ -112,7 +139,11 @@ export default function ContactForm() {
         }}
       >
         <MessageCircle size={18} />
-        <span>Hablar con {currentAdvisor.name} por WhatsApp ↗</span>
+        <span>
+          {currentAdvisor
+            ? `Hablar con ${currentAdvisor.name} por WhatsApp ↗`
+            : 'Hablar con un Asesor por WhatsApp ↗'}
+        </span>
       </a>
 
       {/* Discreet Central Line */}

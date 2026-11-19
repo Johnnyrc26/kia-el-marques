@@ -369,7 +369,7 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  <span style={{ fontSize: '14.5px', fontWeight: 700 }}>{m.name}</span>
+                  <span style={{ fontSize: '15px', fontWeight: 800, fontFamily: 'var(--font-kia)' }}>{m.name}</span>
                   <span style={{ fontSize: '11.5px', color: 'var(--blue)', fontWeight: 600 }}>Elegir&nbsp;→</span>
                 </button>
               ))}

@@ -1,4 +1,31 @@
 /* ==========================================================================
+   Kia Signature Typography (Official Brand Fonts)
+   ========================================================================== */
+@font-face {
+  font-family: 'Kia Signature';
+  src: url('/fonts/KiaSignature-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kia Signature';
+  src: url('/fonts/KiaSignature-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kia Signature';
+  src: url('/fonts/KiaSignature-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
    Kia El Marqués - Design System (Grilla Editorial Style)
    ========================================================================== */
 
@@ -24,6 +51,7 @@
   --green-bg: rgba(21, 128, 61, 0.1);
 
   /* Typography */
+  --font-kia: 'Kia Signature', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
@@ -77,6 +105,22 @@ body {
 /* ==========================================================================
    Anti-Orphan Typography System (Desktop & Mobile)
    ========================================================================== */
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.section-title,
+.section-title-sm,
+.model-title,
+.model-card-title,
+.mega-model-name,
+.pillar-title,
+.sheet-card-title,
+.tab-panel-title,
+.commercial-block-title,
+.brand-title {
+  font-family: var(--font-kia);
+  letter-spacing: -0.015em;
+}
+
 h1, h2, h3, h4, h5, h6,
 .hero-title,
 .section-title,

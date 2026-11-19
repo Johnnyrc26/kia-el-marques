@@ -24,7 +24,9 @@ import {
   Calendar,
   CreditCard,
   FileText,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { LeadSubmission } from '@/types';
 
@@ -40,6 +42,13 @@ export default function AdminPage() {
   const [selectedLead, setSelectedLead] = useState<LeadSubmission | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [justRefreshed, setJustRefreshed] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterModel, filterStatus, searchQuery]);
 
   // Check existing session on mount
   useEffect(() => {
@@ -203,6 +212,12 @@ export default function AdminPage() {
       (l.notes && l.notes.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesModel && matchesStatus && matchesQuery;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredLeads.length / pageSize) || 1;
+  const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (validCurrentPage - 1) * pageSize;
+  const paginatedLeads = filteredLeads.slice(startIndex, startIndex + pageSize);
 
   // Metrics
   const totalLeads = leads.length;
@@ -568,7 +583,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLeads.map((lead, index) => {
+                  {paginatedLeads.map((lead, index) => {
                     const rawPhone = lead.phone.replace(/[^0-9]/g, '');
                     const waText = encodeURIComponent(
                       `Hola ${lead.full_name}, te saluda tu anfitrión de Kia El Marqués. Recibimos tu solicitud sobre el ${lead.model_interest} (${lead.favorite_color || 'Color a coordinar'}). ¿En qué momento te resulta oportuno revisar la cotización oficial?`
@@ -827,6 +842,151 @@ export default function AdminPage() {
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Barra de Paginación */}
+          {filteredLeads.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 18px',
+                borderTop: '1px solid #e2e8f0',
+                background: '#f8fafc',
+                flexWrap: 'wrap',
+                gap: '12px',
+                fontSize: '12.5px',
+                color: '#64748b',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <span>
+                  Mostrando <strong>{startIndex + 1}</strong> a{' '}
+                  <strong>{Math.min(startIndex + pageSize, filteredLeads.length)}</strong> de{' '}
+                  <strong>{filteredLeads.length}</strong> solicitudes
+                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '12px' }}>Por página:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '12px',
+                      background: '#ffffff',
+                      fontWeight: 600,
+                      color: '#1e293b',
+                      cursor: 'pointer',
+                      outline: 'none',
+                    }}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
+
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={validCurrentPage === 1}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      background: validCurrentPage === 1 ? '#f1f5f9' : '#ffffff',
+                      color: validCurrentPage === 1 ? '#94a3b8' : '#1e293b',
+                      cursor: validCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                      fontWeight: 600,
+                      fontSize: '12px',
+                    }}
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Anterior</span>
+                  </button>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                      const pageNum = i + 1;
+                      if (
+                        totalPages <= 7 ||
+                        pageNum === 1 ||
+                        pageNum === totalPages ||
+                        Math.abs(pageNum - validCurrentPage) <= 1
+                      ) {
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setCurrentPage(pageNum)}
+                            style={{
+                              width: '30px',
+                              height: '30px',
+                              borderRadius: '6px',
+                              border: pageNum === validCurrentPage ? '1px solid #0284c7' : '1px solid #e2e8f0',
+                              background: pageNum === validCurrentPage ? '#0284c7' : '#ffffff',
+                              color: pageNum === validCurrentPage ? '#ffffff' : '#334155',
+                              fontWeight: 700,
+                              fontSize: '12px',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      }
+                      if (
+                        (pageNum === 2 && validCurrentPage > 3) ||
+                        (pageNum === totalPages - 1 && validCurrentPage < totalPages - 2)
+                      ) {
+                        return (
+                          <span key={pageNum} style={{ padding: '0 3px', color: '#94a3b8' }}>
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={validCurrentPage === totalPages}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      background: validCurrentPage === totalPages ? '#f1f5f9' : '#ffffff',
+                      color: validCurrentPage === totalPages ? '#94a3b8' : '#1e293b',
+                      cursor: validCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                      fontWeight: 600,
+                      fontSize: '12px',
+                    }}
+                  >
+                    <span>Siguiente</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
