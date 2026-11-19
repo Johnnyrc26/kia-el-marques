@@ -39,7 +39,7 @@ export default function ContactForm() {
         }}
       >
         <ShieldCheck size={13} />
-        <span>Atención Oficial Inmediata</span>
+        <span>Atención Oficial</span>
       </div>
 
       <h4 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--g100)', marginBottom: '6px' }}>

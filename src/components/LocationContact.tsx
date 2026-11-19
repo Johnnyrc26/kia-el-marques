@@ -3,8 +3,8 @@ import { MapPin, Navigation, Clock, ShieldCheck, Mail, Phone, ExternalLink } fro
 
 export default function LocationContact() {
   return (
-    <section id="contacto" className="site-section" style={{ background: '#ffffff', borderTop: '1px solid var(--g10)' }}>
-      <div className="shell">
+    <section id="contacto" className="site-section" style={{ background: '#ffffff', borderTop: '1px solid var(--g10)', overflowX: 'clip', maxWidth: '100%' }}>
+      <div className="shell" style={{ width: '100%', maxWidth: 'var(--shell-max)', boxSizing: 'border-box' }}>
         {/* Section Header */}
         <div className="section-header" style={{ marginBottom: '32px' }}>
           <span className="badge badge-blue" style={{ marginBottom: '12px' }}>
@@ -23,14 +23,17 @@ export default function LocationContact() {
           background: 'linear-gradient(135deg, #05141f 0%, #0d2232 100%)',
           color: '#ffffff',
           borderRadius: 'var(--radius-lg)',
-          padding: '24px 28px',
+          padding: 'clamp(18px, 4vw, 24px) clamp(16px, 4vw, 28px)',
           marginBottom: '32px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '20px',
-          boxShadow: '0 10px 25px -5px rgba(5, 20, 31, 0.2)'
+          boxShadow: '0 10px 25px -5px rgba(5, 20, 31, 0.2)',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
         }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>
@@ -64,12 +67,12 @@ export default function LocationContact() {
           {/* Left: Map & Location details */}
           <div className="location-details-col">
             {/* Google Maps Embed */}
-            <div className="map-frame-wrapper">
+            <div className="map-frame-wrapper" style={{ overflow: 'hidden', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <iframe
                 src="https://maps.google.com/maps?q=10.4950722,-66.8117436&t=&z=17&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="320"
-                style={{ border: 0, display: 'block', borderRadius: 'var(--radius-md)' }}
+                style={{ border: 0, display: 'block', borderRadius: 'var(--radius-md)', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
