@@ -122,8 +122,20 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
     const cleanPhoneDigits = formData.phone.replace(/[^0-9]/g, '');
     if (!formData.phone.trim()) {
       errors.phone = 'Por favor ingresa tu número de WhatsApp.';
-    } else if (cleanPhoneDigits.length < 7) {
-      errors.phone = 'Ingresa un número de WhatsApp válido (mínimo 7 dígitos).';
+    } else if (/^0+$/.test(cleanPhoneDigits) || /^(.)\1{9,}$/.test(cleanPhoneDigits)) {
+      errors.phone = 'Ingresa un número de WhatsApp válido.';
+    } else if (cleanPhoneDigits.startsWith('0')) {
+      if (cleanPhoneDigits.length !== 11) {
+        errors.phone = 'El número debe incluir la operadora y tener 11 dígitos (ej. 0414 1234567).';
+      }
+    } else if (cleanPhoneDigits.startsWith('58')) {
+      if (cleanPhoneDigits.length < 12 || cleanPhoneDigits.length > 13) {
+        errors.phone = 'El número con código +58 debe tener 12 dígitos (ej. +58 414 1234567).';
+      }
+    } else if (cleanPhoneDigits.length < 10) {
+      errors.phone = 'Número incompleto. Incluye el código de operadora (ej. 0414 1234567 o internacional).';
+    } else if (cleanPhoneDigits.length > 15) {
+      errors.phone = 'El número ingresado es demasiado largo.';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -679,36 +691,24 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
         )}
 
         {/* Navigation Buttons */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--g10)' }}>
+        <div className="quiz-nav-row">
           {step > 1 ? (
-            <button type="button" onClick={prevStep} className="btn btn-outline">
+            <button type="button" onClick={prevStep} className="btn btn-outline quiz-nav-prev-btn">
               ← Anterior
             </button>
           ) : (
-            <div />
+            <div className="quiz-nav-spacer" />
           )}
 
           {step < totalSteps ? (
-            <button type="button" onClick={nextStep} className="btn btn-primary">
+            <button type="button" onClick={nextStep} className="btn btn-primary quiz-nav-next-btn">
               Siguiente →
             </button>
           ) : (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary"
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#25D366',
-                border: 'none',
-                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontWeight: 800,
-                fontSize: '14px',
-                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              }}
+              className="btn btn-primary quiz-nav-submit-btn"
             >
               <MessageCircle size={18} />
               <span>

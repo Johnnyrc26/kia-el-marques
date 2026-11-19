@@ -9,6 +9,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nombre y teléfono son obligatorios.' }, { status: 400 });
     }
 
+    const cleanDigits = String(body.phone).replace(/\D/g, '');
+    if (cleanDigits.length < 10 || cleanDigits.length > 15) {
+      return NextResponse.json({ error: 'El número de teléfono debe incluir código de área u operadora (ej. 0414 1234567 o internacional).' }, { status: 400 });
+    }
+
     const saved = await saveLead(body);
     return NextResponse.json({ success: true, lead: saved });
   } catch (err: any) {
