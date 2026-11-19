@@ -102,7 +102,10 @@ export default function LocationContact() {
                 <Clock size={16} className="contact-icon" />
                 <div>
                   <strong>Horario de Atención:</strong>
-                  <span>Lunes a Viernes de 8:00 AM a 5:00 PM · Sábados de 9:00 AM a 2:00 PM.</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '2px' }}>
+                    <span>- Lunes a Viernes de 8:00 AM a 5:00 PM</span>
+                    <span>- Sábados de 9:00 AM a 2:00 PM</span>
+                  </div>
                 </div>
               </li>
               <li>
