@@ -1625,9 +1625,10 @@ _Por favor confirmar recepción._`;
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                       <div
                         style={{
-                          width: '36px',
-                          height: '36px',
+                          width: '38px',
+                          height: '38px',
                           borderRadius: '50%',
+                          overflow: 'hidden',
                           background: isCurrentAdvisor ? '#0284c7' : '#05141f',
                           color: '#ffffff',
                           display: 'flex',
@@ -1636,9 +1637,25 @@ _Por favor confirmar recepción._`;
                           fontWeight: 700,
                           fontSize: '12px',
                           flexShrink: 0,
+                          border: isCurrentAdvisor ? '2px solid #0284c7' : '1px solid #cbd5e1',
+                          position: 'relative',
                         }}
                       >
-                        {advInitials}
+                        {adv.photo ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={adv.photo}
+                            alt={adv.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              objectPosition: 'center 15%',
+                            }}
+                          />
+                        ) : (
+                          advInitials
+                        )}
                       </div>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>

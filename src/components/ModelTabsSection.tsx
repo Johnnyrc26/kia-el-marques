@@ -340,8 +340,22 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
                       onClick={() => setShowAdvisorModal(false)}
                       title={`Chatear con ${adv.name} por WhatsApp`}
                     >
-                      <div className="advisor-modal-avatar">
-                        {initials}
+                      <div className="advisor-modal-avatar" style={{ overflow: 'hidden', padding: 0 }}>
+                        {adv.photo ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={adv.photo}
+                            alt={adv.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              objectPosition: 'center 15%',
+                            }}
+                          />
+                        ) : (
+                          initials
+                        )}
                       </div>
                       <div className="advisor-modal-info">
                         <strong className="advisor-modal-name">{adv.name}</strong>

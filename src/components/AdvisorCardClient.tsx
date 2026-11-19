@@ -216,27 +216,48 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             
-            {/* Avatar con Iniciales y Logotipo Kia Oficial */}
+            {/* Avatar con Foto Oficial o Iniciales */}
             <div
               style={{
-                width: '84px',
-                height: '84px',
+                width: '104px',
+                height: '104px',
                 borderRadius: '50%',
+                overflow: 'hidden',
                 background: 'linear-gradient(135deg, #05141f 0%, #1e293b 100%)',
                 color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '28px',
-                fontWeight: 800,
-                letterSpacing: '1px',
                 marginBottom: '16px',
                 boxShadow: '0 8px 24px rgba(5, 20, 31, 0.18)',
                 border: '3px solid #ffffff',
                 outline: '2px solid var(--g10)',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {initials}
+              {advisor.photo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={advisor.photo}
+                  alt={advisor.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center 15%',
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    fontSize: '32px',
+                    fontWeight: 800,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  {initials}
+                </div>
+              )}
             </div>
 
             {/* Nombre del Asesor */}

@@ -56,9 +56,10 @@ export default function AsesoresIndexPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div
                     style={{
-                      width: '46px',
-                      height: '46px',
+                      width: '48px',
+                      height: '48px',
                       borderRadius: '50%',
+                      overflow: 'hidden',
                       background: 'var(--g100)',
                       color: '#ffffff',
                       display: 'flex',
@@ -67,9 +68,26 @@ export default function AsesoresIndexPage() {
                       fontSize: '15px',
                       fontWeight: 800,
                       flexShrink: 0,
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                      border: '1.5px solid var(--g10)',
+                      position: 'relative',
                     }}
                   >
-                    {initials}
+                    {advisor.photo ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={advisor.photo}
+                        alt={advisor.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          objectPosition: 'center 15%',
+                        }}
+                      />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div>
                     <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--g100)', margin: 0 }}>

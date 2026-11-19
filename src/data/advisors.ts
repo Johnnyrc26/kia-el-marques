@@ -8,6 +8,7 @@ export interface Advisor {
   role: string;
   gender: 'F' | 'M';
   aliases: string[];
+  photo?: string;
 }
 
 export const ADVISORS: Advisor[] = [
@@ -21,6 +22,7 @@ export const ADVISORS: Advisor[] = [
     role: 'Asesor Comercial Certificado',
     gender: 'M',
     aliases: ['carlos', 'carlosarias', 'carlos-arias'],
+    photo: '/assets/advisors/carlos-arias.jpg',
   },
   {
     slug: 'eduardo-revollo',
@@ -32,6 +34,7 @@ export const ADVISORS: Advisor[] = [
     role: 'Asesor Comercial Certificado',
     gender: 'M',
     aliases: ['eduardo', 'eduardorevollo', 'eduardo-revollo'],
+    photo: '/assets/advisors/eduardo-revollo.jpg',
   },
   {
     slug: 'heber-ibanez',
@@ -43,6 +46,7 @@ export const ADVISORS: Advisor[] = [
     role: 'Asesor Comercial Certificado',
     gender: 'M',
     aliases: ['heber', 'heberibanez', 'heber-ibanez', 'heber-ibañez'],
+    photo: '/assets/advisors/heber-ibanez.jpg',
   },
   {
     slug: 'maria-sanchez',
@@ -54,6 +58,7 @@ export const ADVISORS: Advisor[] = [
     role: 'Asesora Comercial Certificada',
     gender: 'F',
     aliases: ['maria', 'mariasanchez', 'maria-sanchez', 'maria-sánchez'],
+    photo: '/assets/advisors/maria-sanchez.jpg',
   },
   {
     slug: 'ricardo-carrasco',
@@ -65,6 +70,7 @@ export const ADVISORS: Advisor[] = [
     role: 'Asesor Comercial Certificado',
     gender: 'M',
     aliases: ['ricardo', 'ricardocarrasco', 'ricardo-carrasco'],
+    photo: '/assets/advisors/ricardo-carrasco.jpg',
   },
   {
     slug: 'gabriel-petit',
@@ -76,6 +82,18 @@ export const ADVISORS: Advisor[] = [
     role: 'Asesor Comercial Certificado',
     gender: 'M',
     aliases: ['gabriel', 'gabrielpetit', 'gabriel-petit', 'willfreddy-petit', 'willfreddy'],
+    photo: '/assets/advisors/gabriel-petit.jpg',
+  },
+  {
+    slug: 'homar-bonilla',
+    name: 'Homar Bonilla',
+    email: 'homar.bonilla@kiaelmarques.com',
+    phone: '584225422127',
+    phoneFormatted: '+58 422 542 2127',
+    role: 'Asesor Comercial Certificado',
+    gender: 'M',
+    aliases: ['homar', 'homarbonilla', 'homar-bonilla'],
+    photo: '/assets/advisors/homar-bonilla.jpg',
   },
 ];
 
