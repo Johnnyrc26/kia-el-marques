@@ -49,18 +49,6 @@ export const ADVISORS: Advisor[] = [
     photo: '/assets/advisors/heber-ibanez.jpg',
   },
   {
-    slug: 'maria-sanchez',
-    name: 'Maria Sánchez',
-    email: 'maria.sanchez@kiaelmarques.com',
-    phone: '584225422126',
-    phoneFormatted: '+58 422 542 2126',
-    cedula: '13.981.385',
-    role: 'Asesora Comercial Certificada',
-    gender: 'F',
-    aliases: ['maria', 'mariasanchez', 'maria-sanchez', 'maria-sánchez'],
-    photo: '/assets/advisors/maria-sanchez.jpg',
-  },
-  {
     slug: 'ricardo-carrasco',
     name: 'Ricardo Carrasco',
     email: 'ricardo.carrasco@kiaelmarques.com',

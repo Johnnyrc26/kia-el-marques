@@ -16,6 +16,26 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: '/asesores',
+        destination: '/asesor',
+        permanent: true,
+      },
+      {
+        source: '/asesores/:slug*',
+        destination: '/asesor/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/asesor/maria-sanchez',
+        destination: '/asesor',
+        permanent: true,
+      },
+      {
+        source: '/asesor/maria',
+        destination: '/asesor',
+        permanent: true,
+      },
+      {
         source: '/politica-de-privacidad.html',
         destination: '/politica-de-privacidad',
         permanent: true,

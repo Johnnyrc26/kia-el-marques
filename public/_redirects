@@ -1,1 +1,5 @@
+/asesores           /asesor           301!
+/asesores/*         /asesor/:splat    301!
+/asesor/maria-sanchez /asesor         301!
+/asesor/maria       /asesor           301!
 /   https://kia.com.ve/   302!

@@ -90,6 +90,34 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
   const [bottomOffset, setBottomOffset] = useState(20);
 
   useEffect(() => {
+    // Reportar etiquetas personalizadas a Microsoft Clarity para analíticas por asesor
+    if (typeof window !== 'undefined') {
+      const c = (window as any).clarity;
+      if (typeof c === 'function') {
+        try {
+          c('set', 'advisor_name', advisor.name);
+          c('set', 'advisor_slug', advisor.slug);
+          c('set', 'page_type', 'advisor_profile');
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, [advisor.name, advisor.slug]);
+
+  const trackAdvisorWhatsAppClick = () => {
+    if (typeof window !== 'undefined') {
+      const c = (window as any).clarity;
+      if (typeof c === 'function') {
+        try {
+          c('event', 'whatsapp_click_advisor');
+          c('set', 'advisor_contacted', advisor.name);
+        } catch {}
+      }
+    }
+  };
+
+  useEffect(() => {
     let ticking = false;
 
     const updateDock = () => {
@@ -303,6 +331,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={trackAdvisorWhatsAppClick}
                 className="btn btn-primary"
                 style={{
                   width: '100%',
@@ -718,6 +747,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackAdvisorWhatsAppClick}
           className="advisor-dock-btn-wa"
         >
           <MessageCircle size={18} />
