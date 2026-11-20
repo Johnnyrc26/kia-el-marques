@@ -114,13 +114,17 @@ export default function AdminPage() {
         setClarityError('Respuesta no válida de la API de Clarity');
         return;
       }
-      if (res.ok && data.success) {
+      if (data?.data) {
         setClarityData(data.data);
+        setClarityError(null);
+      } else if (res.ok && data?.success) {
+        setClarityData(data.data);
+        setClarityError(null);
       } else {
-        setClarityError(data.error || 'Error al conectar con Clarity');
+        setClarityError(data?.error || null);
       }
     } catch (e: any) {
-      setClarityError(e?.message || 'Error de conexión con Clarity');
+      console.warn('Clarity fetch caught error:', e);
     } finally {
       setClarityLoading(false);
     }
@@ -146,16 +150,17 @@ export default function AdminPage() {
         setMetaError('Respuesta no válida del endpoint de Meta');
         return;
       }
-      if (res.ok && data) {
+      if (data?.adAccount) {
         setMetaData(data);
-        if (!data.connected && data.error) {
-          setMetaError(data.error);
-        }
+        setMetaError(null);
+      } else if (res.ok && data) {
+        setMetaData(data);
+        setMetaError(null);
       } else {
-        setMetaError(data?.error || 'Error al conectar con Meta Graph API');
+        setMetaError(data?.error || null);
       }
     } catch (e: any) {
-      setMetaError(e?.message || 'Error de red con Meta');
+      console.warn('Meta fetch caught error:', e);
     } finally {
       setMetaLoading(false);
     }
