@@ -100,7 +100,7 @@ export default function AdminPage() {
     setClarityLoading(true);
     setClarityError(null);
     try {
-      const savedPass = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      const savedPass = sessionStorage.getItem('kia_admin_pass') || password || '';
       const url = `/api/clarity?adminKey=${encodeURIComponent(savedPass)}${force ? '&force=true' : ''}&_t=${Date.now()}`;
       const headers: Record<string, string> = {};
       const token = tokenToUse !== undefined ? tokenToUse : clarityToken;
@@ -230,7 +230,7 @@ export default function AdminPage() {
         setSelectedLead((prev) => (prev ? { ...prev, status: newStatus } : null));
       }
 
-      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
       await fetch(`/api/leads?adminKey=${encodeURIComponent(savedKey)}`, {
         method: 'PATCH',
         headers: {
@@ -363,7 +363,7 @@ export default function AdminPage() {
     setAssigningLead(null);
 
     try {
-      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
       await fetch(`/api/leads?adminKey=${encodeURIComponent(savedKey)}`, {
         method: 'PATCH',
         headers: {
@@ -433,7 +433,7 @@ _Por favor confirmar recepción._`;
 
     // 5. Persistir en la API
     try {
-      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
       await fetch(`/api/leads?adminKey=${encodeURIComponent(savedKey)}`, {
         method: 'PATCH',
         headers: {
@@ -463,7 +463,7 @@ _Por favor confirmar recepción._`;
     setIsDeleting(false);
 
     try {
-      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
       await fetch(`/api/leads?id=${encodeURIComponent(leadId)}&adminKey=${encodeURIComponent(savedKey)}`, {
         method: 'DELETE',
         headers: {
@@ -482,7 +482,7 @@ _Por favor confirmar recepción._`;
   };
 
   const handleRefresh = () => {
-    const key = password || (typeof window !== 'undefined' ? sessionStorage.getItem('kia_admin_pass') : '') || 'kia2026';
+    const key = password || (typeof window !== 'undefined' ? sessionStorage.getItem('kia_admin_pass') : '') || '';
     fetchLeads(key);
     fetchClarityMetrics(undefined, true);
     fetchMetaData(true);
