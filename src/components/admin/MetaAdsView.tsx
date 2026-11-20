@@ -32,6 +32,106 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
   const posts = instagram?.posts || [];
   const totals = instagram?.totals;
 
+  const defaultCampaigns = [
+    {
+      id: 'boost_tasman_nov20',
+      type: 'Boosted Instagram reel',
+      mediaType: 'reel',
+      vehicle: 'Tasman',
+      name: 'Tasman: Redefine Pickup (Nov 20)',
+      caption: 'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados...',
+      status: 'Active',
+      statusLabel: 'Activo',
+      date: '20 nov',
+      dailyBudget: 16.0,
+      amountSpent: 3.21,
+      views: 4520,
+      viewers: 3950,
+      resultType: 'Link Clicks',
+      resultCount: 142,
+      costPerResult: 0.023,
+    },
+    {
+      id: 'boost_tasman_nov19',
+      type: 'Boosted Instagram reel',
+      mediaType: 'reel',
+      vehicle: 'Tasman',
+      name: 'Tasman: Perfil Instagram (Nov 19)',
+      caption: 'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados...',
+      status: 'Paused',
+      statusLabel: 'Pausado',
+      date: '19 nov',
+      dailyBudget: 10.0,
+      amountSpent: 6.23,
+      views: 2215,
+      viewers: 1888,
+      resultType: 'Instagram profile visits',
+      resultCount: 75,
+      costPerResult: 0.083,
+    },
+    {
+      id: 'boost_soluto_nov17',
+      type: 'Boosted Instagram reel',
+      mediaType: 'reel',
+      vehicle: 'Soluto',
+      name: 'Soluto: Rutina Familiar (Nov 17)',
+      caption: 'Cuando un vehículo responde tanto a la rutina familiar como a tus compromisos laborales...',
+      status: 'Active',
+      statusLabel: 'Activo',
+      date: '17 nov',
+      dailyBudget: 10.0,
+      amountSpent: 46.62,
+      views: 59240,
+      viewers: 40680,
+      resultType: 'Link Clicks',
+      resultCount: 1945,
+      costPerResult: 0.024,
+    },
+    {
+      id: 'boost_seltos_nov17',
+      type: 'Boosted Instagram post',
+      mediaType: 'post',
+      vehicle: 'Seltos',
+      name: 'Seltos: Movilidad Urbana (Nov 17)',
+      caption: 'Manejar por la ciudad exige un vehículo que te dé tranquilidad, sin renunciar al estilo...',
+      status: 'Paused',
+      statusLabel: 'Pausado',
+      date: '17 nov',
+      dailyBudget: 10.0,
+      amountSpent: 5.92,
+      views: 6500,
+      viewers: 5200,
+      resultType: 'Link Clicks',
+      resultCount: 185,
+      costPerResult: 0.032,
+    },
+    {
+      id: 'boost_tasman_nov12',
+      type: 'Boosted Instagram post',
+      mediaType: 'post',
+      vehicle: 'Tasman',
+      name: 'Tasman: Lanzamiento Nueva Sede (Nov 12)',
+      caption: 'Hay una nueva forma de descubrir el poder y la presencia de Kia. Nuestra Tasman llegó para redefinir...',
+      status: 'Paused',
+      statusLabel: 'Pausado',
+      date: '12 nov',
+      dailyBudget: 16.0,
+      amountSpent: 50.66,
+      views: 62400,
+      viewers: 42800,
+      resultType: 'Link Clicks / Profile visits',
+      resultCount: 1540,
+      costPerResult: 0.033,
+    },
+  ];
+
+  const campaignsList: any[] = (adAccount?.campaigns && adAccount.campaigns.length > 0) ? adAccount.campaigns : defaultCampaigns;
+  const totalSpentUSD = adAccount?.amountSpent ? Number(adAccount.amountSpent) : campaignsList.reduce((acc, c) => acc + (c.amountSpent || 0), 0);
+  const totalViews = data?.crossChannelSummary?.adImpressions ? Number(data.crossChannelSummary.adImpressions) : campaignsList.reduce((acc, c) => acc + (c.views || 0), 0);
+  const totalReach = data?.crossChannelSummary?.totalReachSocial ? Number(data.crossChannelSummary.totalReachSocial) : campaignsList.reduce((acc, c) => acc + (c.viewers || 0), 0);
+  const totalLinkClicks = data?.crossChannelSummary?.linkClicksToWebsite ? Number(data.crossChannelSummary.linkClicksToWebsite) : campaignsList.reduce((acc, c) => acc + (c.resultCount || 0), 0);
+  const avgCpc = totalLinkClicks > 0 ? (totalSpentUSD / totalLinkClicks).toFixed(3) : '0.030';
+
   return (
     <div>
       {/* Header intro & Quick Links */}
@@ -194,7 +294,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 Inversión en Anuncios
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                ${adAccount?.amountSpent ? Number(adAccount.amountSpent).toFixed(2) : '54.54'} USD
+                ${totalSpentUSD.toFixed(2)} USD
               </div>
             </div>
             <div style={{ padding: '8px', background: '#fdf2f8', borderRadius: '8px', color: '#db2777' }}>
@@ -202,7 +302,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '8px', fontWeight: 600 }}>
-            ● 3 Reels promocionados en Meta
+            ● {campaignsList.length} publicaciones promocionadas en Meta
           </div>
         </div>
 
@@ -214,7 +314,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 Vistas / Impresiones
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {data?.crossChannelSummary?.adImpressions ? Number(data.crossChannelSummary.adImpressions).toLocaleString() : '63,973'}
+                {totalViews.toLocaleString()}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#eff6ff', borderRadius: '8px', color: '#2563eb' }}>
@@ -222,7 +322,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#2563eb', marginTop: '8px', fontWeight: 600 }}>
-            {data?.crossChannelSummary?.totalReachSocial ? Number(data.crossChannelSummary.totalReachSocial).toLocaleString() : '44,973'} personas alcanzadas (Viewers)
+            {totalReach.toLocaleString()} personas alcanzadas (Viewers)
           </div>
         </div>
 
@@ -231,10 +331,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Clics al Sitio Web
+                Clics / Resultados Web
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {data?.crossChannelSummary?.linkClicksToWebsite ? Number(data.crossChannelSummary.linkClicksToWebsite).toLocaleString() : '1,999'}
+                {totalLinkClicks.toLocaleString()}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#f0fdf4', borderRadius: '8px', color: '#16a34a' }}>
@@ -242,7 +342,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '8px', fontWeight: 600 }}>
-            $0.027 USD Costo por Clic (CPC)
+            ${avgCpc} USD Costo por Resultado promedio
           </div>
         </div>
 
@@ -305,213 +405,114 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
 
           <div style={{ display: 'flex', gap: '8px' }}>
             <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
-              Inversión Total: $54.54 USD · 63,973 Vistas
+              Inversión Total: ${totalSpentUSD.toFixed(2)} USD · {totalViews.toLocaleString()} Vistas
             </span>
           </div>
         </div>
 
-        {/* Lista de 3 Campañas Reales con Fidelidad al Dashboard de Meta */}
+        {/* Lista Dinámica de Publicaciones Promocionadas con Fidelidad al Dashboard de Meta */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '18px' }}>
-          
-          {/* Reel 1: Tasman Redefine (Nov 20 · Activo) */}
-          <div
-            style={{
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '16px 20px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  ● Active
-                </span>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>• Nov 20</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <a
-                  href="https://adsmanager.facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-outline"
-                  style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: 700 }}
-                >
-                  View details
-                </a>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) repeat(4, 1fr)', gap: '16px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '8px', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0 }}>
-                  <Film size={20} />
+          {campaignsList.map((camp: any) => {
+            const isActive = camp.status === 'Active';
+            return (
+              <div
+                key={camp.id}
+                style={{
+                  background: isActive ? '#faf5ff' : '#ffffff',
+                  border: isActive ? '1px solid #e9d5ff' : '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '16px 20px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span
+                      style={{
+                        background: isActive ? '#dcfce7' : '#f1f5f9',
+                        color: isActive ? '#15803d' : '#475569',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      ● {camp.status}
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>• {camp.date}</span>
+                    {camp.vehicle && (
+                      <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '10px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
+                        Kia {camp.vehicle}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <a
+                      href="https://adsmanager.facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline"
+                      style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: 700 }}
+                    >
+                      {isActive ? 'View details' : 'View results'}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>Boosted Instagram reel</div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', maxWidth: '320px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    Tasman redefine lo que puede ser una pickup: no solo es una...
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) repeat(4, 1fr)', gap: '16px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '8px', background: isActive ? '#6b21a8' : '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0 }}>
+                      {camp.mediaType === 'post' ? <Camera size={20} /> : <Film size={20} />}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>{camp.type || camp.name}</div>
+                      <div style={{ fontSize: '11.5px', color: '#64748b', maxWidth: '340px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {camp.caption}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
+                      {camp.views ? Number(camp.views).toLocaleString() : '—'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Views</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
+                      {camp.viewers ? Number(camp.viewers).toLocaleString() : '—'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Viewers</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '17px', fontWeight: 800, color: isActive ? '#16a34a' : '#7c3aed', fontFamily: 'monospace' }}>
+                      {camp.resultCount ? Number(camp.resultCount).toLocaleString() : '—'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>{camp.resultType}</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
+                      ${Number(camp.amountSpent).toFixed(2)}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                      Spend of ${Number(camp.dailyBudget || 10).toFixed(2)}/day
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>3,377</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Views</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>3,124</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Viewers</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0284c7', fontFamily: 'monospace' }}>100</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Link Clicks</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>$2.33</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Spend of $10.00/day</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Reel 2: Tasman Pickup (Nov 19 · Pausado) */}
-          <div
-            style={{
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '16px 20px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ background: '#f1f5f9', color: '#475569', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  ● Paused
-                </span>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>• Nov 19</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <a
-                  href="https://adsmanager.facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-outline"
-                  style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: 700 }}
-                >
-                  View results
-                </a>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) repeat(4, 1fr)', gap: '16px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '8px', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0 }}>
-                  <Film size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>Boosted Instagram reel</div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', maxWidth: '320px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    Tasman redefine lo que puede ser una pickup: no solo es una...
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>2,215</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Views</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>1,888</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Viewers</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#7c3aed', fontFamily: 'monospace' }}>75</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Profile visits</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>$6.23</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Spend of $10.00/day</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Reel 3: Soluto Familiar (Nov 17 · En revisión) */}
-          <div
-            style={{
-              background: '#faf5ff',
-              border: '1px solid #e9d5ff',
-              borderRadius: '10px',
-              padding: '16px 20px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #f3e8ff', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ background: '#fef3c7', color: '#b45309', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  ● In review
-                </span>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>• Nov 17 (Campaña Masiva Soluto)</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <a
-                  href="https://adsmanager.facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-outline"
-                  style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: 700, borderColor: '#d8b4fe', color: '#7e22ce', background: '#fff' }}
-                >
-                  View details
-                </a>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) repeat(4, 1fr)', gap: '16px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '8px', background: '#6b21a8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0 }}>
-                  <Film size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>Boosted Instagram reel (Soluto)</div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', maxWidth: '320px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    Cuando un vehículo responde tanto a la rutina familiar como a tus...
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>58,381</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Views</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>39,961</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Viewers</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#16a34a', fontFamily: 'monospace' }}>1,899</div>
-                <div style={{ fontSize: '11px', color: '#15803d', fontWeight: 700 }}>Link Clicks ($0.024 CPC)</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>$45.98</div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Spend of $10.00/day</div>
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
 
         {/* Banner de Correlación Meta Ads ➔ Microsoft Clarity */}
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '14px 18px', borderRadius: '8px', fontSize: '12.5px', color: '#166534', lineHeight: 1.5 }}>
-          <strong>Atribución Cruzada Confirmada:</strong> Los <strong>1,899 clics de enlace</strong> del Reel de Soluto coinciden directamente con las <strong>1,245 sesiones</strong> registradas en Microsoft Clarity para la URL <code>/modelos/soluto</code>. Con un costo total de <strong>$45.98 USD</strong> en ese Reel, el costo real por visitante cualificado al showroom digital fue de solo <strong>$0.024 USD</strong>.
+          <strong>Atribución Cruzada Confirmada:</strong> Se han invertido un total acumulado de <strong>${totalSpentUSD.toFixed(2)} USD</strong> en {campaignsList.length} publicaciones promocionadas en Meta/Instagram, generando <strong>{totalLinkClicks.toLocaleString()} clics de enlace y visitas</strong> que alimentan el tráfico analizado en Microsoft Clarity y los prospectos cualificados por los asesores.
         </div>
       </div>
 

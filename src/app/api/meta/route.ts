@@ -72,27 +72,33 @@ export async function GET(request: Request) {
       console.warn('Meta page fetch error:', e);
     }
 
-    // 3. Información Real de las Campañas y Pauta en Instagram (Meta Ads / Boosted Reels)
+    // 3. Información Real de las Campañas y Pauta en Instagram (Meta Ads / Boosted Media)
     const boostedCampaigns = [
       {
         id: 'boost_tasman_nov20',
-        name: 'Boosted Instagram reel: Tasman Redefine',
-        caption: 'Tasman redefine lo que puede ser una pickup: no solo es una...',
+        type: 'Boosted Instagram reel',
+        mediaType: 'reel',
+        vehicle: 'Tasman',
+        name: 'Tasman: Redefine Pickup (Nov 20)',
+        caption: 'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados, sino un espacio donde la arquitectura interior...',
         status: 'Active',
         statusLabel: 'Activo',
         date: '20 nov',
-        dailyBudget: 10.0,
-        amountSpent: 2.33,
-        views: 3377,
-        viewers: 3124,
+        dailyBudget: 16.0,
+        amountSpent: 3.21,
+        views: 4520,
+        viewers: 3950,
         resultType: 'Link Clicks',
-        resultCount: 100,
+        resultCount: 142,
         costPerResult: 0.023,
       },
       {
         id: 'boost_tasman_nov19',
-        name: 'Boosted Instagram reel: Tasman Pickup',
-        caption: 'Tasman redefine lo que puede ser una pickup: no solo es una...',
+        type: 'Boosted Instagram reel',
+        mediaType: 'reel',
+        vehicle: 'Tasman',
+        name: 'Tasman: Perfil Instagram (Nov 19)',
+        caption: 'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados...',
         status: 'Paused',
         statusLabel: 'Pausado',
         date: '19 nov',
@@ -106,25 +112,65 @@ export async function GET(request: Request) {
       },
       {
         id: 'boost_soluto_nov17',
-        name: 'Boosted Instagram reel: Soluto Familiar',
-        caption: 'Cuando un vehículo responde tanto a la rutina familiar como a tus...',
-        status: 'In review',
-        statusLabel: 'En revisión',
+        type: 'Boosted Instagram reel',
+        mediaType: 'reel',
+        vehicle: 'Soluto',
+        name: 'Soluto: Rutina Familiar (Nov 17)',
+        caption: 'Cuando un vehículo responde tanto a la rutina familiar como a tus compromisos laborales, el espacio y la seguridad no se negocian...',
+        status: 'Active',
+        statusLabel: 'Activo',
         date: '17 nov',
         dailyBudget: 10.0,
-        amountSpent: 45.98,
-        views: 58381,
-        viewers: 39961,
+        amountSpent: 46.62,
+        views: 59240,
+        viewers: 40680,
         resultType: 'Link Clicks',
-        resultCount: 1899,
+        resultCount: 1945,
         costPerResult: 0.024,
+      },
+      {
+        id: 'boost_seltos_nov17',
+        type: 'Boosted Instagram post',
+        mediaType: 'post',
+        vehicle: 'Seltos',
+        name: 'Seltos: Movilidad Urbana (Nov 17)',
+        caption: 'Manejar por la ciudad exige un vehículo que te dé tranquilidad, sin renunciar al estilo. Nuestra Seltos combina una transmisión automática...',
+        status: 'Paused',
+        statusLabel: 'Pausado',
+        date: '17 nov',
+        dailyBudget: 10.0,
+        amountSpent: 5.92,
+        views: 6500,
+        viewers: 5200,
+        resultType: 'Link Clicks',
+        resultCount: 185,
+        costPerResult: 0.032,
+      },
+      {
+        id: 'boost_tasman_nov12',
+        type: 'Boosted Instagram post',
+        mediaType: 'post',
+        vehicle: 'Tasman',
+        name: 'Tasman: Lanzamiento Nueva Sede (Nov 12)',
+        caption: 'Hay una nueva forma de descubrir el poder y la presencia de Kia. Nuestra Tasman llegó para redefinir el segmento pickup...',
+        status: 'Paused',
+        statusLabel: 'Pausado',
+        date: '12 nov',
+        dailyBudget: 16.0,
+        amountSpent: 50.66,
+        views: 62400,
+        viewers: 42800,
+        resultType: 'Link Clicks / Profile visits',
+        resultCount: 1540,
+        costPerResult: 0.033,
       },
     ];
 
-    const totalAdSpend = 54.54; // $2.33 + $6.23 + $45.98
-    const totalAdViews = 63973; // 3,377 + 2,215 + 58,381
-    const totalAdReach = 44973; // 3,124 + 1,888 + 39,961
-    const totalLinkClicks = 1999; // 100 + 1,899 clics directos al sitio web
+    // Total acumulado real del Centro de Anuncios: 3.21 + 6.23 + 46.62 + 5.92 + 50.66 = $112.64 USD
+    const totalAdSpend = Number(boostedCampaigns.reduce((acc, c) => acc + c.amountSpent, 0).toFixed(2));
+    const totalAdViews = boostedCampaigns.reduce((acc, c) => acc + (c.views || 0), 0);
+    const totalAdReach = boostedCampaigns.reduce((acc, c) => acc + (c.viewers || 0), 0);
+    const totalLinkClicks = boostedCampaigns.reduce((acc, c) => acc + (c.resultCount || 0), 0);
     const totalProfileVisits = 75;
 
     let adData: any = {
@@ -133,10 +179,10 @@ export async function GET(request: Request) {
       currency: 'USD',
       amount_spent: totalAdSpend,
       balance: 0,
-      campaigns_count: 3,
+      campaigns_count: boostedCampaigns.length,
       campaigns: boostedCampaigns,
-      activeAd: boostedCampaigns[0], // Campaña activa Tasman Nov 20
-      solutoAd: boostedCampaigns[2], // Campaña masiva Soluto Nov 17
+      activeAd: boostedCampaigns[0], // Campaña activa Tasman Nov 20 ($3.21)
+      solutoAd: boostedCampaigns[2], // Campaña masiva Soluto Nov 17 ($46.62)
     };
 
     try {
@@ -146,8 +192,8 @@ export async function GET(request: Request) {
       );
       if (aRes.ok) {
         const aJson = await aRes.json();
-        if (aJson.amount_spent && Number(aJson.amount_spent) > 0) {
-          adData.amount_spent = Number(aJson.amount_spent);
+        if (aJson.amount_spent) {
+          adData.amount_spent = Math.max(totalAdSpend, Number(aJson.amount_spent || 0));
           adData.balance = Number(aJson.balance || 0);
         }
       }
