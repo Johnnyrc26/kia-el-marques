@@ -96,20 +96,68 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
 
   const nameInputRef = useRef<HTMLInputElement>(null);
   const phoneInputRef = useRef<HTMLInputElement>(null);
+  const hasStartedRef = useRef(false);
+
+  // Helper para registrar eventos y dimensiones personalizadas en Microsoft Clarity
+  const trackClarity = (action: 'event' | 'set', key: string, value?: string) => {
+    if (typeof window !== 'undefined') {
+      const c = (window as any).clarity;
+      if (typeof c === 'function') {
+        try {
+          if (action === 'event') {
+            c('event', key);
+          } else if (action === 'set' && value !== undefined) {
+            c('set', key, String(value));
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+  };
+
+  const markQuizStarted = (modelName?: string) => {
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true;
+      trackClarity('event', 'quiz_iniciado');
+      if (modelName || formData.model_interest) {
+        trackClarity('set', 'quiz_modelo', modelName || formData.model_interest);
+      }
+      if (advisor?.name) {
+        trackClarity('set', 'quiz_asesor', advisor.name);
+      }
+    }
+  };
 
   const handleSelect = (field: keyof LeadSubmission, value: string) => {
+    markQuizStarted();
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (fieldErrors[field as 'full_name' | 'phone']) {
       setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+    if (field === 'primary_use') trackClarity('set', 'quiz_uso', value);
+    if (field === 'favorite_color') trackClarity('set', 'quiz_color', value);
+    if (field === 'financing_interest') trackClarity('set', 'quiz_financiamiento', value);
+    if (field === 'timeline') trackClarity('set', 'quiz_tiempo', value);
   };
 
   const nextStep = () => {
-    if (step < totalSteps) setStep(step + 1);
+    markQuizStarted();
+    if (step < totalSteps) {
+      const next = step + 1;
+      setStep(next);
+      trackClarity('event', `quiz_paso_${next}`);
+      trackClarity('set', 'quiz_paso_actual', String(next));
+    }
   };
 
   const prevStep = () => {
-    if (step > 1) setStep(step - 1);
+    if (step > 1) {
+      const prev = step - 1;
+      setStep(prev);
+      trackClarity('event', `quiz_retrocedio_paso_${prev}`);
+      trackClarity('set', 'quiz_paso_actual', String(prev));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -141,6 +189,7 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       setErrorMsg('Por favor completa los campos requeridos para continuar.');
+      trackClarity('event', 'quiz_error_validacion');
       if (errors.full_name) {
         nameInputRef.current?.focus();
       } else if (errors.phone) {
@@ -152,6 +201,16 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
     setIsSubmitting(true);
     setErrorMsg('');
     setFieldErrors({});
+
+    // Registrar evento de conversión completada exitosa en Clarity con metadatos de interés
+    trackClarity('event', 'quiz_completado_exitoso');
+    trackClarity('set', 'lead_modelo', formData.model_interest);
+    trackClarity('set', 'lead_financiamiento', formData.financing_interest);
+    trackClarity('set', 'lead_tiempo', formData.timeline);
+    trackClarity('set', 'lead_nombre', formData.full_name.trim());
+    if (advisor?.name) {
+      trackClarity('set', 'lead_asesor', advisor.name);
+    }
 
     const targetPhone = advisor?.phone ? advisor.phone.replace(/[^0-9]/g, '') : '584228846784';
     const cleanName = formData.full_name.trim();
@@ -340,7 +399,11 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        id="form_quiz_cotizacion"
+        data-clarity-name="formulario_quiz_kia"
+        onSubmit={handleSubmit}
+      >
         {/* Step 1: Modelo de Interés */}
         {step === 1 && (
           <div>
@@ -356,6 +419,7 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                   type="button"
                   key={m.id}
                   onClick={() => {
+                    markQuizStarted(m.name);
                     const modelCases = modelUseCases[m.name] || modelUseCases['Tasman'];
                     setFormData((prev) => ({
                       ...prev,
@@ -363,6 +427,9 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                       primary_use: modelCases[0]?.title || prev.primary_use,
                       favorite_color: m.availableColors[0]?.name || prev.favorite_color,
                     }));
+                    trackClarity('set', 'quiz_modelo', m.name);
+                    trackClarity('event', 'quiz_paso_2');
+                    trackClarity('set', 'quiz_paso_actual', '2');
                     setStep(2);
                   }}
                   style={{
@@ -402,22 +469,13 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
             <p style={{ fontSize: '13.5px', color: 'var(--g60)', marginBottom: '18px' }}>
               Nos ayuda a recomendarte la versión con la mejor motorización y equipamiento para tu día a día:
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+            <div className="quiz-options-2col-grid">
               {(modelUseCases[formData.model_interest] || modelUseCases['Tasman']).map((opt) => (
                 <button
                   type="button"
                   key={opt.title}
                   onClick={() => handleSelect('primary_use', opt.title)}
-                  style={{
-                    padding: '16px',
-                    borderRadius: 'var(--radius-md)',
-                    border: formData.primary_use === opt.title ? '2px solid var(--g100)' : '1px solid var(--g10)',
-                    background: formData.primary_use === opt.title ? 'var(--g1)' : '#ffffff',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    color: 'var(--g100)',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className={`quiz-option-card ${formData.primary_use === opt.title ? 'is-selected' : ''}`}
                 >
                   <div style={{ fontWeight: 800, fontSize: '14px', marginBottom: '4px' }}>{opt.title}</div>
                   <div style={{ fontSize: '12px', color: 'var(--g60)', lineHeight: 1.4 }}>{opt.desc}</div>
@@ -500,7 +558,7 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
               <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--g90)', display: 'block', marginBottom: '8px' }}>
                 Forma de pago de tu interés:
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+              <div className="quiz-options-2col-grid">
                 {[
                   'Crédito bancario nacional',
                   'Financiamiento directo con concesionario (con fiador)',
@@ -511,17 +569,8 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                     type="button"
                     key={fin}
                     onClick={() => handleSelect('financing_interest', fin)}
-                    style={{
-                      padding: '12px',
-                      borderRadius: 'var(--radius-sm)',
-                      border: formData.financing_interest === fin ? '2px solid var(--g100)' : '1px solid var(--g10)',
-                      background: formData.financing_interest === fin ? 'var(--g1)' : '#ffffff',
-                      fontSize: '12.5px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      color: 'var(--g100)',
-                    }}
+                    className={`quiz-option-card ${formData.financing_interest === fin ? 'is-selected' : ''}`}
+                    style={{ padding: '14px 16px', fontSize: '13px', fontWeight: 700 }}
                   >
                     {fin}
                   </button>

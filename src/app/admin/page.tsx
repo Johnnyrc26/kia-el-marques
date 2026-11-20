@@ -39,10 +39,15 @@ import {
   Award,
   Layers,
   ArrowRight,
-  UserX
+  UserX,
+  Globe,
+  Megaphone,
 } from 'lucide-react';
 import { LeadSubmission } from '@/types';
 import { ADVISORS, Advisor } from '@/data/advisors';
+import { Resumen360View } from '@/components/admin/Resumen360View';
+import { ClarityAnalyticsView } from '@/components/admin/ClarityAnalyticsView';
+import { MetaAdsView } from '@/components/admin/MetaAdsView';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -51,8 +56,8 @@ export default function AdminPage() {
   const [leads, setLeads] = useState<LeadSubmission[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Tabs: prospectos | asesores | metricas
-  const [activeTab, setActiveTab] = useState<'prospectos' | 'asesores' | 'metricas'>('prospectos');
+  // Tabs: resumen | prospectos | asesores | metricas | clarity | meta
+  const [activeTab, setActiveTab] = useState<'resumen' | 'prospectos' | 'asesores' | 'metricas' | 'clarity' | 'meta'>('resumen');
 
   // Filters
   const [filterModel, setFilterModel] = useState('todos');
@@ -69,6 +74,89 @@ export default function AdminPage() {
   const [justRefreshed, setJustRefreshed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Clarity API State
+  const [clarityToken, setClarityToken] = useState<string>('');
+  const [clarityData, setClarityData] = useState<any | null>(null);
+  const [clarityLoading, setClarityLoading] = useState(false);
+  const [clarityError, setClarityError] = useState<string | null>(null);
+
+  // Meta Ads State
+  const [metaData, setMetaData] = useState<any | null>(null);
+  const [metaLoading, setMetaLoading] = useState(false);
+  const [metaError, setMetaError] = useState<string | null>(null);
+
+  // Cargar métricas de Clarity y Meta automáticamente al autenticarse
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isAuthenticated) {
+      const savedToken = localStorage.getItem('kia_clarity_token') || '';
+      if (savedToken) setClarityToken(savedToken);
+      fetchClarityMetrics(savedToken || undefined);
+      fetchMetaData();
+    }
+  }, [isAuthenticated]);
+
+  const fetchClarityMetrics = async (tokenToUse?: string, force = false) => {
+    setClarityLoading(true);
+    setClarityError(null);
+    try {
+      const savedPass = sessionStorage.getItem('kia_admin_pass') || password || 'kia2026';
+      const url = `/api/clarity?adminKey=${encodeURIComponent(savedPass)}${force ? '&force=true' : ''}&_t=${Date.now()}`;
+      const headers: Record<string, string> = {};
+      const token = tokenToUse !== undefined ? tokenToUse : clarityToken;
+      if (token) headers['x-clarity-token'] = token;
+      const res = await fetch(url, { headers, cache: 'no-store' });
+      const rawText = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        setClarityError('Respuesta no válida de la API de Clarity');
+        return;
+      }
+      if (res.ok && data.success) {
+        setClarityData(data.data);
+      } else {
+        setClarityError(data.error || 'Error al conectar con Clarity');
+      }
+    } catch (e: any) {
+      setClarityError(e?.message || 'Error de conexión con Clarity');
+    } finally {
+      setClarityLoading(false);
+    }
+  };
+
+  const saveClarityToken = (tok: string) => {
+    const clean = tok.trim();
+    setClarityToken(clean);
+    if (typeof window !== 'undefined') localStorage.setItem('kia_clarity_token', clean);
+    if (clean) fetchClarityMetrics(clean, true);
+  };
+
+  const fetchMetaData = async (force = false) => {
+    setMetaLoading(true);
+    setMetaError(null);
+    try {
+      const res = await fetch(`/api/meta?${force ? 'refresh=true&' : ''}_t=${Date.now()}`, { cache: 'no-store' });
+      const rawText = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        setMetaError('Respuesta no válida del endpoint de Meta');
+        return;
+      }
+      if (res.ok && data.connected) {
+        setMetaData(data);
+      } else {
+        setMetaError(data.error || 'Error al conectar con Meta Graph API');
+      }
+    } catch (e: any) {
+      setMetaError(e?.message || 'Error de red con Meta');
+    } finally {
+      setMetaLoading(false);
+    }
+  };
 
   // Reset page when filters change
   useEffect(() => {
@@ -88,8 +176,9 @@ export default function AdminPage() {
     setLoading(true);
     setLoginError('');
     try {
-      const res = await fetch(`/api/leads?adminKey=${encodeURIComponent(pass)}`, {
+      const res = await fetch(`/api/leads?adminKey=${encodeURIComponent(pass)}&_t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${pass}` },
+        cache: 'no-store',
       });
       if (res.status === 401) {
         setIsAuthenticated(false);
@@ -387,6 +476,8 @@ _Por favor confirmar recepción._`;
   const handleRefresh = () => {
     const key = password || (typeof window !== 'undefined' ? sessionStorage.getItem('kia_admin_pass') : '') || 'kia2026';
     fetchLeads(key);
+    fetchClarityMetrics(undefined, true);
+    fetchMetaData(true);
     setJustRefreshed(true);
     setTimeout(() => setJustRefreshed(false), 1500);
   };
@@ -700,7 +791,44 @@ _Por favor confirmar recepción._`;
         </div>
 
         {/* Tab Navigation Switcher */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid #e2e8f0', paddingBottom: '2px', overflowX: 'auto' }}>
+        <div className="admin-tabs-nav">
+          <button
+            type="button"
+            onClick={() => setActiveTab('resumen')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '8px 8px 0 0',
+              border: 'none',
+              background: activeTab === 'resumen' ? '#05141f' : 'transparent',
+              color: activeTab === 'resumen' ? '#ffffff' : '#64748b',
+              fontWeight: 700,
+              fontSize: '13.5px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
+              position: 'relative',
+              top: '2px',
+            }}
+          >
+            <Sparkles size={16} />
+            <span>Resumen General 360°</span>
+            <span
+              style={{
+                fontSize: '11px',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                background: activeTab === 'resumen' ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                color: activeTab === 'resumen' ? '#ffffff' : '#475569',
+                fontWeight: 800,
+              }}
+            >
+              Control Total
+            </span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('prospectos')}
@@ -811,7 +939,102 @@ _Por favor confirmar recepción._`;
               Inteligencia Quiz
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('clarity');
+              if (!clarityData && !clarityLoading) fetchClarityMetrics();
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '8px 8px 0 0',
+              border: 'none',
+              background: activeTab === 'clarity' ? '#05141f' : 'transparent',
+              color: activeTab === 'clarity' ? '#ffffff' : '#64748b',
+              fontWeight: 700,
+              fontSize: '13.5px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
+              position: 'relative',
+              top: '2px',
+            }}
+          >
+            <Globe size={16} />
+            <span>Tráfico & Clarity</span>
+            <span
+              style={{
+                fontSize: '11px',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                background: activeTab === 'clarity' ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                color: activeTab === 'clarity' ? '#ffffff' : '#475569',
+                fontWeight: 800,
+              }}
+            >
+              Web Analytics
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('meta');
+              if (!metaData && !metaLoading) fetchMetaData();
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '8px 8px 0 0',
+              border: 'none',
+              background: activeTab === 'meta' ? '#05141f' : 'transparent',
+              color: activeTab === 'meta' ? '#ffffff' : '#64748b',
+              fontWeight: 700,
+              fontSize: '13.5px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
+              position: 'relative',
+              top: '2px',
+            }}
+          >
+            <Megaphone size={16} />
+            <span>Meta Ads & Instagram</span>
+            <span
+              style={{
+                fontSize: '11px',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                background: activeTab === 'meta' ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                color: activeTab === 'meta' ? '#ffffff' : '#475569',
+                fontWeight: 800,
+              }}
+            >
+              @kiaelmarques
+            </span>
+          </button>
         </div>
+
+        {/* ============================================================== */}
+        {/* PESTAÑA 0: RESUMEN GENERAL 360°                                */}
+        {/* ============================================================== */}
+        {activeTab === 'resumen' && (
+          <Resumen360View
+            leads={leads}
+            clarityData={clarityData}
+            metaData={metaData}
+            setActiveTab={setActiveTab}
+            onRefresh={handleRefresh}
+            loading={loading || clarityLoading || metaLoading}
+            onExportCSV={exportCSV}
+          />
+        )}
 
         {/* ============================================================== */}
         {/* PESTAÑA 1: PROSPECTOS & BANDEJA PRINCIPAL                     */}
@@ -1071,7 +1294,7 @@ _Por favor confirmar recepción._`;
                   </p>
                 </div>
               ) : (
-                <div style={{ overflowX: 'auto' }}>
+                <div className="admin-table-scroll">
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontWeight: 700, textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em' }}>
@@ -2074,6 +2297,32 @@ _Por favor confirmar recepción._`;
               </div>
             )}
           </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* PESTAÑA 4: TRÁFICO WEB & MICROSOFT CLARITY                    */}
+        {/* ============================================================== */}
+        {activeTab === 'clarity' && (
+          <ClarityAnalyticsView
+            data={clarityData}
+            loading={clarityLoading}
+            error={clarityError}
+            onRefresh={() => fetchClarityMetrics(undefined, true)}
+            onSaveToken={saveClarityToken}
+            token={clarityToken}
+          />
+        )}
+
+        {/* ============================================================== */}
+        {/* PESTAÑA 5: META ADS & INSTAGRAM (@kiaelmarques)               */}
+        {/* ============================================================== */}
+        {activeTab === 'meta' && (
+          <MetaAdsView
+            data={metaData}
+            loading={metaLoading}
+            error={metaError}
+            onRefresh={() => fetchMetaData(true)}
+          />
         )}
 
       </div>

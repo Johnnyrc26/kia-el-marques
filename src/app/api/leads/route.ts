@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { saveLead, getLeads, updateLeadStatus, updateLead, deleteLead } from '@/lib/leadsStorage';
 import { LeadSubmission } from '@/types';
 
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  Pragma: 'no-cache',
+};
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -32,7 +37,7 @@ export async function GET(req: Request) {
   }
 
   const leads = await getLeads();
-  return NextResponse.json({ success: true, leads });
+  return NextResponse.json({ success: true, leads }, { headers: NO_CACHE_HEADERS });
 }
 
 export async function PATCH(req: Request) {
