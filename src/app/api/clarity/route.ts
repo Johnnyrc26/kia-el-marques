@@ -55,11 +55,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    // Token de Clarity obtenido de variables de entorno o de la cabecera/parámetro
+    // Token de Clarity obtenido de variables de entorno, cabecera o fallback integrado
+    const FALLBACK_CLARITY_TOKEN =
+      'eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ4M0FCMDhFNUYwRDMxNjdEOTRFMTQ3M0FEQTk2RTcyRDkwRUYwRkYiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiJkN2U4OTMzMC01M2E4LTRjMzYtOWNhNS0yZDRkNjgyMDUwMTgiLCJzdWIiOiIzNTk4NDU0OTg5MTQxNjUwIiwic2NvcGUiOiJEYXRhLkV4cG9ydCIsIm5iZiI6MTc5NTE5OTg5NywiZXhwIjo0OTQ4Nzk5ODk3LCJpYXQiOjE3OTUxOTk4OTcsImlzcyI6ImNsYXJpdHkiLCJhdWQiOiJjbGFyaXR5LmRhdGEtZXhwb3J0ZXIifQ.YrxVXJgJbrpD5yCWU1ngy6NagYINu0XS-Puv2cFWY5C4JooUiZy4V_0TFTWvnGkM86ey6kofxwRb9JwVL5069XWLpIaIAW-pJ3f-PFhs2CCDkwtxlckmlDzLzdvJAZ5xruyoA1ms7kZC2T1Lu-0WFEgy8jadKROquL0jKWcd_9qDdD0ynz1TOooh12y9f_56gXtga2Zi_0vbhW4emTEOUqYJwh9qLDE_1-4F0k97KIE74AoImmwK8Pb4kHJgZcKLzm_Dgkpv8Sl4n208Ma7HmUVKyttXsOOe4lGe52FLkOmvy8CuL2KFAW9Zyjs4y9bAmLJfnqvxMIV8jjbUWlMomw';
+
     const clarityToken =
       process.env.CLARITY_API_TOKEN ||
       req.headers.get('x-clarity-token') ||
-      searchParams.get('clarityToken');
+      searchParams.get('clarityToken') ||
+      FALLBACK_CLARITY_TOKEN;
 
     if (!clarityToken) {
       return NextResponse.json({

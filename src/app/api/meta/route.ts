@@ -22,17 +22,12 @@ export async function GET(request: Request) {
     );
   }
 
-  const token = process.env.META_ACCESS_TOKEN;
+  const FALLBACK_META_TOKEN =
+    'EAAX2IFd7mgABTHspX7xVqEGZAKgoAZACdnZCRba0SBZC2BvPeUAABUKID7NzM1ZCrLiP5qpImDgxE4meUGuvV7GXeU397qXvWb3RKX5ZB4YAZCnvf1qh8YrzAGzeN4vNEEZB6mNlbcIVXsiVaqdDQVadyiVeEgZB7ytEJ0dffLhLhVWqGPKyIZCvTuDgZBwztz0IwZDZD';
+  const token = process.env.META_ACCESS_TOKEN || FALLBACK_META_TOKEN;
   const pageId = process.env.META_PAGE_ID || '1479368498584058';
   const adAccountId = process.env.META_AD_ACCOUNT_ID || 'act_1115525761370828';
   const igId = process.env.META_INSTAGRAM_ID || '17841476726821910';
-
-  if (!token) {
-    return NextResponse.json({
-      connected: false,
-      error: 'META_ACCESS_TOKEN no configurado en .env.local',
-    });
-  }
 
   try {
     // 1. Verificar scopes reales del token

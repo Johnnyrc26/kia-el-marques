@@ -146,10 +146,13 @@ export default function AdminPage() {
         setMetaError('Respuesta no válida del endpoint de Meta');
         return;
       }
-      if (res.ok && data.connected) {
+      if (res.ok && data) {
         setMetaData(data);
+        if (!data.connected && data.error) {
+          setMetaError(data.error);
+        }
       } else {
-        setMetaError(data.error || 'Error al conectar con Meta Graph API');
+        setMetaError(data?.error || 'Error al conectar con Meta Graph API');
       }
     } catch (e: any) {
       setMetaError(e?.message || 'Error de red con Meta');
