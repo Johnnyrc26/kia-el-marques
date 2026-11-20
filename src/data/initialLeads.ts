@@ -14,6 +14,8 @@ export const INITIAL_LEADS: LeadSubmission[] = [
     favorite_color: 'Blanco Glaciar',
     financing_interest: 'Crédito bancario nacional',
     timeline: 'Inmediato (este mes)',
-    status: 'nuevo',
+    status: 'en_seguimiento',
+    advisor_name: 'Eduardo Revollo',
+    advisor_slug: 'eduardo-revollo',
   },
 ];
