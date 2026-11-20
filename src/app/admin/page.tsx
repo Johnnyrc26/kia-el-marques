@@ -1579,44 +1579,7 @@ _Por favor confirmar recepción._`;
               </div>
             </div>
 
-            {/* Banner para leads sin asignar si existen */}
-            {unassignedLeadsCount > 0 && (
-              <div style={{ background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: '10px', padding: '14px 18px', marginBottom: '22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ padding: '6px', background: '#fef3c7', borderRadius: '8px', color: '#d97706' }}>
-                    <AlertTriangle size={18} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#92400e' }}>
-                      Tienes {unassignedLeadsCount} {unassignedLeadsCount === 1 ? 'prospecto sin asesor asignado' : 'prospectos sin asesor asignado'}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#78350f', marginTop: '2px' }}>
-                      Haz clic para filtrarlos en la bandeja y asignarlos a un asesor por WhatsApp en 1 toque.
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => filterByAdvisorAndSwitch('sin_asignar')}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    background: '#d97706',
-                    border: 'none',
-                    color: '#ffffff',
-                    fontSize: '12.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 1px 3px rgba(217,119,6,0.3)',
-                  }}
-                >
-                  <span>Ver {unassignedLeadsCount} sin asignar →</span>
-                </button>
-              </div>
-            )}
+
 
             {/* Grid de Asesores */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '18px' }}>
