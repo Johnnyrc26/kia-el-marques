@@ -37,10 +37,11 @@ export async function GET(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const authHeader = req.headers.get('authorization');
+    const { searchParams } = new URL(req.url);
+    const authHeader = req.headers.get('authorization') || searchParams.get('adminKey');
     const expectedPassword = process.env.ADMIN_PASSWORD || 'kia2026';
 
-    if (authHeader !== `Bearer ${expectedPassword}`) {
+    if (authHeader !== expectedPassword && authHeader !== `Bearer ${expectedPassword}`) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
@@ -52,8 +53,8 @@ export async function PATCH(req: Request) {
 
     const updates: Partial<LeadSubmission> = {};
     if (status !== undefined) updates.status = status;
-    if (advisor_name !== undefined) updates.advisor_name = advisor_name;
-    if (advisor_slug !== undefined) updates.advisor_slug = advisor_slug;
+    if (advisor_name !== undefined) updates.advisor_name = advisor_name || undefined;
+    if (advisor_slug !== undefined) updates.advisor_slug = advisor_slug || undefined;
 
     await updateLead(id, updates);
     return NextResponse.json({ success: true });

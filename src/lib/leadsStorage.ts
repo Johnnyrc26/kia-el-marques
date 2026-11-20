@@ -40,8 +40,8 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
   const leadWithMeta: LeadSubmission = {
     ...data,
     id: data.id || `lead_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    created_at: new Date().toISOString(),
-    status: 'nuevo',
+    created_at: data.created_at || new Date().toISOString(),
+    status: data.status || 'nuevo',
   };
 
   // 1. Update in-memory cache immediately
@@ -71,13 +71,31 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
         tmpList = [];
       }
     }
-    tmpList.unshift(leadWithMeta);
+    tmpList = [leadWithMeta, ...tmpList.filter((l) => l.id !== leadWithMeta.id)];
     fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(tmpList, null, 2), 'utf-8');
   } catch {
     // ignore
   }
 
-  // 4. Netlify Blobs (Cloud Persistence with 5s timeout)
+  // 4. Local src/data/leads.json disk backup
+  try {
+    if (fs.existsSync(path.dirname(LEADS_FILE_PATH))) {
+      let localList: LeadSubmission[] = [];
+      if (fs.existsSync(LEADS_FILE_PATH)) {
+        try {
+          localList = JSON.parse(fs.readFileSync(LEADS_FILE_PATH, 'utf-8') || '[]');
+        } catch {
+          localList = [];
+        }
+      }
+      localList = [leadWithMeta, ...localList.filter((l) => l.id !== leadWithMeta.id)];
+      fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(localList, null, 2), 'utf-8');
+    }
+  } catch {
+    // ignore
+  }
+
+  // 5. Netlify Blobs (Cloud Persistence with 5s timeout)
   try {
     const store = getBlobStore();
     if (store) {
@@ -92,7 +110,7 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
     console.warn('Netlify Blobs save note:', err);
   }
 
-  // 5. Alerta Push Inmediata (Llega al teléfono al instante, sin depender de la base de datos)
+  // 6. Alerta Push Inmediata
   try {
     fetch('https://ntfy.sh/kia_elmarques_leads_caracas_2026', {
       method: 'POST',
@@ -103,30 +121,6 @@ export async function saveLead(data: LeadSubmission): Promise<LeadSubmission> {
       },
       body: `Asesor: ${leadWithMeta.advisor_name || 'Showroom General'}\nModelo: ${leadWithMeta.model_interest}\nTeléfono: ${leadWithMeta.phone}\nEmail: ${leadWithMeta.email || 'N/A'}\nFinanciamiento: ${leadWithMeta.financing_interest || 'N/A'}\nUso: ${leadWithMeta.primary_use || 'N/A'}\nFecha: ${leadWithMeta.created_at}`,
     }).catch(() => {});
-  } catch {
-    // ignore
-  }
-
-  // 5. Attempt sync with Supabase only if explicitly active
-  try {
-    if (supabase) {
-      const insertPromise = supabase.from('vehicle_leads').insert([
-        {
-          full_name: data.full_name,
-          phone: data.phone,
-          email: data.email || null,
-          model_interest: data.model_interest,
-          primary_use: data.primary_use,
-          buyer_type: data.buyer_type,
-          favorite_color: data.favorite_color,
-          financing_interest: data.financing_interest,
-          timeline: data.timeline,
-          notes: data.notes || null,
-          status: 'nuevo',
-        },
-      ]);
-      await withFastTimeout(insertPromise as any, 2000);
-    }
   } catch {
     // ignore
   }
@@ -182,7 +176,28 @@ export async function getLeads(): Promise<LeadSubmission[]> {
     // fallback immediately
   }
 
-  // 3. Fallback to /tmp disk
+  // 3. Fallback to local src/data/leads.json disk
+  try {
+    if (fs.existsSync(LEADS_FILE_PATH)) {
+      const content = fs.readFileSync(LEADS_FILE_PATH, 'utf-8');
+      const parsed = JSON.parse(content || '[]');
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const ids = new Set(parsed.map((l: any) => l.id));
+        const merged = [...parsed];
+        for (const initLead of INITIAL_LEADS) {
+          if (!ids.has(initLead.id)) {
+            merged.push(initLead);
+          }
+        }
+        memoryLeads = merged;
+        return merged;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  // 4. Fallback to /tmp disk
   try {
     if (fs.existsSync(TMP_LEADS_PATH)) {
       const tmpContent = fs.readFileSync(TMP_LEADS_PATH, 'utf-8');
@@ -195,6 +210,7 @@ export async function getLeads(): Promise<LeadSubmission[]> {
             merged.push(initLead);
           }
         }
+        memoryLeads = merged;
         return merged;
       }
     }
@@ -202,7 +218,7 @@ export async function getLeads(): Promise<LeadSubmission[]> {
     // ignore
   }
 
-  // 4. In-memory fallback
+  // 5. In-memory fallback
   if (memoryLeads && memoryLeads.length > 0) {
     const ids = new Set(memoryLeads.map((l) => l.id));
     const merged = [...memoryLeads];
@@ -218,32 +234,54 @@ export async function getLeads(): Promise<LeadSubmission[]> {
 }
 
 export async function updateLead(id: string, updates: Partial<LeadSubmission>): Promise<boolean> {
-  memoryLeads = memoryLeads.map((l) => (l.id === id ? { ...l, ...updates } : l));
+  // 1. Obtener la lista consolidada COMPLETA (incluyendo INITIAL_LEADS y Blobs)
+  const currentLeads = await getLeads();
 
+  // 2. Aplicar actualizaciones al prospecto
+  let found = false;
+  const updatedList = currentLeads.map((lead) => {
+    if (lead.id === id) {
+      found = true;
+      return { ...lead, ...updates };
+    }
+    return lead;
+  });
+
+  // Si no estaba en la lista consolidada, intentar buscarlo en memoryLeads o INITIAL_LEADS
+  if (!found) {
+    const fallback = memoryLeads.find((l) => l.id === id) || INITIAL_LEADS.find((l) => l.id === id);
+    if (fallback) {
+      updatedList.unshift({ ...fallback, ...updates });
+    }
+  }
+
+  // 3. Actualizar memoria inmediata
+  memoryLeads = updatedList;
+
+  // 4. Guardar en Netlify Blobs (incluye ahora todos los leads con sus asesores)
   try {
     const store = getBlobStore();
     if (store) {
-      const updatePromise = (async () => {
-        const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
-        const updated = existing.map((l) => (l.id === id ? { ...l, ...updates } : l));
-        await store.setJSON('all_leads', updated);
-      })();
+      const updatePromise = store.setJSON('all_leads', updatedList);
       await withFastTimeout(updatePromise, 5000);
     }
-  } catch {
+  } catch (err) {
+    console.warn('Error al actualizar Netlify Blobs:', err);
+  }
+
+  // 5. Guardar en /tmp/leads.json
+  try {
+    fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(updatedList, null, 2), 'utf-8');
+  } catch (err) {
     // ignore
   }
 
+  // 6. Guardar en src/data/leads.json si el directorio existe
   try {
-    if (fs.existsSync(TMP_LEADS_PATH)) {
-      const leads: LeadSubmission[] = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
-      const index = leads.findIndex((l) => l.id === id);
-      if (index !== -1) {
-        leads[index] = { ...leads[index], ...updates };
-        fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(leads, null, 2), 'utf-8');
-      }
+    if (fs.existsSync(path.dirname(LEADS_FILE_PATH))) {
+      fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(updatedList, null, 2), 'utf-8');
     }
-  } catch {
+  } catch (err) {
     // ignore
   }
 
@@ -255,27 +293,29 @@ export async function updateLeadStatus(id: string, newStatus: LeadSubmission['st
 }
 
 export async function deleteLead(id: string): Promise<boolean> {
-  memoryLeads = memoryLeads.filter((l) => l.id !== id);
+  const currentLeads = await getLeads();
+  const updatedList = currentLeads.filter((l) => l.id !== id);
+  memoryLeads = updatedList;
 
   try {
     const store = getBlobStore();
     if (store) {
-      const deletePromise = (async () => {
-        const existing = ((await store.get('all_leads', { type: 'json' })) as LeadSubmission[]) || [];
-        const filtered = existing.filter((l) => l.id !== id);
-        await store.setJSON('all_leads', filtered);
-      })();
+      const deletePromise = store.setJSON('all_leads', updatedList);
       await withFastTimeout(deletePromise, 5000);
     }
+  } catch (err) {
+    console.warn('Error al eliminar en Netlify Blobs:', err);
+  }
+
+  try {
+    fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(updatedList, null, 2), 'utf-8');
   } catch {
     // ignore
   }
 
   try {
-    if (fs.existsSync(TMP_LEADS_PATH)) {
-      const leads: LeadSubmission[] = JSON.parse(fs.readFileSync(TMP_LEADS_PATH, 'utf-8') || '[]');
-      const filtered = leads.filter((l) => l.id !== id);
-      fs.writeFileSync(TMP_LEADS_PATH, JSON.stringify(filtered, null, 2), 'utf-8');
+    if (fs.existsSync(path.dirname(LEADS_FILE_PATH))) {
+      fs.writeFileSync(LEADS_FILE_PATH, JSON.stringify(updatedList, null, 2), 'utf-8');
     }
   } catch {
     // ignore
