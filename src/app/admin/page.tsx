@@ -213,9 +213,34 @@ export default function AdminPage() {
     }
   }, []);
 
+  // Guardar y sincronizar asignaciones locales de asesores para máxima resiliencia
+  const saveLeadOverrideLocal = (id: string, updates: Partial<LeadSubmission>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('kia_admin_lead_overrides_v2');
+      const overrides: Record<string, Partial<LeadSubmission>> = stored ? JSON.parse(stored) : {};
+      overrides[id] = { ...(overrides[id] || {}), ...updates };
+      localStorage.setItem('kia_admin_lead_overrides_v2', JSON.stringify(overrides));
+    } catch {}
+  };
+
   const fetchLeads = async (pass: string) => {
     setLoading(true);
     setLoginError('');
+
+    // 1. Cargar caché local inmediato para que la interfaz nunca parpadee ni pierda datos
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedLeads = localStorage.getItem('kia_admin_leads_cache_v2');
+        if (cachedLeads) {
+          const parsed = JSON.parse(cachedLeads);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setLeads(parsed);
+          }
+        }
+      } catch {}
+    }
+
     try {
       const res = await fetch(`/api/leads?adminKey=${encodeURIComponent(pass)}&_t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${pass}` },
@@ -227,10 +252,27 @@ export default function AdminPage() {
         sessionStorage.removeItem('kia_admin_pass');
       } else {
         const data = await res.json();
-        if (data.success) {
+        if (data.success && Array.isArray(data.leads)) {
           setIsAuthenticated(true);
-          setLeads(data.leads || []);
           sessionStorage.setItem('kia_admin_pass', pass);
+
+          // 2. Combinar con las asignaciones locales guardadas en el navegador
+          let finalLeads = data.leads;
+          if (typeof window !== 'undefined') {
+            try {
+              const stored = localStorage.getItem('kia_admin_lead_overrides_v2');
+              const overrides: Record<string, Partial<LeadSubmission>> = stored ? JSON.parse(stored) : {};
+              if (Object.keys(overrides).length > 0) {
+                finalLeads = data.leads.map((l: LeadSubmission) => {
+                  const ov = l.id ? overrides[l.id] : null;
+                  return ov ? { ...l, ...ov } : l;
+                });
+              }
+              localStorage.setItem('kia_admin_leads_cache_v2', JSON.stringify(finalLeads));
+            } catch {}
+          }
+
+          setLeads(finalLeads);
         }
       }
     } catch (err) {
@@ -256,12 +298,21 @@ export default function AdminPage() {
 
   const handleStatusChange = async (leadId: string, newStatus: LeadSubmission['status']) => {
     try {
-      setLeads((prev) =>
-        prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
-      );
+      setLeads((prev) => {
+        const next = prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l));
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('kia_admin_leads_cache_v2', JSON.stringify(next));
+          } catch {}
+        }
+        return next;
+      });
+
       if (selectedLead && selectedLead.id === leadId) {
         setSelectedLead((prev) => (prev ? { ...prev, status: newStatus } : null));
       }
+
+      saveLeadOverrideLocal(leadId, { status: newStatus });
 
       const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
       await fetch(`/api/leads?adminKey=${encodeURIComponent(savedKey)}`, {
@@ -270,6 +321,7 @@ export default function AdminPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${savedKey}`,
         },
+        keepalive: true,
         body: JSON.stringify({ id: leadId, status: newStatus }),
       });
     } catch (err) {
@@ -389,11 +441,29 @@ export default function AdminPage() {
       status: newStatus,
     };
 
-    setLeads((prev) => prev.map((l) => (l.id === lead.id ? updatedLead : l)));
+    setLeads((prev) => {
+      const next = prev.map((l) => (l.id === lead.id ? updatedLead : l));
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('kia_admin_leads_cache_v2', JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
+
     if (selectedLead && selectedLead.id === lead.id) {
       setSelectedLead(updatedLead);
     }
     setAssigningLead(null);
+
+    // Guardar en overrides locales permanentes
+    if (lead.id) {
+      saveLeadOverrideLocal(lead.id, {
+        advisor_name: newAdvisorName,
+        advisor_slug: newAdvisorSlug,
+        status: newStatus,
+      });
+    }
 
     try {
       const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
@@ -403,6 +473,7 @@ export default function AdminPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${savedKey}`,
         },
+        keepalive: true,
         body: JSON.stringify({
           id: lead.id,
           advisor_name: newAdvisorName || '',
@@ -417,13 +488,61 @@ export default function AdminPage() {
 
   // Reenviar ficha y asignar al WhatsApp de un asesor
   const handleForwardToAdvisor = async (lead: LeadSubmission, advisor: Advisor) => {
-    // 1. Enlace directo al WhatsApp del cliente para el asesor
+    const newStatus = (!lead.status || lead.status === 'nuevo') ? 'en_seguimiento' : lead.status;
+    const updatedLead: LeadSubmission = {
+      ...lead,
+      advisor_name: advisor.name,
+      advisor_slug: advisor.slug,
+      status: newStatus,
+    };
+
+    // 1. Actualización optimista local en memoria y en localStorage antes de salir de la pestaña
+    setLeads((prev) => {
+      const next = prev.map((l) => (l.id === lead.id ? updatedLead : l));
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('kia_admin_leads_cache_v2', JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
+
+    if (selectedLead && selectedLead.id === lead.id) {
+      setSelectedLead(updatedLead);
+    }
+    setAssigningLead(null);
+
+    if (lead.id) {
+      saveLeadOverrideLocal(lead.id, {
+        advisor_name: advisor.name,
+        advisor_slug: advisor.slug,
+        status: newStatus,
+      });
+    }
+
+    // 2. Disparar persistencia HTTP a la API con keepalive garantizado ANTES de abrir WhatsApp
+    const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
+    fetch(`/api/leads?adminKey=${encodeURIComponent(savedKey)}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${savedKey}`,
+      },
+      keepalive: true,
+      body: JSON.stringify({
+        id: lead.id,
+        advisor_name: advisor.name,
+        advisor_slug: advisor.slug,
+        status: newStatus,
+      }),
+    }).catch((err) => console.error('Error persistiendo asesor vía API:', err));
+
+    // 3. Ficha comercial ejecutiva y apertura de WhatsApp
     const cleanClientPhone = formatWhatsAppPhone(lead.phone);
     const clientDirectWa = `https://wa.me/${cleanClientPhone}?text=${encodeURIComponent(
       `Hola ${lead.full_name}, te saluda ${advisor.name} de Kia El Marqués. Recibí tu solicitud sobre el ${lead.model_interest} y con gusto te atenderé.`
     )}`;
 
-    // 2. Ficha comercial ejecutiva
     const message =
 `*KIA EL MARQUÉS · FICHA DE PROSPECTO*
 
@@ -444,45 +563,10 @@ ${clientDirectWa}
 
 _Por favor confirmar recepción._`;
 
-    // 3. Abrir WhatsApp del asesor
+    // 4. Abrir WhatsApp del asesor
     const cleanAdvisorPhone = formatWhatsAppPhone(advisor.phone);
     const advisorWaUrl = `https://wa.me/${cleanAdvisorPhone}?text=${encodeURIComponent(message)}`;
     window.open(advisorWaUrl, '_blank');
-
-    // 4. Actualización optimista local
-    const newStatus = (!lead.status || lead.status === 'nuevo') ? 'en_seguimiento' : lead.status;
-    const updatedLead: LeadSubmission = {
-      ...lead,
-      advisor_name: advisor.name,
-      advisor_slug: advisor.slug,
-      status: newStatus,
-    };
-
-    setLeads((prev) => prev.map((l) => (l.id === lead.id ? updatedLead : l)));
-    if (selectedLead && selectedLead.id === lead.id) {
-      setSelectedLead(updatedLead);
-    }
-    setAssigningLead(null);
-
-    // 5. Persistir en la API
-    try {
-      const savedKey = sessionStorage.getItem('kia_admin_pass') || password || '';
-      await fetch(`/api/leads?adminKey=${encodeURIComponent(savedKey)}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${savedKey}`,
-        },
-        body: JSON.stringify({
-          id: lead.id,
-          advisor_name: advisor.name,
-          advisor_slug: advisor.slug,
-          status: newStatus,
-        }),
-      });
-    } catch (err) {
-      console.error('Error al persistir asesor en prospecto:', err);
-    }
   };
 
   const handleConfirmDelete = async () => {
