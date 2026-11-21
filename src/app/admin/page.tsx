@@ -100,6 +100,27 @@ export default function AdminPage() {
     setClarityLoading(true);
     setClarityError(null);
     try {
+      // Proteger la cuota de 10 peticiones/día de Clarity mediante caché local en navegador
+      if (!force && typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('kia_clarity_cache_data');
+          localStorage.removeItem('kia_clarity_cache_data_v2');
+        } catch {}
+
+        const cachedData = localStorage.getItem('kia_clarity_cache_data_v3');
+        const cachedTime = localStorage.getItem('kia_clarity_cache_time_v3');
+        if (cachedData && cachedTime && Date.now() - Number(cachedTime) < 2 * 60 * 60 * 1000) {
+          try {
+            const parsed = JSON.parse(cachedData);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setClarityData(parsed);
+              setClarityLoading(false);
+              return;
+            }
+          } catch {}
+        }
+      }
+
       const savedPass = sessionStorage.getItem('kia_admin_pass') || password || '';
       const url = `/api/clarity?adminKey=${encodeURIComponent(savedPass)}${force ? '&force=true' : ''}&_t=${Date.now()}`;
       const headers: Record<string, string> = {};
@@ -117,9 +138,21 @@ export default function AdminPage() {
       if (data?.data) {
         setClarityData(data.data);
         setClarityError(null);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('kia_clarity_cache_data_v3', JSON.stringify(data.data));
+            localStorage.setItem('kia_clarity_cache_time_v3', Date.now().toString());
+          } catch {}
+        }
       } else if (res.ok && data?.success) {
         setClarityData(data.data);
         setClarityError(null);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('kia_clarity_cache_data_v3', JSON.stringify(data.data));
+            localStorage.setItem('kia_clarity_cache_time_v3', Date.now().toString());
+          } catch {}
+        }
       } else {
         setClarityError(data?.error || null);
       }

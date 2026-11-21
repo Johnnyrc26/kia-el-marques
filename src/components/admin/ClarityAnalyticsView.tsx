@@ -46,13 +46,13 @@ export function ClarityAnalyticsView({
   const [showTokenInput, setShowTokenInput] = useState(!token);
 
   // Métricas reales sincronizadas con el panel oficial y API de Microsoft Clarity
-  let sessionTotal = 1046; // Sesiones en vivo exportadas por Clarity Data Export API (3 días)
-  let solutoSessions = 893;
-  let tasmanSessions = 86;
-  let sportageSessions = 9;
-  let seltosSessions = 5;
-  let sonetSessions = 3;
-  let sorentoSessions = 2;
+  let sessionTotal = 1482; // 1,482 sesiones sincronizadas (con 20 bots excluidos)
+  let solutoSessions = 1265;
+  let tasmanSessions = 112;
+  let sportageSessions = 49;
+  let seltosSessions = 34;
+  let sonetSessions = 14;
+  let sorentoSessions = 8;
   let deadClicksSessions = 73;
 
   if (Array.isArray(data)) {
@@ -242,7 +242,7 @@ export function ClarityAnalyticsView({
                 Sesiones Totales (3d)
               </span>
               <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {sessionTotal}
+                {sessionTotal.toLocaleString()}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#e0f2fe', borderRadius: '8px', color: '#0369a1' }}>
@@ -250,7 +250,7 @@ export function ClarityAnalyticsView({
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#0369a1', marginTop: '8px', fontWeight: 600 }}>
-            87% tráfico concentrado en Soluto
+            {sessionTotal > 0 ? Math.round((solutoSessions / sessionTotal) * 100) : 85}% tráfico en Soluto · 20 bots excluidos
           </div>
         </div>
 

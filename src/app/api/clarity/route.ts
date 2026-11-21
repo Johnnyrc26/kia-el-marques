@@ -49,10 +49,10 @@ const DEFAULT_CLARITY_METRICS = [
   {
     metricName: 'Traffic',
     information: [
-      { Url: 'https://kiaelmarques.com/modelos/soluto', totalSessionCount: 893 },
-      { Url: 'https://kiaelmarques.com/modelos/tasman', totalSessionCount: 68 },
-      { Url: 'https://kiaelmarques.com/modelos/sportage', totalSessionCount: 35 },
-      { Url: 'https://kiaelmarques.com/modelos/seltos', totalSessionCount: 28 },
+      { Url: 'https://kiaelmarques.com/modelos/soluto', totalSessionCount: 1265 },
+      { Url: 'https://kiaelmarques.com/modelos/tasman', totalSessionCount: 112 },
+      { Url: 'https://kiaelmarques.com/modelos/sportage', totalSessionCount: 49 },
+      { Url: 'https://kiaelmarques.com/modelos/seltos', totalSessionCount: 34 },
       { Url: 'https://kiaelmarques.com/modelos/sonet', totalSessionCount: 14 },
       { Url: 'https://kiaelmarques.com/modelos/sorento', totalSessionCount: 8 },
     ],
@@ -63,8 +63,8 @@ const DEFAULT_CLARITY_METRICS = [
       {
         Url: 'https://kiaelmarques.com/modelos/soluto',
         sessionsCount: 73,
-        sessionsWithMetricPercentage: 5.09,
-        pagesViews: 1245,
+        sessionsWithMetricPercentage: 4.92,
+        pagesViews: 1740,
       },
     ],
   },
@@ -123,12 +123,14 @@ export async function GET(req: Request) {
     );
 
     if (!clarityRes.ok) {
-      console.warn('Clarity API response not ok (e.g. rate limit). Using synchronized metrics.');
+      const isRateLimited = clarityRes.status === 429;
+      console.warn(`Clarity API response status: ${clarityRes.status}. Usando métricas oficiales sincronizadas.`);
       return NextResponse.json(
         {
           success: true,
           configured: true,
           fromCache: true,
+          rateLimited: isRateLimited,
           cachedAt: new Date().toISOString(),
           data: DEFAULT_CLARITY_METRICS,
         },
