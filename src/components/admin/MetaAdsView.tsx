@@ -16,6 +16,8 @@ import {
   TrendingUp,
   Clock,
   Sparkles,
+  Users,
+  ArrowUpRight,
 } from 'lucide-react';
 
 interface MetaAdsViewProps {
@@ -378,130 +380,428 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <span
                 style={{
-                  background: '#fdf2f8',
-                  color: '#db2777',
+                  background: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)',
+                  color: '#be185d',
                   fontSize: '11px',
                   fontWeight: 800,
-                  padding: '2px 8px',
+                  padding: '3px 10px',
                   borderRadius: '12px',
                   textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  border: '1px solid #fbcfe8',
                 }}
               >
-                Boosted Instagram Reels
+                Boosted Reels & Posts
               </span>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>
-                Centro de Anuncios de Meta (Sincronización en tiempo real)
+              <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
+                Centro de Anuncios de Meta · Sincronización oficial
               </span>
             </div>
-            <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
               Campañas de Reels Promocionados (@kiaelmarques)
             </h3>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
-              Inversión Total: ${totalSpentUSD.toFixed(2)} USD · {totalViews.toLocaleString()} Vistas
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 700, padding: '6px 12px', borderRadius: '8px', border: '1px solid #bbf7d0', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <DollarSign size={14} /> Total: ${totalSpentUSD.toFixed(2)} USD
+            </span>
+            <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: 700, padding: '6px 12px', borderRadius: '8px', border: '1px solid #bfdbfe', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Eye size={14} /> {totalViews.toLocaleString()} Vistas
             </span>
           </div>
         </div>
 
-        {/* Lista Dinámica de Publicaciones Promocionadas con Fidelidad al Dashboard de Meta */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '18px' }}>
+        {/* Lista Dinámica de Publicaciones Promocionadas con Diseño Ejecutivo Premium */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
           {campaignsList.map((camp: any) => {
             const isActive = camp.status === 'Active';
+            const isReel = camp.mediaType !== 'post';
+            const isClicks = camp.resultType?.toLowerCase().includes('click');
+            const resultLabel = isClicks
+              ? 'Clics al Enlace'
+              : camp.resultType?.toLowerCase().includes('visit')
+              ? 'Visitas al Perfil'
+              : camp.resultType || 'Resultados';
+
             return (
               <div
                 key={camp.id}
                 style={{
-                  background: isActive ? '#faf5ff' : '#ffffff',
-                  border: isActive ? '1px solid #e9d5ff' : '1px solid #e2e8f0',
-                  borderRadius: '10px',
-                  padding: '16px 20px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                  background: isActive
+                    ? 'linear-gradient(180deg, #fdf4ff 0%, #ffffff 100%)'
+                    : '#ffffff',
+                  border: isActive ? '1px solid #d8b4fe' : '1px solid #e2e8f0',
+                  borderRadius: '14px',
+                  padding: '18px 22px',
+                  boxShadow: isActive
+                    ? '0 4px 16px -2px rgba(168, 85, 247, 0.08), 0 2px 6px -1px rgba(0,0,0,0.02)'
+                    : '0 2px 8px -2px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s ease',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* Barra Superior: Estado, Metadatos y Botón de Acción */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '14px',
+                    borderBottom: '1px solid #f1f5f9',
+                    paddingBottom: '12px',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    {/* Badge de Estado con Punto Pulsante si está Activo */}
                     <span
                       style={{
-                        background: isActive ? '#dcfce7' : '#f1f5f9',
-                        color: isActive ? '#15803d' : '#475569',
+                        background: isActive ? '#ecfdf5' : '#f1f5f9',
+                        color: isActive ? '#059669' : '#475569',
                         fontSize: '11px',
                         fontWeight: 800,
-                        padding: '2px 8px',
-                        borderRadius: '12px',
+                        padding: '3px 10px',
+                        borderRadius: '20px',
+                        border: isActive ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        letterSpacing: '0.02em',
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: '7px',
+                          height: '7px',
+                          borderRadius: '50%',
+                          background: isActive ? '#10b981' : '#94a3b8',
+                          boxShadow: isActive ? '0 0 6px #10b981' : 'none',
+                        }}
+                      />
+                      {isActive ? 'En Circulación (Activo)' : 'Pausado'}
+                    </span>
+
+                    {/* Fecha */}
+                    <span
+                      style={{
+                        fontSize: '11.5px',
+                        color: '#64748b',
+                        fontWeight: 600,
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px',
+                        background: '#f8fafc',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #f1f5f9',
                       }}
                     >
-                      ● {camp.status}
+                      <Clock size={12} style={{ color: '#94a3b8' }} />
+                      {camp.date}
                     </span>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>• {camp.date}</span>
+
+                    {/* Vehículo Asociado */}
                     {camp.vehicle && (
-                      <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '10px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
-                        Kia {camp.vehicle}
+                      <span
+                        style={{
+                          background: '#eff6ff',
+                          color: '#1d4ed8',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid #bfdbfe',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        🚗 Kia {camp.vehicle}
                       </span>
                     )}
+
+                    {/* Formato de Anuncio */}
+                    <span
+                      style={{
+                        background: isReel ? '#fdf2f8' : '#f8fafc',
+                        color: isReel ? '#be185d' : '#334155',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        border: isReel ? '1px solid #fbcfe8' : '1px solid #e2e8f0',
+                      }}
+                    >
+                      {isReel ? '🎬 Reel' : '📷 Post'}
+                    </span>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+
+                  {/* Botón Acción a Meta Ads Manager */}
+                  <div>
                     <a
                       href="https://adsmanager.facebook.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-outline"
-                      style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: 700 }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '5px 12px',
+                        fontSize: '11.5px',
+                        fontWeight: 700,
+                        color: '#334155',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '7px',
+                        textDecoration: 'none',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = '#f8fafc';
+                        e.currentTarget.style.borderColor = '#94a3b8';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = '#ffffff';
+                        e.currentTarget.style.borderColor = '#cbd5e1';
+                      }}
                     >
-                      {isActive ? 'View details' : 'View results'}
+                      {isActive ? 'Ver en Ads Manager' : 'Ver Resultados'}
+                      <ArrowUpRight size={13} style={{ color: '#64748b' }} />
                     </a>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 2fr) repeat(4, 1fr)', gap: '16px', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '8px', background: isActive ? '#6b21a8' : '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0 }}>
-                      {camp.mediaType === 'post' ? <Camera size={20} /> : <Film size={20} />}
+                {/* Cuerpo Principal: Info del Post (Izquierda) + KPIs Estructurados (Derecha) */}
+                <div className="meta-campaign-card-body">
+                  {/* Columna Izquierda: Miniatura degradado Instagram + Título y Copy */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
+                    <div
+                      style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '8px',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#64748b',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isReel ? <Film size={18} /> : <Camera size={18} />}
                     </div>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>{camp.type || camp.name}</div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b', maxWidth: '340px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {camp.caption}
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: '13.5px',
+                          fontWeight: 800,
+                          color: '#0f172a',
+                          lineHeight: 1.3,
+                          marginBottom: '3px',
+                        }}
+                      >
+                        {camp.name || camp.type}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '11.5px',
+                          color: '#64748b',
+                          lineHeight: 1.4,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                        title={camp.caption}
+                      >
+                        "{camp.caption}"
                       </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
-                      {camp.views ? Number(camp.views).toLocaleString() : '—'}
+                  {/* Columna Derecha: 4 Tarjetas de Métricas Ejecutivas con fondo y formato limpio */}
+                  <div className="meta-campaign-kpis-grid">
+                    {/* KPI 1: Reproducciones */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          marginBottom: '3px',
+                        }}
+                      >
+                        <Eye size={12} style={{ color: '#3b82f6' }} />
+                        Vistas
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: 800,
+                          color: '#0f172a',
+                          letterSpacing: '-0.02em',
+                        }}
+                      >
+                        {camp.views ? Number(camp.views).toLocaleString() : '—'}
+                      </div>
+                      <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '2px' }}>
+                        Reproducciones
+                      </div>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Views</div>
-                  </div>
 
-                  <div>
-                    <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
-                      {camp.viewers ? Number(camp.viewers).toLocaleString() : '—'}
+                    {/* KPI 2: Alcance / Cuentas Únicas */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          marginBottom: '3px',
+                        }}
+                      >
+                        <Users size={12} style={{ color: '#6366f1' }} />
+                        Alcance
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: 800,
+                          color: '#0f172a',
+                          letterSpacing: '-0.02em',
+                        }}
+                      >
+                        {camp.viewers ? Number(camp.viewers).toLocaleString() : '—'}
+                      </div>
+                      <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '2px' }}>
+                        Cuentas únicas
+                      </div>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Viewers</div>
-                  </div>
 
-                  <div>
-                    <div style={{ fontSize: '17px', fontWeight: 800, color: isActive ? '#16a34a' : '#7c3aed', fontFamily: 'monospace' }}>
-                      {camp.resultCount ? Number(camp.resultCount).toLocaleString() : '—'}
+                    {/* KPI 3: Resultados (Clics / Visitas) */}
+                    <div
+                      style={{
+                        background: isActive ? '#f0fdf4' : '#faf5ff',
+                        border: isActive ? '1px solid #bbf7d0' : '1px solid #e9d5ff',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          color: isActive ? '#15803d' : '#7c3aed',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          marginBottom: '3px',
+                        }}
+                      >
+                        <MousePointerClick
+                          size={12}
+                          style={{ color: isActive ? '#16a34a' : '#8b5cf6' }}
+                        />
+                        Resultados
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: 800,
+                          color: isActive ? '#15803d' : '#6b21a8',
+                          letterSpacing: '-0.02em',
+                        }}
+                      >
+                        {camp.resultCount ? Number(camp.resultCount).toLocaleString() : '—'}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '10.5px',
+                          color: isActive ? '#166534' : '#6b21a8',
+                          marginTop: '2px',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                        title={resultLabel}
+                      >
+                        {resultLabel}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>{camp.resultType}</div>
-                  </div>
 
-                  <div>
-                    <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
-                      ${Number(camp.amountSpent).toFixed(2)}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
-                      Spend of ${Number(camp.dailyBudget || 10).toFixed(2)}/day
+                    {/* KPI 4: Inversión / Gasto */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          marginBottom: '3px',
+                        }}
+                      >
+                        <DollarSign size={12} style={{ color: '#f59e0b' }} />
+                        Inversión
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: 800,
+                          color: '#0f172a',
+                          letterSpacing: '-0.02em',
+                        }}
+                      >
+                        ${Number(camp.amountSpent).toFixed(2)}
+                      </div>
+                      <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>
+                        de ${Number(camp.dailyBudget || 10).toFixed(0)}/día
+                      </div>
                     </div>
                   </div>
                 </div>

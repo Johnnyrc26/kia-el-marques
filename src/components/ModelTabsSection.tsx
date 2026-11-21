@@ -89,18 +89,20 @@ export default function ModelTabsSection({ model }: ModelTabsSectionProps) {
               </p>
             </div>
 
-            {/* Botón Descargar PDF Técnico - Comentado temporalmente */}
-            {/*
-            <a
-              href={model.sheetPdf}
-              download
-              className="btn btn-outline tab-download-btn"
-              title="Descargar Ficha Técnica en PDF"
-            >
-              <FileDown size={15} />
-              <span>Descargar PDF Técnico ↓</span>
-            </a>
-            */}
+            {/* Botón Descargar PDF Técnico */}
+            {model.sheetPdf && (
+              <a
+                href={model.sheetPdf}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline tab-download-btn"
+                title={`Descargar Ficha Técnica en PDF de ${model.name}`}
+              >
+                <FileDown size={15} />
+                <span>Descargar PDF Técnico ↓</span>
+              </a>
+            )}
           </div>
 
           {/* Grid 4 Cajas Principales */}

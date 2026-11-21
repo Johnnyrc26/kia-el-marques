@@ -28,6 +28,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Sonet',
     modelName: 'Sonet',
+    slug: 'sonet',
     category: 'SUV Compacto Tecnológico',
     pdf: '/docs/fichas/ficha_sonet.pdf',
     image: '/assets/models/sonet.png',
@@ -35,6 +36,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Carnival',
     modelName: 'Carnival',
+    slug: 'carnival',
     category: 'Gran Utility Vehicle Familiar',
     pdf: '/docs/fichas/ficha_carnival.pdf',
     image: '/assets/models/carnival.png',
@@ -42,6 +44,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Seltos',
     modelName: 'Seltos',
+    slug: 'seltos',
     category: 'SUV Mediano Confort & Estilo',
     pdf: '/docs/fichas/ficha_seltos.pdf',
     image: '/assets/models/seltos.png',
@@ -49,6 +52,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Picanto',
     modelName: 'Picanto',
+    slug: 'picanto',
     category: 'City Car Alta Eficiencia',
     pdf: '/docs/fichas/ficha_picanto.pdf',
     image: '/assets/models/picanto.png',
@@ -56,6 +60,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Sorento',
     modelName: 'Sorento',
+    slug: 'sorento',
     category: 'SUV Premium 4x4 · 3 Filas',
     pdf: '/docs/fichas/ficha_sorento.pdf',
     image: '/assets/models/sorento.png',
@@ -63,6 +68,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Soluto',
     modelName: 'Soluto',
+    slug: 'soluto',
     category: 'Sedán Ejecutivo & Espacioso',
     pdf: '/docs/fichas/ficha_soluto.pdf',
     image: '/assets/models/soluto.png',
@@ -70,6 +76,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Sportage',
     modelName: 'Sportage',
+    slug: 'sportage',
     category: 'SUV Crossover Emblema Global',
     pdf: '/docs/fichas/ficha_sportage.pdf',
     image: '/assets/models/sportage.png',
@@ -77,6 +84,7 @@ const OFFICIAL_FICHAS = [
   {
     name: 'Tasman',
     modelName: 'Tasman',
+    slug: 'tasman',
     category: 'Pick-up 4x4 Chasis de Largueros',
     pdf: '/docs/fichas/ficha_tasman.pdf',
     image: '/assets/models/tasman.png',
@@ -541,7 +549,7 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+          <div className="advisor-fichas-grid">
             {OFFICIAL_FICHAS.map((ficha) => (
               <div
                 key={ficha.name}
@@ -557,7 +565,11 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
                   transition: 'transform 0.15s, border-color 0.15s',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <Link
+                  href={`/modelos/${ficha.slug}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none', color: 'inherit' }}
+                  title={`Ver ficha técnica digital del Kia ${ficha.name}`}
+                >
                   <div
                     style={{
                       width: '64px',
@@ -583,50 +595,86 @@ export default function AdvisorCardClient({ advisor }: AdvisorCardClientProps) {
                     />
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--g100)', letterSpacing: '-0.01em' }}>
-                      {ficha.name}
+                    <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--g100)', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span>{ficha.name}</span>
+                      <ChevronRight size={14} style={{ opacity: 0.4 }} />
                     </div>
                     <div style={{ fontSize: '11.5px', color: 'var(--g60)', marginTop: '2px' }}>
                       {ficha.category}
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                  <a
-                    href={ficha.pdf}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline"
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      padding: '9px 12px',
-                      fontSize: '12.5px',
-                      fontWeight: 600,
-                    }}
-                  >
-                    <FileDown size={14} />
-                    <span>Descargar PDF</span>
-                  </a>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                  <div className="advisor-ficha-btn-pair">
+                    <Link
+                      href={`/modelos/${ficha.slug}`}
+                      className="btn btn-primary"
+                      style={{
+                        justifyContent: 'center',
+                        padding: '10px 12px',
+                        minHeight: '40px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        gap: '5px',
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                      title={`Ver ficha técnica digital de ${ficha.name}`}
+                    >
+                      <span>Ver Ficha</span>
+                      <ChevronRight size={13} />
+                    </Link>
+
+                    <a
+                      href={ficha.pdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="btn btn-outline"
+                      style={{
+                        justifyContent: 'center',
+                        padding: '10px 12px',
+                        minHeight: '40px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        gap: '5px',
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                      title={`Descargar catálogo PDF de ${ficha.name}`}
+                    >
+                      <FileDown size={13} />
+                      <span>Descargar PDF</span>
+                    </a>
+                  </div>
 
                   <a
                     href={`https://wa.me/${cleanPhone || '584228846784'}?text=${encodeURIComponent(`¡Hola ${firstName}! Me interesa el ${ficha.modelName}. ¿Me brindas cotización y disponibilidad?`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-primary"
+                    onClick={trackAdvisorWhatsAppClick}
+                    className="btn"
                     style={{
                       backgroundColor: '#25D366',
                       borderColor: '#25D366',
-                      padding: '9px 12px',
+                      color: '#ffffff',
+                      padding: '10px 12px',
+                      minHeight: '40px',
                       fontSize: '12.5px',
+                      fontWeight: 700,
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      gap: '6px',
+                      borderRadius: 'var(--radius-sm)',
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap',
                     }}
                     title={`Cotizar ${ficha.modelName} por WhatsApp con ${firstName}`}
                   >
-                    <MessageCircle size={15} />
+                    <MessageCircle size={14} />
+                    <span>Cotizar con {firstName}</span>
                   </a>
                 </div>
               </div>
