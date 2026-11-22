@@ -110,7 +110,7 @@ export default function RootLayout({
         <script
           type="text/javascript"
           dangerouslySetInnerHTML={{
-            __html: `(function(c,l,a,r,i,t,y){if(typeof window!=='undefined'&&(window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'))return;c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "zfjnef6hsi");`,
+            __html: `(function(c,l,a,r,i,t,y){if(typeof window!=='undefined'&&(window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.pathname.indexOf('/admin')!==-1))return;c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "zfjnef6hsi");`,
           }}
         />
       </head>

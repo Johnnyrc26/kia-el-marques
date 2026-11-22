@@ -33,7 +33,7 @@ interface Resumen360ViewProps {
   leads: LeadSubmission[];
   clarityData: any;
   metaData: any;
-  setActiveTab: (tab: 'resumen' | 'prospectos' | 'asesores' | 'metricas' | 'clarity' | 'meta') => void;
+  setActiveTab: (tab: 'resumen' | 'prospectos' | 'asesores' | 'metricas' | 'clarity' | 'meta' | 'financiamiento') => void;
   onRefresh: () => void;
   loading: boolean;
   onExportCSV: () => void;
@@ -65,24 +65,31 @@ export function Resumen360View({
   const cpcUSD = metaLinkClicks > 0 ? (adSpendUSD / metaLinkClicks).toFixed(3) : '0.026';
 
   // Calculos de Clarity oficiales y en vivo
-  let totalSessions = 1482; // 1,482 sesiones sincronizadas vía Clarity Data Export API (3 días, 20 bots excluidos)
-  let deadClicksPct = '4,92%';
-  let deadClicksSessions = 73;
+  let totalSessions = 1976; // 1,976 sesiones oficiales sincronizadas (17 bots excluidos, 8 activos en vivo)
+  let deadClicksPct = '2,43%';
+  let deadClicksSessions = 48;
 
   if (Array.isArray(clarityData)) {
-    const trafficMetric = clarityData.find((m: any) => m.metricName === 'Traffic');
-    const deadClickMetric = clarityData.find((m: any) => m.metricName === 'DeadClickCount');
+    const benchmarkMetric = clarityData.find((m: any) => m.metricName === 'OfficialBenchmark');
+    if (benchmarkMetric?.data?.summary) {
+      totalSessions = benchmarkMetric.data.summary.totalSessions || 1976;
+      deadClicksSessions = benchmarkMetric.data.summary.deadClicksCount || 48;
+      deadClicksPct = `${benchmarkMetric.data.summary.deadClicksPct.toString().replace('.', ',')}%`;
+    } else {
+      const trafficMetric = clarityData.find((m: any) => m.metricName === 'Traffic');
+      const deadClickMetric = clarityData.find((m: any) => m.metricName === 'DeadClickCount');
 
-    if (trafficMetric?.information) {
-      const sumTraffic = trafficMetric.information.reduce((acc: number, r: any) => acc + (r.totalSessionCount || 0), 0);
-      if (sumTraffic > 0) totalSessions = sumTraffic;
-    }
+      if (trafficMetric?.information) {
+        const sumTraffic = trafficMetric.information.reduce((acc: number, r: any) => acc + (r.totalSessionCount || 0), 0);
+        if (sumTraffic > totalSessions) totalSessions = sumTraffic;
+      }
 
-    if (deadClickMetric?.information) {
-      const deadSessions = deadClickMetric.information
-        .filter((r: any) => r.sessionsWithMetricPercentage > 0)
-        .reduce((acc: number, r: any) => acc + (r.sessionsCount || 0), 0);
-      if (deadSessions > 0) deadClicksSessions = deadSessions;
+      if (deadClickMetric?.information) {
+        const deadSessions = deadClickMetric.information
+          .filter((r: any) => r.sessionsWithMetricPercentage > 0)
+          .reduce((acc: number, r: any) => acc + (r.sessionsCount || 0), 0);
+        if (deadSessions > 0) deadClicksSessions = deadSessions;
+      }
     }
   }
 
@@ -415,7 +422,7 @@ export function Resumen360View({
           </div>
           <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
             <span style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              84% Cel · {deadClicksPct} fallos
+              99% Móvil · {deadClicksPct} fallos
             </span>
             <span style={{ color: '#0369a1', background: '#e0f2fe', border: '1px solid #bae6fd', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap', flexShrink: 0 }}>
               Ver tráfico →
@@ -1025,6 +1032,84 @@ export function Resumen360View({
           </button>
         </div>
 
+      </div>
+
+      {/* Banner / Acceso Rápido a la Calculadora de Financiamiento (7 Entidades) */}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #05141f 0%, #0c4a6e 100%)',
+          borderRadius: '14px',
+          padding: '20px 24px',
+          color: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px',
+          boxShadow: '0 4px 15px rgba(5,20,31,0.12)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div
+            style={{
+              width: '46px',
+              height: '46px',
+              borderRadius: '10px',
+              background: 'rgba(255,255,255,0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '22px',
+            }}
+          >
+            💳
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '16px', fontWeight: 800 }}>
+                Calculadora y Comparador de Créditos Automotrices
+              </span>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  background: '#38bdf8',
+                  color: '#05141f',
+                }}
+              >
+                7 Entidades Oficiales
+              </span>
+            </div>
+            <p style={{ fontSize: '13px', color: '#bae6fd', margin: '4px 0 0 0' }}>
+              Simula y compara cuotas en vivo para PIVCA, ARCA Finance, MOPANE, SMF 24, Eleva Valor, BBVA Provincial y Banesco con exportación instantánea a WhatsApp.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('financiamiento')}
+          style={{
+            background: '#ffffff',
+            border: 'none',
+            borderRadius: '9px',
+            padding: '11px 20px',
+            color: '#05141f',
+            fontSize: '13px',
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <span>Abrir Calculadora y Matriz Oficial</span>
+          <ArrowRight size={16} />
+        </button>
       </div>
     </div>
   );

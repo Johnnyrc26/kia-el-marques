@@ -42,12 +42,15 @@ import {
   UserX,
   Globe,
   Megaphone,
+  Calculator,
 } from 'lucide-react';
 import { LeadSubmission } from '@/types';
 import { ADVISORS, Advisor } from '@/data/advisors';
 import { Resumen360View } from '@/components/admin/Resumen360View';
 import { ClarityAnalyticsView } from '@/components/admin/ClarityAnalyticsView';
 import { MetaAdsView } from '@/components/admin/MetaAdsView';
+import { FinancingCalculatorView } from '@/components/admin/FinancingCalculatorView';
+import QuickModelFinancingModal from '@/components/QuickModelFinancingModal';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -56,8 +59,21 @@ export default function AdminPage() {
   const [leads, setLeads] = useState<LeadSubmission[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Tabs: resumen | prospectos | asesores | metricas | clarity | meta
-  const [activeTab, setActiveTab] = useState<'resumen' | 'prospectos' | 'asesores' | 'metricas' | 'clarity' | 'meta'>('resumen');
+  // Tabs: resumen | prospectos | asesores | metricas | clarity | meta | financiamiento
+  const [activeTab, setActiveTab] = useState<'resumen' | 'prospectos' | 'asesores' | 'metricas' | 'clarity' | 'meta' | 'financiamiento'>('resumen');
+  const [financingTargetLead, setFinancingTargetLead] = useState<{
+    fullName?: string;
+    phone?: string;
+    model?: string;
+    buyerType?: 'natural' | 'juridica';
+  } | null>(null);
+
+  // Modal de Cotización Rápida de Financiamiento por Modelo (Exclusivo Admin)
+  const [quickFinancingModalData, setQuickFinancingModalData] = useState<{
+    model: string;
+    clientName?: string;
+    clientPhone?: string;
+  } | null>(null);
 
   // Filters
   const [filterModel, setFilterModel] = useState('todos');
@@ -86,6 +102,19 @@ export default function AdminPage() {
   const [metaLoading, setMetaLoading] = useState(false);
   const [metaError, setMetaError] = useState<string | null>(null);
 
+  // Desactivar el tracking/captura de Microsoft Clarity en el panel de administración
+  // (mantiene activa la recepción de métricas vía API pero bloquea la grabación de sesiones del admin)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const c = (window as any).clarity;
+      if (typeof c === 'function') {
+        try {
+          c('stop');
+        } catch {}
+      }
+    }
+  }, []);
+
   // Cargar métricas de Clarity y Meta automáticamente al autenticarse
   useEffect(() => {
     if (typeof window !== 'undefined' && isAuthenticated) {
@@ -105,10 +134,11 @@ export default function AdminPage() {
         try {
           localStorage.removeItem('kia_clarity_cache_data');
           localStorage.removeItem('kia_clarity_cache_data_v2');
+          localStorage.removeItem('kia_clarity_cache_data_v3');
         } catch {}
 
-        const cachedData = localStorage.getItem('kia_clarity_cache_data_v3');
-        const cachedTime = localStorage.getItem('kia_clarity_cache_time_v3');
+        const cachedData = localStorage.getItem('kia_clarity_cache_data_v4');
+        const cachedTime = localStorage.getItem('kia_clarity_cache_time_v4');
         if (cachedData && cachedTime && Date.now() - Number(cachedTime) < 2 * 60 * 60 * 1000) {
           try {
             const parsed = JSON.parse(cachedData);
@@ -140,8 +170,8 @@ export default function AdminPage() {
         setClarityError(null);
         if (typeof window !== 'undefined') {
           try {
-            localStorage.setItem('kia_clarity_cache_data_v3', JSON.stringify(data.data));
-            localStorage.setItem('kia_clarity_cache_time_v3', Date.now().toString());
+            localStorage.setItem('kia_clarity_cache_data_v4', JSON.stringify(data.data));
+            localStorage.setItem('kia_clarity_cache_time_v4', Date.now().toString());
           } catch {}
         }
       } else if (res.ok && data?.success) {
@@ -149,8 +179,8 @@ export default function AdminPage() {
         setClarityError(null);
         if (typeof window !== 'undefined') {
           try {
-            localStorage.setItem('kia_clarity_cache_data_v3', JSON.stringify(data.data));
-            localStorage.setItem('kia_clarity_cache_time_v3', Date.now().toString());
+            localStorage.setItem('kia_clarity_cache_data_v4', JSON.stringify(data.data));
+            localStorage.setItem('kia_clarity_cache_time_v4', Date.now().toString());
           } catch {}
         }
       } else {
@@ -864,6 +894,30 @@ _Por favor confirmar recepción._`;
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               type="button"
+              onClick={() => setActiveTab('financiamiento')}
+              style={{
+                fontSize: '12.5px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: '#05141f',
+                color: '#ffffff',
+                border: 'none',
+                padding: '8px 15px',
+                borderRadius: '8px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(5,20,31,0.2)',
+                transition: 'all 0.15s ease',
+              }}
+              title="Abrir pestaña de Calculadora y Matriz de Financiamiento Oficial (7 Entidades)"
+            >
+              <Calculator size={14} color="#38bdf8" />
+              <span>⚡ Calculadora Crédito (7 Entidades)</span>
+            </button>
+
+            <button
+              type="button"
               onClick={handleRefresh}
               disabled={loading}
               className="btn btn-outline"
@@ -1142,6 +1196,43 @@ _Por favor confirmar recepción._`;
               }}
             >
               @kiaelmarques
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('financiamiento')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '8px 8px 0 0',
+              border: 'none',
+              background: activeTab === 'financiamiento' ? '#05141f' : 'transparent',
+              color: activeTab === 'financiamiento' ? '#ffffff' : '#64748b',
+              fontWeight: 700,
+              fontSize: '13.5px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
+              position: 'relative',
+              top: '2px',
+            }}
+          >
+            <Calculator size={16} />
+            <span>Calculadora Crédito (7 Entidades)</span>
+            <span
+              style={{
+                fontSize: '11px',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                background: activeTab === 'financiamiento' ? '#38bdf8' : '#e0f2fe',
+                color: activeTab === 'financiamiento' ? '#05141f' : '#0369a1',
+                fontWeight: 800,
+              }}
+            >
+              Matriz Oficial
             </span>
           </button>
         </div>
@@ -1516,7 +1607,7 @@ _Por favor confirmar recepción._`;
 
                             {/* Columna 2: Vehículo de Interés */}
                             <td style={{ padding: '14px 18px', verticalAlign: 'middle' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
                                 <span
                                   style={{
                                     display: 'inline-block',
@@ -1531,6 +1622,37 @@ _Por favor confirmar recepción._`;
                                 >
                                   {lead.model_interest}
                                 </span>
+
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setFinancingTargetLead({
+                                      fullName: lead.full_name,
+                                      phone: lead.phone,
+                                      model: lead.model_interest,
+                                      buyerType: 'natural',
+                                    });
+                                    setActiveTab('financiamiento');
+                                  }}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '3px',
+                                    padding: '2px 7px',
+                                    borderRadius: '4px',
+                                    background: '#f0f9ff',
+                                    border: '1px solid #bae6fd',
+                                    color: '#0369a1',
+                                    fontSize: '11px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                  }}
+                                  title={`Abrir calculadora de financiamiento para ${lead.full_name} (${lead.model_interest})`}
+                                >
+                                  <Calculator size={11} />
+                                  <span>Crédito 💳</span>
+                                </button>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '4px', color: '#334155', fontSize: '12px' }}>
                                 {(() => {
@@ -2450,6 +2572,16 @@ _Por favor confirmar recepción._`;
           />
         )}
 
+        {/* ============================================================== */}
+        {/* PESTAÑA 6: CALCULADORA Y COMPARADOR DE CRÉDITO                */}
+        {/* ============================================================== */}
+        {activeTab === 'financiamiento' && (
+          <FinancingCalculatorView
+            initialLead={financingTargetLead}
+            onClearLead={() => setFinancingTargetLead(null)}
+          />
+        )}
+
       </div>
 
       {/* Drawer / Modal de Detalle Completo del Lead */}
@@ -2566,6 +2698,40 @@ _Por favor confirmar recepción._`;
                 >
                   <UserCheck size={16} />
                   <span>{selectedLead.advisor_name ? 'Reasignar / Reenviar ↗' : 'Enviar a un Asesor ↗'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFinancingTargetLead({
+                      fullName: selectedLead.full_name,
+                      phone: selectedLead.phone,
+                      model: selectedLead.model_interest,
+                    });
+                    setActiveTab('financiamiento');
+                    setSelectedLead(null);
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '11px 16px',
+                    borderRadius: '9px',
+                    background: '#05141f',
+                    border: 'none',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    gridColumn: '1 / -1',
+                    boxShadow: '0 2px 6px rgba(5,20,31,0.2)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  title="Calcular crédito y cuotas en las 7 entidades para este prospecto"
+                >
+                  <Calculator size={16} />
+                  <span>Calcular Financiamiento (7 Entidades) 💳</span>
                 </button>
               </div>
 
@@ -3172,6 +3338,17 @@ _Por favor confirmar recepción._`;
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Cotización Rápida de Financiamiento por Modelo (Exclusivo Admin) */}
+      {quickFinancingModalData && (
+        <QuickModelFinancingModal
+          isOpen={!!quickFinancingModalData}
+          onClose={() => setQuickFinancingModalData(null)}
+          modelName={quickFinancingModalData.model}
+          clientName={quickFinancingModalData.clientName}
+          clientPhone={quickFinancingModalData.clientPhone}
+        />
       )}
     </main>
   );
