@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { LeadSubmission } from '@/types';
 import { ADVISORS } from '@/data/advisors';
+import { OFFICIAL_CLARITY_BENCHMARK } from '@/data/clarityBenchmark';
 
 interface Resumen360ViewProps {
   leads: LeadSubmission[];
@@ -65,31 +66,30 @@ export function Resumen360View({
   const cpcUSD = metaLinkClicks > 0 ? (adSpendUSD / metaLinkClicks).toFixed(3) : '0.026';
 
   // Calculos de Clarity oficiales y en vivo
-  let totalSessions = 1976; // 1,976 sesiones oficiales sincronizadas (17 bots excluidos, 8 activos en vivo)
-  let deadClicksPct = '2,43%';
-  let deadClicksSessions = 48;
+  const clarityBenchmark =
+    (clarityData?.summary ? clarityData : null) ||
+    (clarityData?.benchmark?.summary ? clarityData.benchmark : null) ||
+    (Array.isArray(clarityData) ? clarityData.find((m: any) => m.metricName === 'OfficialBenchmark')?.data : null) ||
+    OFFICIAL_CLARITY_BENCHMARK;
 
-  if (Array.isArray(clarityData)) {
-    const benchmarkMetric = clarityData.find((m: any) => m.metricName === 'OfficialBenchmark');
-    if (benchmarkMetric?.data?.summary) {
-      totalSessions = benchmarkMetric.data.summary.totalSessions || 1976;
-      deadClicksSessions = benchmarkMetric.data.summary.deadClicksCount || 48;
-      deadClicksPct = `${benchmarkMetric.data.summary.deadClicksPct.toString().replace('.', ',')}%`;
-    } else {
-      const trafficMetric = clarityData.find((m: any) => m.metricName === 'Traffic');
-      const deadClickMetric = clarityData.find((m: any) => m.metricName === 'DeadClickCount');
+  let totalSessions = clarityBenchmark.summary.totalSessions || 2055;
+  let deadClicksPct = `${clarityBenchmark.summary.deadClicksPct.toString().replace('.', ',')}%`;
+  let deadClicksSessions = clarityBenchmark.summary.deadClicksCount || 49;
 
-      if (trafficMetric?.information) {
-        const sumTraffic = trafficMetric.information.reduce((acc: number, r: any) => acc + (r.totalSessionCount || 0), 0);
-        if (sumTraffic > totalSessions) totalSessions = sumTraffic;
-      }
+  if (Array.isArray(clarityData) && !clarityData.find((m: any) => m.metricName === 'OfficialBenchmark')) {
+    const trafficMetric = clarityData.find((m: any) => m.metricName === 'Traffic');
+    const deadClickMetric = clarityData.find((m: any) => m.metricName === 'DeadClickCount');
 
-      if (deadClickMetric?.information) {
-        const deadSessions = deadClickMetric.information
-          .filter((r: any) => r.sessionsWithMetricPercentage > 0)
-          .reduce((acc: number, r: any) => acc + (r.sessionsCount || 0), 0);
-        if (deadSessions > 0) deadClicksSessions = deadSessions;
-      }
+    if (trafficMetric?.information) {
+      const sumTraffic = trafficMetric.information.reduce((acc: number, r: any) => acc + (r.totalSessionCount || 0), 0);
+      if (sumTraffic > totalSessions) totalSessions = sumTraffic;
+    }
+
+    if (deadClickMetric?.information) {
+      const deadSessions = deadClickMetric.information
+        .filter((r: any) => r.sessionsWithMetricPercentage > 0)
+        .reduce((acc: number, r: any) => acc + (r.sessionsCount || 0), 0);
+      if (deadSessions > 0) deadClicksSessions = deadSessions;
     }
   }
 

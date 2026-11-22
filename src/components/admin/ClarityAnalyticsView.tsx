@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Globe,
   RefreshCw,
@@ -27,8 +27,16 @@ import {
   Sparkles,
   Gauge,
   Bug,
+  ClipboardPaste,
+  Check,
+  X,
+  FileText,
 } from 'lucide-react';
-import { OFFICIAL_CLARITY_BENCHMARK } from '@/data/clarityBenchmark';
+import {
+  OFFICIAL_CLARITY_BENCHMARK,
+  ClarityOfficialDataset,
+  parseClarityReportText,
+} from '@/data/clarityBenchmark';
 
 interface ClarityProps {
   data: any;
@@ -37,6 +45,7 @@ interface ClarityProps {
   onRefresh: () => void;
   onSaveToken: (token: string) => void;
   token: string;
+  onUpdateCustomReport?: (report: ClarityOfficialDataset) => void;
 }
 
 export function ClarityAnalyticsView({
@@ -46,30 +55,62 @@ export function ClarityAnalyticsView({
   onRefresh,
   onSaveToken,
   token,
+  onUpdateCustomReport,
 }: ClarityProps) {
   const [activeSubSection, setActiveSubSection] = useState<'paginas' | 'canales' | 'eventos' | 'rendimiento'>('paginas');
   const [funnelMode, setFunnelMode] = useState<'pasos' | 'diagnostico'>('pasos');
 
-  // Extraer el benchmark oficial o datos sincronizados
-  const benchmark = OFFICIAL_CLARITY_BENCHMARK;
+  // Estado del modal de pegado directo de Clarity
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [pastedText, setPastedText] = useState('');
+  const [pasteSuccess, setPasteSuccess] = useState(false);
+  const [localReport, setLocalReport] = useState<ClarityOfficialDataset | null>(null);
+
+  // Cargar reporte personalizado previo desde localStorage si existe
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('kia_clarity_custom_report_v4');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.summary) {
+            setLocalReport(parsed);
+          }
+        }
+      } catch {}
+    }
+  }, []);
+
+  // Extraer el benchmark oficial o datos sincronizados de manera reactiva y dinámica
+  const benchmark: ClarityOfficialDataset = useMemo(() => {
+    if (localReport?.summary) return localReport;
+    if (data?.summary) return data;
+    if (data?.benchmark?.summary) return data.benchmark;
+    if (Array.isArray(data)) {
+      const b = data.find((m: any) => m.metricName === 'OfficialBenchmark')?.data;
+      if (b?.summary) return b;
+    }
+    return OFFICIAL_CLARITY_BENCHMARK;
+  }, [localReport, data]);
+
   const summary = benchmark.summary;
 
   // Sesiones reales garantizadas
-  const sessionTotal = summary.totalSessions; // 1,976
-  const botSessionsExcluded = summary.botSessionsExcluded; // 17
-  const uniqueUsers = summary.uniqueUsers; // 1,901
-  const newUsers = summary.newUsers; // 1,889
-  const newUsersPct = summary.newUsersPct; // 95.6%
-  const recurringUsers = summary.recurringUsers; // 87
-  const activeUsersNow = summary.activeUsersNow; // 8 activos (< 1 min)
-  const deadClicksCount = summary.deadClicksCount; // 48
-  const deadClicksPct = `${summary.deadClicksPct.toString().replace('.', ',')}%`; // 2,43%
-  const rageClicksCount = summary.rageClicksCount; // 2
-  const quickbacksCount = summary.quickbacksCount; // 6
-  const avgActiveTime = `${summary.activeTimeSec} s`; // 13 s
-  const totalTime = `${summary.totalTimeSec} s`; // 56 s
-  const scrollDepth = `${summary.scrollDepthPct.toString().replace('.', ',')}%`; // 29,01%
-  const pagesPerSession = summary.pagesPerSession.toString().replace('.', ','); // 1,15
+  const sessionTotal = summary.totalSessions;
+  const botSessionsExcluded = summary.botSessionsExcluded;
+  const uniqueUsers = summary.uniqueUsers;
+  const newUsers = summary.newUsers;
+  const newUsersPct = summary.newUsersPct;
+  const recurringUsers = summary.recurringUsers;
+  const activeUsersNow = summary.activeUsersNow;
+  const deadClicksCount = summary.deadClicksCount;
+  const deadClicksPct = `${summary.deadClicksPct.toString().replace('.', ',')}%`;
+  const rageClicksCount = summary.rageClicksCount;
+  const quickbacksCount = summary.quickbacksCount;
+  const avgActiveTime = `${summary.activeTimeSec} s`;
+  const totalTime = `${summary.totalTimeSec} s`;
+  const scrollDepth = `${summary.scrollDepthPct.toString().replace('.', ',')}%`;
+  const pagesPerSession = summary.pagesPerSession.toString().replace('.', ',');
 
   // Distribución real de modelos y páginas
   const pagesList = benchmark.topPages;
@@ -78,6 +119,25 @@ export function ClarityAnalyticsView({
   const smartEventsList = benchmark.smartEvents;
   const coreWebVitals = benchmark.coreWebVitals;
   const jsErrors = benchmark.javascriptErrors;
+
+  // Manejar el parseo y guardado del reporte pegado
+  const handleApplyPastedReport = () => {
+    if (!pastedText.trim()) return;
+    const parsed = parseClarityReportText(pastedText, benchmark);
+    setLocalReport(parsed);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('kia_clarity_custom_report_v4', JSON.stringify(parsed));
+      } catch {}
+    }
+    onUpdateCustomReport?.(parsed);
+    setPasteSuccess(true);
+    setTimeout(() => {
+      setPasteSuccess(false);
+      setShowPasteModal(false);
+      setPastedText('');
+    }, 1200);
+  };
 
   return (
     <div>
@@ -143,11 +203,36 @@ export function ClarityAnalyticsView({
             Tráfico Web, UX & Comportamiento (Microsoft Clarity)
           </h2>
           <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0', maxWidth: '780px', lineHeight: 1.4 }}>
-            Métricas oficiales sincronizadas: <strong>1,976 sesiones</strong> totales, <strong>1,901 usuarios únicos</strong>, y <strong>17 sesiones de bot excluidas</strong>.
+            Métricas oficiales sincronizadas: <strong>{sessionTotal.toLocaleString()} sesiones</strong> totales, <strong>{uniqueUsers.toLocaleString()} usuarios únicos</strong>, y <strong>{botSessionsExcluded} sesiones de bot excluidas</strong>.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Botón Sincronizar / Pegar Reporte Rápido */}
+          <button
+            type="button"
+            onClick={() => setShowPasteModal(true)}
+            style={{
+              padding: '8px 14px',
+              fontSize: '12.5px',
+              fontWeight: 800,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#f0f9ff',
+              border: '1.5px solid #0284c7',
+              color: '#0369a1',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 1px 3px rgba(2,132,199,0.1)',
+              transition: 'all 0.15s ease',
+            }}
+            title="Pega el texto copiado de tu panel de Microsoft Clarity para actualizar al instante todas las métricas"
+          >
+            <ClipboardPaste size={15} color="#0284c7" />
+            <span>📋 Pegar Reporte en Vivo</span>
+          </button>
+
           <button
             type="button"
             onClick={onRefresh}
@@ -163,7 +248,7 @@ export function ClarityAnalyticsView({
             }}
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-            <span>{loading ? 'Sincronizando...' : 'Actualizar Métricas'}</span>
+            <span>{loading ? 'Sincronizando...' : 'Refrescar'}</span>
           </button>
 
           <a
@@ -397,7 +482,7 @@ export function ClarityAnalyticsView({
                 Distribución de Tráfico por Ficha Técnica y Landing Page
               </h3>
               <span style={{ fontSize: '12px', color: '#64748b' }}>
-                Datos oficiales de Clarity: <strong>Tasman lidera con 1,206 visitas (61%)</strong> tras el lanzamiento publicitario, seguido de Soluto (756 visitas).
+                Datos oficiales de Clarity: <strong>Tasman lidera con {pagesList[0]?.sessions.toLocaleString()} visitas ({pagesList[0]?.pct}%)</strong> tras el lanzamiento publicitario, seguido de Soluto ({pagesList[1]?.sessions.toLocaleString()} visitas).
               </span>
             </div>
           </div>
@@ -577,7 +662,7 @@ export function ClarityAnalyticsView({
                   Navegadores & Sistemas
                 </h3>
                 <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                  El 98.7% abre la web en el navegador interno de Instagram
+                  El 98.6% abre la web en el navegador interno de Instagram
                 </span>
               </div>
             </div>
@@ -746,10 +831,10 @@ export function ClarityAnalyticsView({
               <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#991b1b', marginBottom: '8px' }}>
                   <AlertTriangle size={18} />
-                  <strong style={{ fontSize: '14.5px' }}>Alerta: 33 Errores de Validación de Teléfono</strong>
+                  <strong style={{ fontSize: '14.5px' }}>Alerta: 35 Errores de Validación de Teléfono</strong>
                 </div>
                 <p style={{ fontSize: '12.5px', color: '#7f1d1d', lineHeight: 1.5, margin: 0 }}>
-                  Clarity registró que <strong>33 usuarios</strong> intentaron enviar el formulario pero fallaron por el formato del número telefónico. Al estar en Venezuela, muchos usuarios escriben <code>0414...</code>, <code>0424...</code> o <code>+58</code> y si la validación es estricta o confusa, genera rechazo.
+                  Clarity registró que <strong>35 usuarios</strong> intentaron enviar el formulario pero fallaron por el formato del número telefónico. Al estar en Venezuela, muchos usuarios escriben <code>0414...</code>, <code>0424...</code> o <code>+58</code> y si la validación es estricta o confusa, genera rechazo.
                 </p>
                 <div style={{ marginTop: '12px', background: '#ffffff', padding: '10px', borderRadius: '6px', border: '1px solid #fca5a5', fontSize: '12px', color: '#991b1b', fontWeight: 700 }}>
                   ✓ Estado Actual: El formateador inteligente de WhatsApp en el código ya limpia y estandariza los prefijos automáticamente.
@@ -759,10 +844,10 @@ export function ClarityAnalyticsView({
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#166534', marginBottom: '8px' }}>
                   <CheckCircle2 size={18} />
-                  <strong style={{ fontSize: '14.5px' }}>16 Cotizaciones Completadas Directas</strong>
+                  <strong style={{ fontSize: '14.5px' }}>18 Cotizaciones Completadas Directas</strong>
                 </div>
                 <p style={{ fontSize: '12.5px', color: '#14532d', lineHeight: 1.5, margin: 0 }}>
-                  De los 50 usuarios que inician el cuestionario, <strong>16 completan exitosamente</strong> y saltan a WhatsApp con su asesor asignado. Esto representa una <strong>tasa de conversión del 32% en el quiz</strong>, muy superior al 2%-3% de formularios estáticos convencionales.
+                  De los 53 usuarios que inician el cuestionario, <strong>18 completan exitosamente</strong> y saltan a WhatsApp con su asesor asignado. Esto representa una <strong>tasa de conversión del 34% en el quiz</strong>, muy superior al 2%-3% de formularios estáticos convencionales.
                 </p>
               </div>
             </div>
@@ -792,7 +877,7 @@ export function ClarityAnalyticsView({
                   Rendimiento de URL (Clarity CWV)
                 </h3>
                 <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                  Puntuación global: <strong>{coreWebVitals.score}/100</strong> (58 páginas vistas evaluadas)
+                  Puntuación global: <strong>{coreWebVitals.score}/100</strong> (60 páginas vistas evaluadas)
                 </span>
               </div>
             </div>
@@ -869,6 +954,151 @@ export function ClarityAnalyticsView({
             <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5 }}>
               Este error no rompe la experiencia de los clientes ni impide que coticen o envíen mensajes de WhatsApp. Ocurre porque la app de Instagram en iOS intenta ejecutar manejadores internos propietarios que no existen en navegadores estándar.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PARA PEGAR REPORTE EN VIVO DE MICROSOFT CLARITY */}
+      {showPasteModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(5, 20, 31, 0.7)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: '20px',
+          }}
+          onClick={() => setShowPasteModal(false)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '680px',
+              padding: '26px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '90vh',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ padding: '8px', background: '#e0f2fe', borderRadius: '8px', color: '#0369a1' }}>
+                  <ClipboardPaste size={18} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                    Sincronizador Rápido de Microsoft Clarity
+                  </h3>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    Copia y pega cualquier texto de tu panel de Clarity para actualizar métricas en 1 clic
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPasteModal(false)}
+                style={{
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5, marginBottom: '12px' }}>
+              Como la API de exportación de Microsoft Clarity tiene cuota de 10 peticiones/día y trunca las URLs de pauta publicitaria a 1,000 registros, puedes copiar el texto completo de tu pantalla de Clarity y pegarlo aquí:
+            </p>
+
+            <textarea
+              value={pastedText}
+              onChange={(e) => setPastedText(e.target.value)}
+              placeholder="Ejemplo:
+Sesiones
+2055
+17 sesiones de bot excluidas
+Páginas por sesión 1,15
+Usuarios únicos 1974
+...
+https://kiaelmarques.com/modelos/tasman 1248
+https://kiaelmarques.com/modelos/soluto 791"
+              rows={10}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1.5px solid #cbd5e1',
+                fontSize: '12px',
+                fontFamily: 'monospace',
+                background: '#f8fafc',
+                color: '#0f172a',
+                resize: 'vertical',
+                marginBottom: '16px',
+                lineHeight: 1.4,
+              }}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setShowPasteModal(false)}
+                className="btn btn-outline"
+                style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600 }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={handleApplyPastedReport}
+                disabled={!pastedText.trim()}
+                style={{
+                  padding: '9px 20px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: pasteSuccess ? '#16a34a' : '#05141f',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: pastedText.trim() ? 'pointer' : 'not-allowed',
+                  opacity: pastedText.trim() ? 1 : 0.6,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {pasteSuccess ? (
+                  <>
+                    <Check size={16} />
+                    <span>¡Sincronizado con Éxito!</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={15} color="#38bdf8" />
+                    <span>Sincronizar y Guardar Métricas</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

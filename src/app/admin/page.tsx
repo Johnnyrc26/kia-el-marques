@@ -135,10 +135,24 @@ export default function AdminPage() {
           localStorage.removeItem('kia_clarity_cache_data');
           localStorage.removeItem('kia_clarity_cache_data_v2');
           localStorage.removeItem('kia_clarity_cache_data_v3');
+          localStorage.removeItem('kia_clarity_cache_data_v4');
         } catch {}
 
-        const cachedData = localStorage.getItem('kia_clarity_cache_data_v4');
-        const cachedTime = localStorage.getItem('kia_clarity_cache_time_v4');
+        // 1. Revisar si hay un reporte personalizado pegado por el usuario
+        const savedCustomReport = localStorage.getItem('kia_clarity_custom_report_v4');
+        if (savedCustomReport) {
+          try {
+            const parsedCustom = JSON.parse(savedCustomReport);
+            if (parsedCustom?.summary) {
+              setClarityData(parsedCustom);
+              setClarityLoading(false);
+              return;
+            }
+          } catch {}
+        }
+
+        const cachedData = localStorage.getItem('kia_clarity_cache_data_v5');
+        const cachedTime = localStorage.getItem('kia_clarity_cache_time_v5');
         if (cachedData && cachedTime && Date.now() - Number(cachedTime) < 2 * 60 * 60 * 1000) {
           try {
             const parsed = JSON.parse(cachedData);
@@ -2557,6 +2571,7 @@ _Por favor confirmar recepción._`;
             onRefresh={() => fetchClarityMetrics(undefined, true)}
             onSaveToken={saveClarityToken}
             token={clarityToken}
+            onUpdateCustomReport={(customReport) => setClarityData(customReport)}
           />
         )}
 

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { OFFICIAL_CLARITY_BENCHMARK } from '@/data/clarityBenchmark';
 
-const CACHE_FILE = path.join('/tmp', 'clarity_cache_v4.json');
+const CACHE_FILE = path.join('/tmp', 'clarity_cache_v5.json');
 const CACHE_DURATION_MS = 2 * 60 * 60 * 1000; // 2 horas de caché para no superar el límite de 10 peticiones/día de Clarity
 
 const NO_CACHE_HEADERS = {
@@ -58,15 +58,15 @@ const DEFAULT_CLARITY_METRICS = [
     information: [
       {
         Url: 'https://kiaelmarques.com/modelos/tasman',
-        sessionsCount: 20,
-        sessionsWithMetricPercentage: 2.43,
-        pagesViews: 1420,
+        sessionsCount: 21,
+        sessionsWithMetricPercentage: 2.38,
+        pagesViews: 1480,
       },
       {
         Url: 'https://kiaelmarques.com/modelos/soluto',
         sessionsCount: 28,
-        sessionsWithMetricPercentage: 2.43,
-        pagesViews: 890,
+        sessionsWithMetricPercentage: 2.38,
+        pagesViews: 920,
       },
     ],
   },
