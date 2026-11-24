@@ -139,16 +139,23 @@ export default function AdminPage() {
         } catch {}
 
         // 1. Revisar si hay un reporte personalizado pegado por el usuario
-        const savedCustomReport = localStorage.getItem('kia_clarity_custom_report_v4');
+        const savedCustomReport = localStorage.getItem('kia_clarity_custom_report_v6');
         if (savedCustomReport) {
           try {
             const parsedCustom = JSON.parse(savedCustomReport);
-            if (parsedCustom?.summary) {
+            if (parsedCustom?.summary && parsedCustom.summary.totalSessions >= 2340) {
               setClarityData(parsedCustom);
               setClarityLoading(false);
               return;
+            } else {
+              localStorage.removeItem('kia_clarity_custom_report_v4');
+              localStorage.removeItem('kia_clarity_custom_report_v5');
+              localStorage.removeItem('kia_clarity_custom_report_v6');
             }
           } catch {}
+        } else {
+          localStorage.removeItem('kia_clarity_custom_report_v4');
+          localStorage.removeItem('kia_clarity_custom_report_v5');
         }
 
         const cachedData = localStorage.getItem('kia_clarity_cache_data_v5');
@@ -785,11 +792,70 @@ _Por favor confirmar recepción._`;
       .sort((a, b) => b.count - a.count);
   };
 
-  const modelsDistribution = useMemo(() => computeDistribution((l) => l.model_interest), [leads]);
+  const modelsDistribution = useMemo(() => {
+    const ALL_SHOWROOM_MODELS = ['Soluto', 'Tasman', 'Picanto', 'Sportage', 'Seltos', 'Sorento', 'Carnival', 'Sonet'];
+    const counts: Record<string, number> = {};
+    ALL_SHOWROOM_MODELS.forEach((m) => { counts[m] = 0; });
+    leads.forEach((lead) => {
+      const val = lead.model_interest?.trim();
+      if (!val) return;
+      const match = ALL_SHOWROOM_MODELS.find((m) => m.toLowerCase() === val.toLowerCase());
+      const key = match || val;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([label, count]) => ({
+        label,
+        count,
+        pct: leads.length > 0 ? Math.round((count / leads.length) * 100) : 0,
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [leads]);
   const financingDistribution = useMemo(() => computeDistribution((l) => l.financing_interest), [leads]);
   const timelineDistribution = useMemo(() => computeDistribution((l) => l.timeline), [leads]);
   const primaryUseDistribution = useMemo(() => computeDistribution((l) => l.primary_use), [leads]);
-  const buyerTypeDistribution = useMemo(() => computeDistribution((l) => l.buyer_type), [leads]);
+  const buyerTypeDistribution = useMemo(() => {
+    let particularCount = 0;
+    let corporateCount = 0;
+
+    leads.forEach((lead) => {
+      const bType = (lead.buyer_type || '').toLowerCase();
+      const pUse = (lead.primary_use || '').toLowerCase();
+
+      const isCorporate =
+        bType.includes('empresa') ||
+        bType.includes('corporat') ||
+        bType.includes('flota') ||
+        bType.includes('comercial') ||
+        pUse.includes('flota') ||
+        pUse.includes('corporativ') ||
+        pUse.includes('trabajo pesado') ||
+        pUse.includes('empresa') ||
+        pUse.includes('empresarial') ||
+        pUse.includes('turismo') ||
+        pUse.includes('agro');
+
+      if (isCorporate) {
+        corporateCount++;
+      } else {
+        particularCount++;
+      }
+    });
+
+    const total = leads.length;
+    return [
+      {
+        label: 'Persona Natural (Particular)',
+        count: particularCount,
+        pct: total > 0 ? Math.round((particularCount / total) * 100) : 0,
+      },
+      {
+        label: 'Empresa / Corporativo',
+        count: corporateCount,
+        pct: total > 0 ? Math.round((corporateCount / total) * 100) : 0,
+      },
+    ].sort((a, b) => b.count - a.count);
+  }, [leads]);
   const colorsDistribution = useMemo(() => computeDistribution((l) => l.favorite_color), [leads]);
 
   const formatDate = (isoString?: string) => {
@@ -891,7 +957,7 @@ _Por favor confirmar recepción._`;
       <div className="shell" style={{ maxWidth: '1380px' }}>
         
         {/* Top Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px', paddingBottom: '18px', borderBottom: '1px solid #e2e8f0' }}>
+        <div className="admin-top-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
               <span className="badge badge-green" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px' }}>
@@ -900,15 +966,16 @@ _Por favor confirmar recepción._`;
               </span>
               <span style={{ fontSize: '12px', color: '#64748b' }}>Kia El Marqués · Caracas</span>
             </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', margin: 0 }}>
               Centro de Gestión Comercial 0 km
             </h1>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="admin-top-actions">
             <button
               type="button"
               onClick={() => setActiveTab('financiamiento')}
+              className="admin-top-btn-primary"
               style={{
                 fontSize: '12.5px',
                 display: 'inline-flex',
@@ -939,6 +1006,7 @@ _Por favor confirmar recepción._`;
                 fontSize: '12.5px',
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 background: '#fff',
                 padding: '8px 14px',
@@ -959,6 +1027,7 @@ _Por favor confirmar recepción._`;
                 fontSize: '12.5px',
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 background: leads.length === 0 ? '#f8fafc' : '#fff',
                 color: leads.length === 0 ? '#94a3b8' : '#1e293b',
@@ -975,7 +1044,7 @@ _Por favor confirmar recepción._`;
               type="button"
               onClick={handleLogout}
               className="btn btn-outline"
-              style={{ fontSize: '12.5px', color: '#dc2626', borderColor: '#fecaca', background: '#fff', padding: '8px 14px' }}
+              style={{ fontSize: '12.5px', color: '#dc2626', borderColor: '#fecaca', background: '#fff', padding: '8px 14px', justifyContent: 'center' }}
             >
               <LogOut size={14} />
               <span>Salir</span>
@@ -988,6 +1057,7 @@ _Por favor confirmar recepción._`;
           <button
             type="button"
             onClick={() => setActiveTab('resumen')}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1007,8 +1077,9 @@ _Por favor confirmar recepción._`;
             }}
           >
             <Sparkles size={16} />
-            <span>Resumen General 360°</span>
+            <span>Resumen 360°</span>
             <span
+              className="admin-tab-badge-verbose"
               style={{
                 fontSize: '11px',
                 padding: '2px 7px',
@@ -1025,6 +1096,7 @@ _Por favor confirmar recepción._`;
           <button
             type="button"
             onClick={() => setActiveTab('prospectos')}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1044,7 +1116,7 @@ _Por favor confirmar recepción._`;
             }}
           >
             <Users size={16} />
-            <span>Prospectos & Solicitudes</span>
+            <span>Prospectos</span>
             <span
               style={{
                 fontSize: '11px',
@@ -1062,6 +1134,7 @@ _Por favor confirmar recepción._`;
           <button
             type="button"
             onClick={() => setActiveTab('asesores')}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1081,7 +1154,7 @@ _Por favor confirmar recepción._`;
             }}
           >
             <UserCheck size={16} />
-            <span>Asignación por Asesor</span>
+            <span>Asesores</span>
             <span
               style={{
                 fontSize: '11px',
@@ -1099,6 +1172,7 @@ _Por favor confirmar recepción._`;
           <button
             type="button"
             onClick={() => setActiveTab('metricas')}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1118,8 +1192,9 @@ _Por favor confirmar recepción._`;
             }}
           >
             <BarChart3 size={16} />
-            <span>Métricas Comerciales</span>
+            <span>Métricas</span>
             <span
+              className="admin-tab-badge-verbose"
               style={{
                 fontSize: '11px',
                 padding: '2px 7px',
@@ -1139,6 +1214,7 @@ _Por favor confirmar recepción._`;
               setActiveTab('clarity');
               if (!clarityData && !clarityLoading) fetchClarityMetrics();
             }}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1158,8 +1234,9 @@ _Por favor confirmar recepción._`;
             }}
           >
             <Globe size={16} />
-            <span>Tráfico & Clarity</span>
+            <span>Clarity</span>
             <span
+              className="admin-tab-badge-verbose"
               style={{
                 fontSize: '11px',
                 padding: '2px 7px',
@@ -1179,6 +1256,7 @@ _Por favor confirmar recepción._`;
               setActiveTab('meta');
               if (!metaData && !metaLoading) fetchMetaData();
             }}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1198,8 +1276,9 @@ _Por favor confirmar recepción._`;
             }}
           >
             <Megaphone size={16} />
-            <span>Meta Ads & Instagram</span>
+            <span>Meta Ads</span>
             <span
+              className="admin-tab-badge-verbose"
               style={{
                 fontSize: '11px',
                 padding: '2px 7px',
@@ -1216,6 +1295,7 @@ _Por favor confirmar recepción._`;
           <button
             type="button"
             onClick={() => setActiveTab('financiamiento')}
+            className="admin-tab-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -1235,18 +1315,19 @@ _Por favor confirmar recepción._`;
             }}
           >
             <Calculator size={16} />
-            <span>Calculadora Crédito (7 Entidades)</span>
+            <span>Financiamiento</span>
             <span
+              className="admin-tab-badge-verbose"
               style={{
                 fontSize: '11px',
                 padding: '2px 7px',
                 borderRadius: '10px',
-                background: activeTab === 'financiamiento' ? '#38bdf8' : '#e0f2fe',
-                color: activeTab === 'financiamiento' ? '#05141f' : '#0369a1',
+                background: activeTab === 'financiamiento' ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                color: activeTab === 'financiamiento' ? '#ffffff' : '#475569',
                 fontWeight: 800,
               }}
             >
-              Matriz Oficial
+              7 Entidades
             </span>
           </button>
         </div>
@@ -1272,57 +1353,57 @@ _Por favor confirmar recepción._`;
         {activeTab === 'prospectos' && (
           <div>
             {/* KPI Summary Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', marginBottom: '24px' }}>
-              <div style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+            <div className="admin-kpis-grid">
+              <div className="admin-kpi-card" style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>Total Solicitudes</span>
-                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>{totalLeads}</div>
+                    <span className="admin-kpi-label" style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>Total Solicitudes</span>
+                    <div className="admin-kpi-number" style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>{totalLeads}</div>
                   </div>
                   <div style={{ padding: '8px', background: '#f1f5f9', borderRadius: '8px', color: '#475569' }}>
                     <Users size={18} />
                   </div>
                 </div>
-                <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Registrados en la plataforma</div>
+                <div className="admin-kpi-subtext" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Registrados en la plataforma</div>
               </div>
 
-              <div style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+              <div className="admin-kpi-card" style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#2563eb', fontWeight: 700, letterSpacing: '0.04em' }}>Nuevos sin Contactar</span>
-                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#2563eb', marginTop: '2px', fontFamily: 'monospace' }}>{newLeads}</div>
+                    <span className="admin-kpi-label" style={{ fontSize: '11px', textTransform: 'uppercase', color: '#2563eb', fontWeight: 700, letterSpacing: '0.04em' }}>Nuevos sin Contactar</span>
+                    <div className="admin-kpi-number" style={{ fontSize: '28px', fontWeight: 800, color: '#2563eb', marginTop: '2px', fontFamily: 'monospace' }}>{newLeads}</div>
                   </div>
                   <div style={{ padding: '8px', background: '#eff6ff', borderRadius: '8px', color: '#2563eb' }}>
                     <Clock size={18} />
                   </div>
                 </div>
-                <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Requieren primer contacto WhatsApp</div>
+                <div className="admin-kpi-subtext" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Requieren primer contacto WhatsApp</div>
               </div>
 
-              <div style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+              <div className="admin-kpi-card" style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#7c3aed', fontWeight: 700, letterSpacing: '0.04em' }}>En Seguimiento</span>
-                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#7c3aed', marginTop: '2px', fontFamily: 'monospace' }}>{inProgressLeads}</div>
+                    <span className="admin-kpi-label" style={{ fontSize: '11px', textTransform: 'uppercase', color: '#7c3aed', fontWeight: 700, letterSpacing: '0.04em' }}>En Seguimiento</span>
+                    <div className="admin-kpi-number" style={{ fontSize: '28px', fontWeight: 800, color: '#7c3aed', marginTop: '2px', fontFamily: 'monospace' }}>{inProgressLeads}</div>
                   </div>
                   <div style={{ padding: '8px', background: '#faf5ff', borderRadius: '8px', color: '#7c3aed' }}>
                     <Briefcase size={18} />
                   </div>
                 </div>
-                <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Cotización enviada / En negociación</div>
+                <div className="admin-kpi-subtext" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Cotización enviada / Negociación</div>
               </div>
 
-              <div style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+              <div className="admin-kpi-card" style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#16a34a', fontWeight: 700, letterSpacing: '0.04em' }}>Ventas Cerradas</span>
-                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#16a34a', marginTop: '2px', fontFamily: 'monospace' }}>{closedLeads}</div>
+                    <span className="admin-kpi-label" style={{ fontSize: '11px', textTransform: 'uppercase', color: '#16a34a', fontWeight: 700, letterSpacing: '0.04em' }}>Ventas Cerradas</span>
+                    <div className="admin-kpi-number" style={{ fontSize: '28px', fontWeight: 800, color: '#16a34a', marginTop: '2px', fontFamily: 'monospace' }}>{closedLeads}</div>
                   </div>
                   <div style={{ padding: '8px', background: '#f0fdf4', borderRadius: '8px', color: '#16a34a' }}>
                     <CheckCircle2 size={18} />
                   </div>
                 </div>
-                <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Operaciones completadas</div>
+                <div className="admin-kpi-subtext" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>Operaciones completadas</div>
               </div>
             </div>
 
@@ -1524,7 +1605,9 @@ _Por favor confirmar recepción._`;
                   </p>
                 </div>
               ) : (
-                <div className="admin-table-scroll">
+                <>
+                  <div className="admin-desktop-table-view">
+                    <div className="admin-table-scroll">
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontWeight: 700, textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em' }}>
@@ -1830,7 +1913,197 @@ _Por favor confirmar recepción._`;
                     </tbody>
                   </table>
                 </div>
-              )}
+              </div>
+
+              {/* Vista Tarjetas Nativas para Dispositivos Móviles */}
+              <div className="admin-mobile-cards-view" style={{ padding: '12px' }}>
+                {paginatedLeads.map((lead, index) => {
+                  const badge = getStatusBadge(lead.status);
+                  const initials = lead.full_name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+
+                  return (
+                    <div
+                      key={`mobile-${lead.id || index}`}
+                      style={{
+                        background: '#ffffff',
+                        borderRadius: '12px',
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      {/* Top: Avatar, Nombre y Estado */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '50%',
+                              background: '#05141f',
+                              color: '#ffffff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 700,
+                              fontSize: '13px',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {initials}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '14.5px' }}>
+                              {lead.full_name}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>
+                              {formatDate(lead.created_at)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            padding: '3px 8px',
+                            borderRadius: '16px',
+                            backgroundColor: badge.bg,
+                            color: badge.color,
+                            border: `1px solid ${badge.border}`,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {badge.label}
+                        </span>
+                      </div>
+
+                      {/* Modelo & Píldoras de Interés */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                        <span
+                          style={{
+                            padding: '3px 9px',
+                            borderRadius: '6px',
+                            backgroundColor: '#0f172a',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: '12px',
+                          }}
+                        >
+                          🚗 {lead.model_interest}
+                        </span>
+
+                        {lead.favorite_color && (
+                          <span style={{ fontSize: '11.5px', color: '#475569', background: '#f1f5f9', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                            🎨 {lead.favorite_color}
+                          </span>
+                        )}
+
+                        {lead.financing_interest && (
+                          <span style={{ fontSize: '11.5px', color: '#0284c7', background: '#e0f2fe', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                            {lead.financing_interest.toLowerCase().includes('finan') || lead.financing_interest.toLowerCase().includes('créd') ? '💳 Crédito' : '💵 Contado'}
+                          </span>
+                        )}
+
+                        {lead.advisor_name ? (
+                          <span style={{ fontSize: '11px', color: '#0369a1', background: '#e0f2fe', border: '1px solid #bae6fd', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>
+                            👤 {lead.advisor_name}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '11px', color: '#b45309', background: '#fef3c7', border: '1px solid #fde68a', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>
+                            ⚠️ Sin Asignar
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Selector Rápido de Estado en Móvil */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px' }}>
+                        <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700 }}>Estado:</span>
+                        <select
+                          value={lead.status || 'nuevo'}
+                          onChange={(e) => lead.id && handleStatusChange(lead.id, e.target.value as any)}
+                          style={{
+                            flex: 1,
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            background: '#fff',
+                            color: '#0f172a',
+                          }}
+                        >
+                          <option value="nuevo">Nuevo</option>
+                          <option value="contactado">Contactado</option>
+                          <option value="en_seguimiento">En Seguimiento</option>
+                          <option value="cerrado">Venta Cerrada</option>
+                          <option value="descartado">Descartado</option>
+                        </select>
+                      </div>
+
+                      {/* Botones Táctiles Móviles */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '8px' }}>
+                        <a
+                          href={`https://wa.me/${formatWhatsAppPhone(lead.phone)}?text=${encodeURIComponent(
+                            `Hola ${lead.full_name}, te saluda tu anfitrión comercial de Kia El Marqués. Recibimos tu solicitud sobre el ${lead.model_interest} (${lead.favorite_color || 'Color a coordinar'}). ¿En qué momento te resulta oportuno revisar la cotización oficial?`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            background: '#25D366',
+                            color: '#ffffff',
+                            textDecoration: 'none',
+                            fontWeight: 700,
+                            fontSize: '13px',
+                            boxShadow: '0 2px 4px rgba(37,211,102,0.25)',
+                          }}
+                        >
+                          <MessageCircle size={16} />
+                          <span>WhatsApp</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLead(lead)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            background: '#05141f',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontWeight: 700,
+                            fontSize: '12.5px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Eye size={14} />
+                          <span>Ficha ↗</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
               {/* Barra de Paginación */}
               {filteredLeads.length > 0 && (
@@ -1986,7 +2259,7 @@ _Por favor confirmar recepción._`;
         {activeTab === 'asesores' && (
           <div>
             {/* Header / Summary KPI Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+            <div className="admin-kpis-grid">
               <div style={{ background: '#fff', borderRadius: '12px', padding: '18px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
@@ -2066,7 +2339,7 @@ _Por favor confirmar recepción._`;
 
 
             {/* Grid de Asesores */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '18px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '18px' }}>
               {advisorStats.map(({ advisor, count, pct, nuevos, seguimiento, cerrados, topModel }) => {
                 const advInitials = advisor.name
                   .split(' ')
@@ -2271,7 +2544,7 @@ _Por favor confirmar recepción._`;
                 </p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '20px' }}>
+              <div className="admin-modules-2x2-grid">
                 
                 {/* 1. Ranking de Modelos Más Solicitados */}
                 <div style={{ background: '#fff', borderRadius: '12px', padding: '22px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
@@ -2602,31 +2875,11 @@ _Por favor confirmar recepción._`;
       {/* Drawer / Modal de Detalle Completo del Lead */}
       {selectedLead && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-          }}
+          className="admin-modal-overlay"
           onClick={() => setSelectedLead(null)}
         >
           <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              maxWidth: '560px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-              padding: '28px',
-              position: 'relative',
-            }}
+            className="admin-modal-card"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Modal */}
@@ -3017,31 +3270,11 @@ _Por favor confirmar recepción._`;
       {/* Modal de Asignación / Reenvío al WhatsApp de un Asesor */}
       {assigningLead && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 10000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-          }}
+          className="admin-modal-overlay"
           onClick={() => setAssigningLead(null)}
         >
           <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              maxWidth: '560px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)',
-              padding: '28px',
-              position: 'relative',
-            }}
+            className="admin-modal-card"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

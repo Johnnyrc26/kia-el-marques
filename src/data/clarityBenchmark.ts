@@ -68,76 +68,82 @@ export interface ClarityOfficialDataset {
 
 export const OFFICIAL_CLARITY_BENCHMARK: ClarityOfficialDataset = {
   summary: {
-    totalSessions: 2055,
-    botSessionsExcluded: 17,
-    uniqueUsers: 1974,
-    newUsers: 1961,
-    newUsersPct: 95.43,
-    recurringUsers: 94,
-    recurringUsersPct: 4.57,
-    activeUsersNow: 2,
-    pagesPerSession: 1.15,
-    scrollDepthPct: 28.99,
-    activeTimeSec: 13,
-    totalTimeSec: 56,
+    totalSessions: 2340,
+    botSessionsExcluded: 21,
+    uniqueUsers: 2254,
+    newUsers: 2180,
+    newUsersPct: 93.16,
+    recurringUsers: 160,
+    recurringUsersPct: 6.84,
+    activeUsersNow: 1,
+    pagesPerSession: 1.14,
+    scrollDepthPct: 26.76,
+    activeTimeSec: 10,
+    totalTimeSec: 48,
     deadClicksCount: 49,
-    deadClicksPct: 2.38,
+    deadClicksPct: 2.09,
     rageClicksCount: 2,
-    rageClicksPct: 0.1,
-    quickbacksCount: 6,
-    quickbacksPct: 0.29,
+    rageClicksPct: 0.09,
+    quickbacksCount: 8,
+    quickbacksPct: 0.34,
     excessiveScrollPct: 0,
   },
   topPages: [
-    { name: 'Tasman', path: '/modelos/tasman', url: 'https://kiaelmarques.com/modelos/tasman', sessions: 1248, pct: 60.7, deadClicks: 21, mobilePct: 99.1 },
-    { name: 'Soluto', path: '/modelos/soluto', url: 'https://kiaelmarques.com/modelos/soluto', sessions: 791, pct: 38.5, deadClicks: 28, mobilePct: 98.4 },
-    { name: 'Admin', path: '/admin', url: 'https://kiaelmarques.com/admin', sessions: 16, pct: 0.8, deadClicks: 0, mobilePct: 20.0 },
-    { name: 'El Marqués Landing', path: '/elmarques', url: 'https://kiaelmarques.com/elmarques', sessions: 9, pct: 0.4, deadClicks: 0, mobilePct: 88.9 },
-    { name: 'Asesor Ricardo Carrasco', path: '/asesor/ricardo-carrasco', url: 'https://kiaelmarques.com/asesor/ricardo-carrasco', sessions: 6, pct: 0.3, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'Seltos', path: '/modelos/seltos', url: 'https://kiaelmarques.com/modelos/seltos', sessions: 4, pct: 0.2, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'Picanto', path: '/modelos/picanto', url: 'https://kiaelmarques.com/modelos/picanto', sessions: 3, pct: 0.15, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'Asesor Carlos Arias', path: '/asesor/carlos-arias', url: 'https://kiaelmarques.com/asesor/carlos-arias', sessions: 1, pct: 0.05, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'Asesor Gabriel Petit', path: '/asesor/gabriel-petit', url: 'https://kiaelmarques.com/asesor/gabriel-petit', sessions: 1, pct: 0.05, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'Asesor Heber Ibañez', path: '/asesor/heber-ibanez', url: 'https://kiaelmarques.com/asesor/heber-ibanez', sessions: 1, pct: 0.05, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'QR Showroom', path: '/kiaelmarques', url: 'https://kiaelmarques.com/kiaelmarques', sessions: 1, pct: 0.05, deadClicks: 0, mobilePct: 100.0 },
-    { name: 'Sonet', path: '/modelos/sonet', url: 'https://kiaelmarques.com/modelos/sonet', sessions: 1, pct: 0.05, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Tasman', path: '/modelos/tasman', url: 'https://kiaelmarques.com/modelos/tasman', sessions: 1536, pct: 65.6, deadClicks: 26, mobilePct: 99.2 },
+    { name: 'Soluto', path: '/modelos/soluto', url: 'https://kiaelmarques.com/modelos/soluto', sessions: 793, pct: 33.9, deadClicks: 23, mobilePct: 98.7 },
+    { name: 'Admin', path: '/admin', url: 'https://kiaelmarques.com/admin', sessions: 8, pct: 0.34, deadClicks: 0, mobilePct: 25.0 },
+    { name: 'El Marqués Landing', path: '/elmarques', url: 'https://kiaelmarques.com/elmarques', sessions: 8, pct: 0.34, deadClicks: 0, mobilePct: 88.9 },
+    { name: 'Asesor Ricardo Carrasco', path: '/asesor/ricardo-carrasco', url: 'https://kiaelmarques.com/asesor/ricardo-carrasco', sessions: 3, pct: 0.13, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Sportage', path: '/modelos/sportage', url: 'https://kiaelmarques.com/modelos/sportage', sessions: 3, pct: 0.13, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Asesor Carlos Arias', path: '/asesor/carlos-arias', url: 'https://kiaelmarques.com/asesor/carlos-arias', sessions: 2, pct: 0.09, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Sorento', path: '/modelos/sorento', url: 'https://kiaelmarques.com/modelos/sorento', sessions: 2, pct: 0.09, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Carnival', path: '/modelos/carnival', url: 'https://kiaelmarques.com/modelos/carnival', sessions: 1, pct: 0.04, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Seltos', path: '/modelos/seltos', url: 'https://kiaelmarques.com/modelos/seltos', sessions: 1, pct: 0.04, deadClicks: 0, mobilePct: 100.0 },
+    { name: 'Sonet', path: '/modelos/sonet', url: 'https://kiaelmarques.com/modelos/sonet', sessions: 1, pct: 0.04, deadClicks: 0, mobilePct: 100.0 },
   ],
   referrers: [
-    { source: 'instagram.com', sessions: 1373, pct: 67.57 },
-    { source: 'm.facebook.com', sessions: 655, pct: 32.23 },
-    { source: 'l.instagram.com', sessions: 4, pct: 0.20 },
+    { source: 'instagram.com', sessions: 1767, pct: 75.51 },
+    { source: 'm.facebook.com', sessions: 553, pct: 23.63 },
+    { source: 'l.instagram.com', sessions: 6, pct: 0.26 },
+    { source: 'www.google.com', sessions: 3, pct: 0.13 },
+    { source: 'kiaelmarques.com', sessions: 1, pct: 0.04 },
   ],
   browsers: [
-    { name: 'InstagramApp (Navegador In-App)', sessions: 2027, pct: 98.64 },
-    { name: 'Otros Navegadores (Chrome / Safari)', sessions: 28, pct: 1.36 },
+    { name: 'InstagramApp (Navegador In-App)', sessions: 2315, pct: 98.93 },
+    { name: 'Otros Navegadores (Chrome / Safari)', sessions: 25, pct: 1.07 },
   ],
   smartEvents: [
-    { name: 'Quiz Iniciado', tag: 'quiz_iniciado', sessions: 53 },
-    { name: 'Paso 2 (Uso/Propósito)', tag: 'quiz_paso_2', sessions: 53 },
-    { name: 'Formulario Enviado', tag: 'Enviar formulario', sessions: 44 },
-    { name: 'Paso 3 (Color)', tag: 'quiz_paso_3', sessions: 42 },
-    { name: 'Paso 4 (Financiamiento)', tag: 'quiz_paso_4', sessions: 37 },
-    { name: 'Paso 5 (Datos Contacto)', tag: 'quiz_paso_5', sessions: 35 },
-    { name: 'Error Validación Teléfono', tag: 'quiz_error_validacion', sessions: 35, alert: true },
-    { name: 'Cotización Completada', tag: 'quiz_completado_exitoso', sessions: 18, success: true },
-    { name: 'Clic de Salida', tag: 'Clic de salida', sessions: 6 },
-    { name: 'Contacto Asesor Directo', tag: 'Póngase en contacto con nosotros', sessions: 3 },
-    { name: 'Clic WhatsApp Asesor', tag: 'whatsapp_click_advisor', sessions: 1 },
+    { name: 'Quiz Iniciado', tag: 'quiz_iniciado', sessions: 60 },
+    { name: 'Paso 2 (Uso/Propósito)', tag: 'quiz_paso_2', sessions: 60 },
+    { name: 'Paso 3 (Color)', tag: 'quiz_paso_3', sessions: 40 },
+    { name: 'Paso 4 (Financiamiento)', tag: 'quiz_paso_4', sessions: 39 },
+    { name: 'Formulario Enviado', tag: 'Enviar formulario', sessions: 35 },
+    { name: 'Paso 5 (Datos Contacto)', tag: 'quiz_paso_5', sessions: 34 },
+    { name: 'Error Validación Teléfono', tag: 'quiz_error_validacion', sessions: 34, alert: true },
+    { name: 'Cotización Completada', tag: 'quiz_completado_exitoso', sessions: 17, success: true },
+    { name: 'Clic de Salida', tag: 'Clic de salida', sessions: 11 },
+    { name: 'Retrocedió a Paso 3', tag: 'quiz_retrocedio_paso_3', sessions: 3 },
+    { name: 'Clic WhatsApp Asesor', tag: 'whatsapp_click_advisor', sessions: 3 },
+    { name: 'Descarga de Ficha', tag: 'Descargar', sessions: 2 },
+    { name: 'Retrocedió a Paso 4', tag: 'quiz_retrocedio_paso_4', sessions: 2 },
+    { name: 'Retrocedió a Paso 1', tag: 'quiz_retrocedio_paso_1', sessions: 2 },
+    { name: 'Retrocedió a Paso 2', tag: 'quiz_retrocedio_paso_2', sessions: 2 },
+    { name: 'Contacto Asesor Directo', tag: 'Póngase en contacto con nosotros', sessions: 1 },
   ],
   coreWebVitals: {
-    score: 66,
-    lcp: '5,9s',
-    inp: '210ms',
-    cls: 0.81,
-    goodPct: 38.3,
-    needsImprovementPct: 35.0,
-    poorPct: 26.7,
+    score: 78,
+    lcp: '2,7s',
+    inp: '330ms',
+    cls: 0,
+    goodPct: 49.0,
+    needsImprovementPct: 46.9,
+    poorPct: 4.1,
   },
   javascriptErrors: {
-    ratePct: 0.05,
-    recordingsCount: 2,
-    topError: "undefined is not an object (evaluating 'window.webkit.messagehandlers')",
-    impact: 'Inofensivo: script inyectado por el navegador embebido de Instagram en iOS',
+    ratePct: 0.0,
+    recordingsCount: 0,
+    topError: 'Ninguno registrado',
+    impact: 'Saludable: 0 errores de JavaScript en sesiones',
   },
 };
 
@@ -210,31 +216,29 @@ export function parseClarityReportText(rawText: string, fallback: ClarityOfficia
       return m ? parseInt(m[1], 10) : defaultVal;
     };
 
-    const tasmanCount = parsePageCount('/modelos/tasman', 1248);
-    const solutoCount = parsePageCount('/modelos/soluto', 791);
-    const adminCount = parsePageCount('/admin', 16);
-    const elmarquesCount = parsePageCount('/elmarques', 9);
-    const ricardoCount = parsePageCount('/asesor/ricardo-carrasco', 6);
-    const seltosCount = parsePageCount('/modelos/seltos', 4);
-    const picantoCount = parsePageCount('/modelos/picanto', 3);
-    const carlosCount = parsePageCount('/asesor/carlos-arias', 1);
-    const gabrielCount = parsePageCount('/asesor/gabriel-petit', 1);
-    const heberCount = parsePageCount('/asesor/heber-ibanez', 1);
-    const showroomCount = parsePageCount('/kiaelmarques', 1);
+    const tasmanCount = parsePageCount('/modelos/tasman', 1536);
+    const solutoCount = parsePageCount('/modelos/soluto', 793);
+    const adminCount = parsePageCount('/admin', 8);
+    const elmarquesCount = parsePageCount('/elmarques', 8);
+    const ricardoCount = parsePageCount('/asesor/ricardo-carrasco', 3);
+    const sportageCount = parsePageCount('/modelos/sportage', 3);
+    const carlosCount = parsePageCount('/asesor/carlos-arias', 2);
+    const sorentoCount = parsePageCount('/modelos/sorento', 2);
+    const carnivalCount = parsePageCount('/modelos/carnival', 1);
+    const seltosCount = parsePageCount('/modelos/seltos', 1);
     const sonetCount = parsePageCount('/modelos/sonet', 1);
 
     const topPages = [
-      { name: 'Tasman', path: '/modelos/tasman', url: 'https://kiaelmarques.com/modelos/tasman', sessions: tasmanCount, pct: Number(((tasmanCount / totalSessions) * 100).toFixed(1)), deadClicks: 21, mobilePct: 99.1 },
-      { name: 'Soluto', path: '/modelos/soluto', url: 'https://kiaelmarques.com/modelos/soluto', sessions: solutoCount, pct: Number(((solutoCount / totalSessions) * 100).toFixed(1)), deadClicks: 28, mobilePct: 98.4 },
-      { name: 'Admin', path: '/admin', url: 'https://kiaelmarques.com/admin', sessions: adminCount, pct: Number(((adminCount / totalSessions) * 100).toFixed(1)), deadClicks: 0, mobilePct: 20.0 },
-      { name: 'El Marqués Landing', path: '/elmarques', url: 'https://kiaelmarques.com/elmarques', sessions: elmarquesCount, pct: Number(((elmarquesCount / totalSessions) * 100).toFixed(1)), deadClicks: 0, mobilePct: 88.9 },
-      { name: 'Asesor Ricardo Carrasco', path: '/asesor/ricardo-carrasco', url: 'https://kiaelmarques.com/asesor/ricardo-carrasco', sessions: ricardoCount, pct: Number(((ricardoCount / totalSessions) * 100).toFixed(1)), deadClicks: 0, mobilePct: 100.0 },
-      { name: 'Seltos', path: '/modelos/seltos', url: 'https://kiaelmarques.com/modelos/seltos', sessions: seltosCount, pct: Number(((seltosCount / totalSessions) * 100).toFixed(1)), deadClicks: 0, mobilePct: 100.0 },
-      { name: 'Picanto', path: '/modelos/picanto', url: 'https://kiaelmarques.com/modelos/picanto', sessions: picantoCount, pct: Number(((picantoCount / totalSessions) * 100).toFixed(1)), deadClicks: 0, mobilePct: 100.0 },
+      { name: 'Tasman', path: '/modelos/tasman', url: 'https://kiaelmarques.com/modelos/tasman', sessions: tasmanCount, pct: Number(((tasmanCount / totalSessions) * 100).toFixed(1)), deadClicks: 26, mobilePct: 99.2 },
+      { name: 'Soluto', path: '/modelos/soluto', url: 'https://kiaelmarques.com/modelos/soluto', sessions: solutoCount, pct: Number(((solutoCount / totalSessions) * 100).toFixed(1)), deadClicks: 23, mobilePct: 98.7 },
+      { name: 'Admin', path: '/admin', url: 'https://kiaelmarques.com/admin', sessions: adminCount, pct: Number(((adminCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 25.0 },
+      { name: 'El Marqués Landing', path: '/elmarques', url: 'https://kiaelmarques.com/elmarques', sessions: elmarquesCount, pct: Number(((elmarquesCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 88.9 },
+      { name: 'Asesor Ricardo Carrasco', path: '/asesor/ricardo-carrasco', url: 'https://kiaelmarques.com/asesor/ricardo-carrasco', sessions: ricardoCount, pct: Number(((ricardoCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
+      { name: 'Sportage', path: '/modelos/sportage', url: 'https://kiaelmarques.com/modelos/sportage', sessions: sportageCount, pct: Number(((sportageCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
       { name: 'Asesor Carlos Arias', path: '/asesor/carlos-arias', url: 'https://kiaelmarques.com/asesor/carlos-arias', sessions: carlosCount, pct: Number(((carlosCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
-      { name: 'Asesor Gabriel Petit', path: '/asesor/gabriel-petit', url: 'https://kiaelmarques.com/asesor/gabriel-petit', sessions: gabrielCount, pct: Number(((gabrielCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
-      { name: 'Asesor Heber Ibañez', path: '/asesor/heber-ibanez', url: 'https://kiaelmarques.com/asesor/heber-ibanez', sessions: heberCount, pct: Number(((heberCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
-      { name: 'QR Showroom', path: '/kiaelmarques', url: 'https://kiaelmarques.com/kiaelmarques', sessions: showroomCount, pct: Number(((showroomCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
+      { name: 'Sorento', path: '/modelos/sorento', url: 'https://kiaelmarques.com/modelos/sorento', sessions: sorentoCount, pct: Number(((sorentoCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
+      { name: 'Carnival', path: '/modelos/carnival', url: 'https://kiaelmarques.com/modelos/carnival', sessions: carnivalCount, pct: Number(((carnivalCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
+      { name: 'Seltos', path: '/modelos/seltos', url: 'https://kiaelmarques.com/modelos/seltos', sessions: seltosCount, pct: Number(((seltosCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
       { name: 'Sonet', path: '/modelos/sonet', url: 'https://kiaelmarques.com/modelos/sonet', sessions: sonetCount, pct: Number(((sonetCount / totalSessions) * 100).toFixed(2)), deadClicks: 0, mobilePct: 100.0 },
     ];
 
@@ -245,24 +249,28 @@ export function parseClarityReportText(rawText: string, fallback: ClarityOfficia
       return m ? parseInt(m[1], 10) : defaultVal;
     };
 
-    const igCount = parseCount('instagram\\.com', 1373);
-    const fbCount = parseCount('m\\.facebook\\.com', 655);
-    const lIgCount = parseCount('l\\.instagram\\.com', 4);
+    const igCount = parseCount('instagram\\.com', 1767);
+    const fbCount = parseCount('m\\.facebook\\.com', 553);
+    const lIgCount = parseCount('l\\.instagram\\.com', 6);
+    const googleCount = parseCount('www\\.google\\.com', 3);
+    const siteCount = parseCount('kiaelmarques\\.com', 1);
 
     const referrers = [
       { source: 'instagram.com', sessions: igCount, pct: Number(((igCount / totalSessions) * 100).toFixed(1)) },
       { source: 'm.facebook.com', sessions: fbCount, pct: Number(((fbCount / totalSessions) * 100).toFixed(1)) },
       { source: 'l.instagram.com', sessions: lIgCount, pct: Number(((lIgCount / totalSessions) * 100).toFixed(1)) },
+      { source: 'www.google.com', sessions: googleCount, pct: Number(((googleCount / totalSessions) * 100).toFixed(2)) },
+      { source: 'kiaelmarques.com', sessions: siteCount, pct: Number(((siteCount / totalSessions) * 100).toFixed(2)) },
     ];
 
     // Extraer Navegadores
     const mIgApp = text.match(/InstagramApp\s*[\r\n\s]*([\d,.]+)%[\r\n\s]*(\d+)/i);
-    const igAppSessions = mIgApp ? parseInt(mIgApp[2], 10) : 2027;
-    const igAppPct = mIgApp ? parseFloat(mIgApp[1].replace(',', '.')) : 98.64;
+    const igAppSessions = mIgApp ? parseInt(mIgApp[2], 10) : 2315;
+    const igAppPct = mIgApp ? parseFloat(mIgApp[1].replace(',', '.')) : 98.93;
 
     const mOther = text.match(/Other\s*[\r\n\s]*([\d,.]+)%[\r\n\s]*(\d+)/i);
-    const otherSessions = mOther ? parseInt(mOther[2], 10) : 28;
-    const otherPct = mOther ? parseFloat(mOther[1].replace(',', '.')) : 1.36;
+    const otherSessions = mOther ? parseInt(mOther[2], 10) : 25;
+    const otherPct = mOther ? parseFloat(mOther[1].replace(',', '.')) : 1.07;
 
     const browsers = [
       { name: 'InstagramApp (Navegador In-App)', sessions: igAppSessions, pct: igAppPct },
@@ -271,17 +279,22 @@ export function parseClarityReportText(rawText: string, fallback: ClarityOfficia
 
     // Extraer Eventos Inteligentes
     const smartEvents = [
-      { name: 'Quiz Iniciado', tag: 'quiz_iniciado', sessions: parseCount('quiz_iniciado', 53) },
-      { name: 'Paso 2 (Uso/Propósito)', tag: 'quiz_paso_2', sessions: parseCount('quiz_paso_2', 53) },
-      { name: 'Formulario Enviado', tag: 'Enviar formulario', sessions: parseCount('Enviar formulario', 44) },
-      { name: 'Paso 3 (Color)', tag: 'quiz_paso_3', sessions: parseCount('quiz_paso_3', 42) },
-      { name: 'Paso 4 (Financiamiento)', tag: 'quiz_paso_4', sessions: parseCount('quiz_paso_4', 37) },
-      { name: 'Paso 5 (Datos Contacto)', tag: 'quiz_paso_5', sessions: parseCount('quiz_paso_5', 35) },
-      { name: 'Error Validación Teléfono', tag: 'quiz_error_validacion', sessions: parseCount('quiz_error_validacion', 35), alert: true },
-      { name: 'Cotización Completada', tag: 'quiz_completado_exitoso', sessions: parseCount('quiz_completado_exitoso', 18), success: true },
-      { name: 'Clic de Salida', tag: 'Clic de salida', sessions: parseCount('Clic de salida', 6) },
-      { name: 'Contacto Asesor Directo', tag: 'Póngase en contacto con nosotros', sessions: parseCount('Póngase en contacto con nosotros', 3) },
-      { name: 'Clic WhatsApp Asesor', tag: 'whatsapp_click_advisor', sessions: parseCount('whatsapp_click_advisor', 1) },
+      { name: 'Quiz Iniciado', tag: 'quiz_iniciado', sessions: parseCount('quiz_iniciado', 60) },
+      { name: 'Paso 2 (Uso/Propósito)', tag: 'quiz_paso_2', sessions: parseCount('quiz_paso_2', 60) },
+      { name: 'Paso 3 (Color)', tag: 'quiz_paso_3', sessions: parseCount('quiz_paso_3', 40) },
+      { name: 'Paso 4 (Financiamiento)', tag: 'quiz_paso_4', sessions: parseCount('quiz_paso_4', 39) },
+      { name: 'Formulario Enviado', tag: 'Enviar formulario', sessions: parseCount('Enviar formulario', 35) },
+      { name: 'Paso 5 (Datos Contacto)', tag: 'quiz_paso_5', sessions: parseCount('quiz_paso_5', 34) },
+      { name: 'Error Validación Teléfono', tag: 'quiz_error_validacion', sessions: parseCount('quiz_error_validacion', 34), alert: true },
+      { name: 'Cotización Completada', tag: 'quiz_completado_exitoso', sessions: parseCount('quiz_completado_exitoso', 17), success: true },
+      { name: 'Clic de Salida', tag: 'Clic de salida', sessions: parseCount('Clic de salida', 11) },
+      { name: 'Retrocedió a Paso 3', tag: 'quiz_retrocedio_paso_3', sessions: parseCount('quiz_retrocedio_paso_3', 3) },
+      { name: 'Clic WhatsApp Asesor', tag: 'whatsapp_click_advisor', sessions: parseCount('whatsapp_click_advisor', 3) },
+      { name: 'Descarga de Ficha', tag: 'Descargar', sessions: parseCount('Descargar', 2) },
+      { name: 'Retrocedió a Paso 4', tag: 'quiz_retrocedio_paso_4', sessions: parseCount('quiz_retrocedio_paso_4', 2) },
+      { name: 'Retrocedió a Paso 1', tag: 'quiz_retrocedio_paso_1', sessions: parseCount('quiz_retrocedio_paso_1', 2) },
+      { name: 'Retrocedió a Paso 2', tag: 'quiz_retrocedio_paso_2', sessions: parseCount('quiz_retrocedio_paso_2', 2) },
+      { name: 'Contacto Asesor Directo', tag: 'Póngase en contacto con nosotros', sessions: parseCount('Póngase en contacto con nosotros', 1) },
     ];
 
     return {

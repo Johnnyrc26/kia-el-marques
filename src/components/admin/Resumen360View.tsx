@@ -66,15 +66,20 @@ export function Resumen360View({
   const cpcUSD = metaLinkClicks > 0 ? (adSpendUSD / metaLinkClicks).toFixed(3) : '0.026';
 
   // Calculos de Clarity oficiales y en vivo
-  const clarityBenchmark =
+  const rawClarity =
     (clarityData?.summary ? clarityData : null) ||
     (clarityData?.benchmark?.summary ? clarityData.benchmark : null) ||
     (Array.isArray(clarityData) ? clarityData.find((m: any) => m.metricName === 'OfficialBenchmark')?.data : null) ||
     OFFICIAL_CLARITY_BENCHMARK;
 
-  let totalSessions = clarityBenchmark.summary.totalSessions || 2055;
+  const clarityBenchmark =
+    rawClarity?.summary?.totalSessions && rawClarity.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions
+      ? rawClarity
+      : OFFICIAL_CLARITY_BENCHMARK;
+
+  let totalSessions = clarityBenchmark.summary.totalSessions || 2340;
   let deadClicksPct = `${clarityBenchmark.summary.deadClicksPct.toString().replace('.', ',')}%`;
-  let deadClicksSessions = clarityBenchmark.summary.deadClicksCount || 49;
+  let deadClicksSessions = clarityBenchmark.summary.deadClicksCount || 50;
 
   if (Array.isArray(clarityData) && !clarityData.find((m: any) => m.metricName === 'OfficialBenchmark')) {
     const trafficMetric = clarityData.find((m: any) => m.metricName === 'Traffic');
@@ -199,7 +204,7 @@ export function Resumen360View({
       </div>
 
       {/* 5 Grandes KPIs Clave Unificados */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(215px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+      <div className="admin-kpis-grid">
         {/* KPI 1: Prospectos CRM */}
         <div
           onClick={() => setActiveTab('prospectos')}
@@ -484,7 +489,7 @@ export function Resumen360View({
         </div>
 
         {/* 4 Fases del Embudo en Horizontal */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', position: 'relative' }}>
+        <div className="admin-kpis-grid" style={{ position: 'relative' }}>
           
           {/* Paso 1: Pauta y Redes */}
           <div
@@ -614,7 +619,7 @@ export function Resumen360View({
       </div>
 
       {/* 4 Módulos Ejecutivos Consolidados (2x2 Grid) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+      <div className="admin-modules-2x2-grid">
         
         {/* MÓDULO 1: Prospectos & Solicitudes Recientes */}
         <div

@@ -66,16 +66,23 @@ export function ClarityAnalyticsView({
   const [pasteSuccess, setPasteSuccess] = useState(false);
   const [localReport, setLocalReport] = useState<ClarityOfficialDataset | null>(null);
 
-  // Cargar reporte personalizado previo desde localStorage si existe
+  // Cargar reporte personalizado previo desde localStorage si existe y está al día
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const saved = localStorage.getItem('kia_clarity_custom_report_v4');
+        const saved = localStorage.getItem('kia_clarity_custom_report_v6');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed?.summary) {
+          if (parsed?.summary && parsed.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions) {
             setLocalReport(parsed);
+          } else {
+            localStorage.removeItem('kia_clarity_custom_report_v4');
+            localStorage.removeItem('kia_clarity_custom_report_v5');
+            localStorage.removeItem('kia_clarity_custom_report_v6');
           }
+        } else {
+          localStorage.removeItem('kia_clarity_custom_report_v4');
+          localStorage.removeItem('kia_clarity_custom_report_v5');
         }
       } catch {}
     }
@@ -83,12 +90,12 @@ export function ClarityAnalyticsView({
 
   // Extraer el benchmark oficial o datos sincronizados de manera reactiva y dinámica
   const benchmark: ClarityOfficialDataset = useMemo(() => {
-    if (localReport?.summary) return localReport;
-    if (data?.summary) return data;
-    if (data?.benchmark?.summary) return data.benchmark;
+    if (localReport?.summary && localReport.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions) return localReport;
+    if (data?.summary && data.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions) return data;
+    if (data?.benchmark?.summary && data.benchmark.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions) return data.benchmark;
     if (Array.isArray(data)) {
       const b = data.find((m: any) => m.metricName === 'OfficialBenchmark')?.data;
-      if (b?.summary) return b;
+      if (b?.summary && b.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions) return b;
     }
     return OFFICIAL_CLARITY_BENCHMARK;
   }, [localReport, data]);
@@ -127,7 +134,7 @@ export function ClarityAnalyticsView({
     setLocalReport(parsed);
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('kia_clarity_custom_report_v4', JSON.stringify(parsed));
+        localStorage.setItem('kia_clarity_custom_report_v6', JSON.stringify(parsed));
       } catch {}
     }
     onUpdateCustomReport?.(parsed);
@@ -588,7 +595,7 @@ export function ClarityAnalyticsView({
 
       {/* SUB-SECCIÓN 2: CANALES DE ADQUISICIÓN Y NAVEGADORES */}
       {activeSubSection === 'canales' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '20px' }}>
           {/* Tarjeta de Orígenes de Referencia */}
           <div
             style={{
@@ -827,7 +834,7 @@ export function ClarityAnalyticsView({
           )}
 
           {funnelMode === 'diagnostico' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '16px' }}>
               <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#991b1b', marginBottom: '8px' }}>
                   <AlertTriangle size={18} />
@@ -857,7 +864,7 @@ export function ClarityAnalyticsView({
 
       {/* SUB-SECCIÓN 4: RENDIMIENTO Y ERRORES JS */}
       {activeSubSection === 'rendimiento' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
           {/* Core Web Vitals */}
           <div
             style={{

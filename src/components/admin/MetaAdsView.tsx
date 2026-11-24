@@ -36,10 +36,13 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
 
   const campaignsList: any[] = adAccount?.campaigns || [];
   const totalSpentUSD = adAccount?.amountSpent ? Number(adAccount.amountSpent) : (data?.crossChannelSummary?.adSpendUSD || 56.06);
-  const totalViews = data?.crossChannelSummary?.adImpressions ? Number(data.crossChannelSummary.adImpressions) : 65975;
-  const totalReach = data?.crossChannelSummary?.adReach ? Number(data.crossChannelSummary.adReach) : 46518;
-  const totalLinkClicks = data?.crossChannelSummary?.linkClicksToWebsite ? Number(data.crossChannelSummary.linkClicksToWebsite) : 2087;
-  const avgCpc = totalLinkClicks > 0 ? (totalSpentUSD / totalLinkClicks).toFixed(3) : '0.026';
+  const totalViews = data?.crossChannelSummary?.totalViewsAll || data?.instagram?.nativeInsights?.totalViews || 274372;
+  const totalReach = data?.crossChannelSummary?.totalReachSocial || 136732;
+  const totalLinkClicks = data?.crossChannelSummary?.totalLinkClicksAll || 7600;
+  const adLinkClicks = data?.crossChannelSummary?.linkClicksToWebsite || 2087;
+  const avgCpc = adLinkClicks > 0 ? (totalSpentUSD / adLinkClicks).toFixed(3) : '0.026';
+  const nativeInsights = data?.instagram?.nativeInsights;
+  const benchmark = nativeInsights?.benchmark;
 
   return (
     <div>
@@ -193,15 +196,14 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
         </div>
       )}
 
-      {/* 4 KPIs de Meta Ads Reales */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+      {/* 4 KPIs de Meta Ads & Instagram Intelligence */}
+      <div className="admin-kpis-grid">
         {/* KPI 1: Alcance Total Instagram (Meta API) */}
-        {/* KPI 1: Alcance Meta Ads */}
         <div style={{ background: '#ffffff', borderRadius: '12px', padding: '18px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Alcance Reels Promocionados
+                Alcance Total Campaña (Meta)
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
                 {totalReach.toLocaleString()}
@@ -212,7 +214,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#2563eb', marginTop: '8px', fontWeight: 600 }}>
-            {totalViews.toLocaleString()} reproducciones totales
+            {totalViews.toLocaleString()} vistas totales (+154K%)
           </div>
         </div>
 
@@ -224,7 +226,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 Comunidad @kiaelmarques
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {instagram?.followersCount || 539}
+                {instagram?.followersCount || 627}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#faf5ff', borderRadius: '8px', color: '#7c3aed' }}>
@@ -232,7 +234,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#7c3aed', marginTop: '8px', fontWeight: 600 }}>
-            Seguidores oficiales en vivo
+            +584 ganados en 28 días (+4.8K%)
           </div>
         </div>
 
@@ -241,7 +243,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Clics / Resultados Web
+                Clics de Enlace Totales
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
                 {totalLinkClicks.toLocaleString()}
@@ -252,7 +254,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '8px', fontWeight: 600 }}>
-            ${avgCpc} USD Costo por Clic promedio
+            {adLinkClicks.toLocaleString()} clics en ads (${avgCpc} CPC)
           </div>
         </div>
 
@@ -261,7 +263,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Inversión en Meta
+                Inversión en Meta Ads
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
                 ${totalSpentUSD.toFixed(2)} USD
@@ -272,7 +274,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', fontWeight: 600 }}>
-            {campaignsList.length} publicaciones promocionadas en Meta
+            {campaignsList.length} publicaciones promocionadas activas
           </div>
         </div>
       </div>
@@ -720,7 +722,402 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
 
         {/* Banner de Correlación Meta Ads ➔ Microsoft Clarity */}
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '14px 18px', borderRadius: '8px', fontSize: '12.5px', color: '#166534', lineHeight: 1.5 }}>
-          <strong>Atribución Cruzada Confirmada:</strong> Se han invertido un total acumulado de <strong>${totalSpentUSD.toFixed(2)} USD</strong> en {campaignsList.length} publicaciones promocionadas en Meta/Instagram, generando <strong>{totalLinkClicks.toLocaleString()} clics de enlace y visitas</strong> que alimentan el tráfico analizado en Microsoft Clarity y los prospectos cualificados por los asesores.
+          <strong>Atribución Cruzada Confirmada:</strong> Se han invertido un total acumulado de <strong>${totalSpentUSD.toFixed(2)} USD</strong> en {campaignsList.length} publicaciones promocionadas en Meta/Instagram, generando <strong>{adLinkClicks.toLocaleString()} clics de enlace pagados directos</strong> dentro de un ecosistema global de <strong>7.600 clics de enlace totales en Instagram</strong> que alimentan el tráfico analizado en Microsoft Clarity y los prospectos cualificados por los asesores.
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* MÓDULO: INSTAGRAM NATIVE INTELLIGENCE & BENCHMARK COMPETITIVO  */}
+      {/* ============================================================== */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid #e2e8f0',
+          marginBottom: '24px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                  color: '#166534',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  border: '1px solid #bbf7d0',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <Sparkles size={12} color="#16a34a" />
+                Meta Business Insights Oficial
+              </span>
+              <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
+                Periodo: 25 Octubre – 23 Noviembre
+              </span>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+              Inteligencia Orgánica & Benchmark Oficial de Concesionarios
+            </h3>
+          </div>
+
+          <span style={{ background: '#f8fafc', color: '#0f172a', fontSize: '12px', fontWeight: 700, padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            Categoría: <strong>Vehicle Dealerships</strong>
+          </span>
+        </div>
+
+        {/* 1. Componente Oficial: Meta Business Comparison (Vehicle Dealerships) */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
+            padding: '24px',
+            marginBottom: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+          }}
+        >
+          {/* Tabs estilo Meta Business Suite */}
+          <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '16px' }}>
+            <span
+              style={{
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#0284c7',
+                background: '#e0f2fe',
+                padding: '6px 14px',
+                borderRadius: '6px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              Business comparison
+            </span>
+            <span
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#64748b',
+                padding: '6px 12px',
+                cursor: 'pointer',
+              }}
+            >
+              Businesses to watch
+            </span>
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
+              Compare your performance against businesses in the Vehicle dealerships category
+            </h4>
+            <div style={{ fontSize: '12px', color: '#64748b' }}>
+              Results are based on businesses with similar organic 28-day reach in your category.{' '}
+              <span style={{ color: '#0284c7', fontWeight: 600, cursor: 'pointer' }}>Edit category</span>
+            </div>
+          </div>
+
+          {/* Gráfico y Caja de Recomendación */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+              gap: '24px',
+              paddingBottom: '24px',
+              borderBottom: '1px solid #f1f5f9',
+              alignItems: 'center',
+            }}
+          >
+            {/* Lado Izquierdo: Histogram / Percentiles */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#475569', fontSize: '12px', fontWeight: 700 }}>
+                <span>Published content</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
+              </div>
+              <div style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0 6px 0' }}>
+                32
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <span
+                  style={{
+                    background: '#e0f2fe',
+                    color: '#0369a1',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '3px 10px',
+                    borderRadius: '9999px',
+                  }}
+                >
+                  Similar to others
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', fontWeight: 600, marginBottom: '14px' }}>
+                How often your business published versus others in this category
+              </div>
+
+              {/* Bar Chart Percentiles */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '18px', height: '140px', paddingLeft: '28px', position: 'relative', borderBottom: '1px solid #cbd5e1' }}>
+                {/* Ticks de eje Y */}
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>
+                  <span>50</span>
+                  <span>40</span>
+                  <span>30</span>
+                  <span>20</span>
+                  <span>10</span>
+                  <span>0</span>
+                </div>
+
+                {/* Barra 1: 25th percentile (9) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      maxWidth: '56px',
+                      height: '18%',
+                      background: '#bae6fd',
+                      borderRadius: '4px 4px 0 0',
+                    }}
+                  />
+                  <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '6px', whiteSpace: 'nowrap' }}>
+                    25th percentile
+                  </span>
+                </div>
+
+                {/* Barra 2: 50th percentile (21) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      maxWidth: '56px',
+                      height: '42%',
+                      background: '#7dd3fc',
+                      borderRadius: '4px 4px 0 0',
+                    }}
+                  />
+                  <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '6px', whiteSpace: 'nowrap' }}>
+                    50th percentile
+                  </span>
+                </div>
+
+                {/* Barra 3: Your Business (32) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      maxWidth: '56px',
+                      height: '64%',
+                      background: '#0284c7',
+                      borderRadius: '4px 4px 0 0',
+                      boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)',
+                    }}
+                  />
+                  <span style={{ fontSize: '11px', color: '#0f172a', fontWeight: 800, marginTop: '6px', whiteSpace: 'nowrap' }}>
+                    Your business (32)
+                  </span>
+                </div>
+
+                {/* Barra 4: 75th percentile (43) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      maxWidth: '56px',
+                      height: '86%',
+                      background: '#bae6fd',
+                      borderRadius: '4px 4px 0 0',
+                    }}
+                  />
+                  <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '6px', whiteSpace: 'nowrap' }}>
+                    75th percentile
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Lado Derecho: Feedback Oficial & CTA */}
+            <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '20px', border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <p style={{ fontSize: '13px', color: '#334155', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+                Over the last 28 days, you typically published the same amount of posts and stories compared to other businesses in this category. <strong>Well done!</strong> Stay on track by creating a new post or scheduling in advance.
+              </p>
+              <div>
+                <a
+                  href="https://www.instagram.com/kiaelmarques"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '12.5px',
+                    padding: '9px 18px',
+                    borderRadius: '6px',
+                    textDecoration: 'none',
+                    display: 'inline-block',
+                  }}
+                >
+                  Create Post ↗
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Métricas Comparativas en Fila Inferior */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+              gap: '20px',
+              paddingTop: '20px',
+            }}
+          >
+            {/* Métrica 1: Instagram followers */}
+            <div style={{ borderRight: '1px solid #f1f5f9', paddingRight: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#475569', fontSize: '12px', fontWeight: 700 }}>
+                <span>Instagram followers</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0' }}>
+                627
+              </div>
+              <div style={{ marginBottom: '4px' }}>
+                <span style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '10.5px', fontWeight: 700, padding: '2px 8px', borderRadius: '9999px' }}>
+                  Similar to others
+                </span>
+              </div>
+              <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                Typically: <strong>1,147</strong>
+              </div>
+            </div>
+
+            {/* Métrica 2: Follows (Crecimiento en 28 días) */}
+            <div style={{ borderRight: '1px solid #f1f5f9', paddingRight: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#475569', fontSize: '12px', fontWeight: 700 }}>
+                <span>Follows</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0' }}>
+                581
+              </div>
+              <div style={{ marginBottom: '4px' }}>
+                <span style={{ background: '#dcfce7', color: '#166534', fontSize: '10.5px', fontWeight: 800, padding: '2px 8px', borderRadius: '9999px' }}>
+                  Higher than others
+                </span>
+              </div>
+              <div style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 600 }}>
+                Typically: <strong>25</strong> (+2.224% vs sector)
+              </div>
+            </div>
+
+            {/* Métrica 3: Content interactions */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#475569', fontSize: '12px', fontWeight: 700 }}>
+                <span>Content interactions</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
+              </div>
+              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0' }}>
+                3,122
+              </div>
+              <div style={{ marginBottom: '4px' }}>
+                <span style={{ background: '#dcfce7', color: '#166534', fontSize: '10.5px', fontWeight: 800, padding: '2px 8px', borderRadius: '9999px' }}>
+                  Higher than others
+                </span>
+              </div>
+              <div style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 600 }}>
+                Typically: <strong>295</strong> (+958% vs sector)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Cuadrícula 2x2: Macro Métricas de Instagram + Demografía de Compradores */}
+        <div className="admin-modules-2x2-grid">
+          {/* Bloque Izquierdo: Resumen de Tráfico y Viralidad */}
+          <div style={{ background: '#ffffff', borderRadius: '10px', padding: '20px', border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <TrendingUp size={16} color="#0284c7" />
+              Métricas Macroscópicas de Cuenta (@kiaelmarques)
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
+                <span style={{ color: '#64748b' }}>Reproducciones de Contenido (Views):</span>
+                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>274.372 views (+154K%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
+                <span style={{ color: '#64748b' }}>Cuentas Únicas Alcanzadas (Viewers):</span>
+                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>136.732 cuentas (+166K%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
+                <span style={{ color: '#64748b' }}>Clics en Enlaces (Bio + Stories + Ads):</span>
+                <strong style={{ color: '#16a34a', fontFamily: 'monospace' }}>7.600 clics (+100%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
+                <span style={{ color: '#64748b' }}>Visitas al Perfil de Instagram:</span>
+                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>2.900 visitas (+1.4K%)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
+                <span style={{ color: '#64748b' }}>Composición de Audiencia:</span>
+                <strong style={{ color: '#7c3aed' }}>97,0% No Seguidores (Viralidad pura)</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Bloque Derecho: Perfil Demográfico del Comprador */}
+          <div style={{ background: '#ffffff', borderRadius: '10px', padding: '20px', border: '1px solid #e2e8f0' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Users size={16} color="#7c3aed" />
+              Perfil Demográfico del Comprador (Venezuela)
+            </h4>
+
+            {/* Género y Rango Clave */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>DISTRIBUCIÓN GÉNERO</div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+                  72,4% H · 27,6% M
+                </div>
+              </div>
+              <div style={{ background: '#eff6ff', padding: '10px 12px', borderRadius: '8px', textAlign: 'center', border: '1px solid #bfdbfe' }}>
+                <div style={{ fontSize: '11px', color: '#1d4ed8', fontWeight: 700 }}>EDAD CON PODER DE COMPRA</div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#1d4ed8', marginTop: '2px' }}>
+                  60,4% (35 a 54 años)
+                </div>
+              </div>
+            </div>
+
+            {/* Top Ciudades */}
+            <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px', fontWeight: 700 }}>
+              Top Ciudades en Venezuela (94,4% del total):
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                📍 Caracas: <strong>42,3%</strong>
+              </span>
+              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                📍 Barquisimeto: <strong>5,6%</strong>
+              </span>
+              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                📍 Valencia: <strong>4,3%</strong>
+              </span>
+              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                📍 Guatire / Guarenas: <strong>5,1%</strong>
+              </span>
+              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                📍 Margarita: <strong>2,7%</strong>
+              </span>
+              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                📍 Los Teques: <strong>1,3%</strong>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -752,7 +1149,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
         </div>
 
         {/* Grid de Publicaciones */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
           {posts.map((post: any) => (
             <div
               key={post.id}

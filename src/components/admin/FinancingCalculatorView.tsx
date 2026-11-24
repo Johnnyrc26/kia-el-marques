@@ -615,7 +615,7 @@ export function FinancingCalculatorView({ initialLead, onClearLead }: FinancingC
             borderRadius: '12px',
             padding: '16px 20px',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))',
             gap: '16px',
             alignItems: 'center',
           }}
@@ -1073,8 +1073,8 @@ export function FinancingCalculatorView({ initialLead, onClearLead }: FinancingC
             </span>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12.5px' }}>
+          <div className="admin-table-scroll">
+            <table className="admin-catalog-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12.5px' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
                   <th style={{ padding: '12px 18px', fontWeight: 800 }}>MODELO & VERSIÓN</th>
@@ -1210,8 +1210,9 @@ export function FinancingCalculatorView({ initialLead, onClearLead }: FinancingC
             </span>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
+          <div className="admin-table-scroll">
             <table
+              className="admin-financing-matrix-table"
               style={{
                 width: '100%',
                 borderCollapse: 'collapse',
@@ -1520,8 +1521,8 @@ export function FinancingCalculatorView({ initialLead, onClearLead }: FinancingC
           )}
 
           {/* Tabla de Amortización */}
-          <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '12px' }}>
+          <div className="admin-table-scroll" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+            <table className="admin-amortization-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '12px' }}>
               <thead style={{ position: 'sticky', top: 0, background: '#05141f', color: '#ffffff', zIndex: 1 }}>
                 <tr>
                   <th style={{ padding: '10px 14px', textAlign: 'center', width: '60px' }}>Mes #</th>

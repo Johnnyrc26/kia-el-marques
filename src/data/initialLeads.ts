@@ -404,7 +404,7 @@ export const INITIAL_LEADS: LeadSubmission[] = [
     "financing_interest": "Crédito bancario nacional",
     "timeline": "Inmediato (este mes)",
     "status": "en_seguimiento",
-    "buyer_type": "Particular",
+    "buyer_type": "Cliente Particular",
     "advisor_name": "Eduardo Revollo",
     "advisor_slug": "eduardo-revollo",
     "favorite_color": "Blanco Glaciar"

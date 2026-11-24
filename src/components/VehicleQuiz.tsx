@@ -92,7 +92,8 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{ full_name?: string; phone?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{ full_name?: string; phone?: string; confirmation?: string }>({});
+  const [confirmed, setConfirmed] = useState(true);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
   const phoneInputRef = useRef<HTMLInputElement>(null);
@@ -131,11 +132,26 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
 
   const handleSelect = (field: keyof LeadSubmission, value: string) => {
     markQuizStarted();
+    if (field === 'primary_use') {
+      const lower = value.toLowerCase();
+      const isCorporate =
+        lower.includes('flota') ||
+        lower.includes('corporativ') ||
+        lower.includes('trabajo pesado') ||
+        lower.includes('empresa') ||
+        lower.includes('empresarial') ||
+        lower.includes('turismo') ||
+        lower.includes('agro');
+      const bType = isCorporate ? 'Empresa / Corporativo' : 'Cliente Particular';
+      setFormData((prev) => ({ ...prev, primary_use: value, buyer_type: bType }));
+      trackClarity('set', 'quiz_uso', value);
+      trackClarity('set', 'quiz_tipo_comprador', bType);
+      return;
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (fieldErrors[field as 'full_name' | 'phone']) {
       setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-    if (field === 'primary_use') trackClarity('set', 'quiz_uso', value);
     if (field === 'favorite_color') trackClarity('set', 'quiz_color', value);
     if (field === 'financing_interest') trackClarity('set', 'quiz_financiamiento', value);
     if (field === 'timeline') trackClarity('set', 'quiz_tiempo', value);
@@ -163,7 +179,7 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const errors: { full_name?: string; phone?: string } = {};
+    const errors: { full_name?: string; phone?: string; confirmation?: string } = {};
     if (!formData.full_name.trim()) {
       errors.full_name = 'Por favor ingresa tu nombre y apellido.';
     }
@@ -184,6 +200,10 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
       errors.phone = 'Número incompleto. Incluye el código de operadora (ej. 0414 1234567 o internacional).';
     } else if (cleanPhoneDigits.length > 15) {
       errors.phone = 'El número ingresado es demasiado largo.';
+    }
+
+    if (!confirmed) {
+      errors.confirmation = 'Debes marcar la casilla de confirmación para continuar.';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -715,6 +735,69 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
                 }}
               />
             </div>
+
+            {/* Checkbox de Confirmación */}
+            <div
+              style={{
+                marginBottom: '16px',
+                padding: '12px 14px',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: fieldErrors.confirmation ? '#fff1f2' : '#f8fafc',
+                border: fieldErrors.confirmation ? '1.5px solid var(--kia-red)' : '1px solid var(--g20)',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              onClick={() => {
+                setConfirmed((prev) => !prev);
+                if (fieldErrors.confirmation) {
+                  setFieldErrors((prev) => ({ ...prev, confirmation: undefined }));
+                }
+              }}
+            >
+              <input
+                type="checkbox"
+                id="quiz_confirmacion"
+                name="confirmation"
+                checked={confirmed}
+                onChange={(e) => {
+                  setConfirmed(e.target.checked);
+                  if (fieldErrors.confirmation) {
+                    setFieldErrors((prev) => ({ ...prev, confirmation: undefined }));
+                  }
+                }}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  marginTop: '2px',
+                  width: '18px',
+                  height: '18px',
+                  accentColor: 'var(--kia-red)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              />
+              <label
+                htmlFor="quiz_confirmacion"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  fontSize: '12.5px',
+                  color: 'var(--g90)',
+                  lineHeight: 1.45,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+              >
+                <strong>Confirmo que deseo recibir la cotización formal</strong> y autorizo a un asesor comercial de Kia El Marqués a contactarme vía WhatsApp.
+              </label>
+            </div>
+            {fieldErrors.confirmation && (
+              <div style={{ color: 'var(--kia-red)', fontSize: '11.5px', marginTop: '-10px', marginBottom: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertCircle size={13} />
+                <span>{fieldErrors.confirmation}</span>
+              </div>
+            )}
 
             {errorMsg && (
               <div

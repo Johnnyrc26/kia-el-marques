@@ -58,15 +58,15 @@ const DEFAULT_CLARITY_METRICS = [
     information: [
       {
         Url: 'https://kiaelmarques.com/modelos/tasman',
-        sessionsCount: 21,
-        sessionsWithMetricPercentage: 2.38,
-        pagesViews: 1480,
+        sessionsCount: 26,
+        sessionsWithMetricPercentage: 2.09,
+        pagesViews: 1536,
       },
       {
         Url: 'https://kiaelmarques.com/modelos/soluto',
-        sessionsCount: 28,
-        sessionsWithMetricPercentage: 2.38,
-        pagesViews: 920,
+        sessionsCount: 23,
+        sessionsWithMetricPercentage: 2.09,
+        pagesViews: 793,
       },
     ],
   },
