@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Check, MessageCircle, AlertCircle } from 'lucide-react';
 import { vehicleModels } from '@/data/models';
 import { LeadSubmission } from '@/types';
@@ -98,6 +98,63 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
   const nameInputRef = useRef<HTMLInputElement>(null);
   const phoneInputRef = useRef<HTMLInputElement>(null);
   const hasStartedRef = useRef(false);
+
+  const PENDING_QUEUE_KEY = 'kia_pending_leads';
+
+  const readPendingQueue = (): LeadSubmission[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem(PENDING_QUEUE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const enqueuePendingLead = (lead: LeadSubmission) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const current = readPendingQueue().filter((l) => l.id !== lead.id);
+      current.push(lead);
+      localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(current));
+    } catch {
+      // ignorar fallo de almacenamiento local
+    }
+  };
+
+  const dequeuePendingLead = (leadId?: string) => {
+    if (typeof window === 'undefined' || !leadId) return;
+    try {
+      const next = readPendingQueue().filter((l) => l.id !== leadId);
+      localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(next));
+    } catch {
+      // ignorar fallo de almacenamiento local
+    }
+  };
+
+  // Reintentar envío de leads pendientes al montar el componente
+  useEffect(() => {
+    const pending = readPendingQueue();
+    if (pending.length === 0) return;
+
+    pending.forEach((lead) => {
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lead),
+        keepalive: true,
+      })
+        .then((res) => {
+          if (res.ok) {
+            dequeuePendingLead(lead.id);
+          }
+        })
+        .catch(() => {
+          // Mantener en cola para el próximo intento
+        });
+    });
+  }, []);
 
   // Helper para registrar eventos y dimensiones personalizadas en Microsoft Clarity
   const trackClarity = (action: 'event' | 'set', key: string, value?: string) => {
@@ -259,8 +316,11 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
 
     const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(messageLines.join('\n'))}`;
 
+    const leadId = `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const leadPayload: LeadSubmission = {
       ...formData,
+      id: leadId,
+      created_at: new Date().toISOString(),
       advisor_name: advisor?.name || undefined,
       advisor_slug: advisor?.slug || undefined,
       notes: advisor
@@ -268,26 +328,51 @@ export default function VehicleQuiz({ initialModel, advisor }: VehicleQuizProps)
         : formData.notes,
     };
 
-    // 1. Respaldo local de seguridad en el navegador del cliente
+    const jsonPayload = JSON.stringify(leadPayload);
+
+    // 1. Respaldo local y cola de reintento antes de enviar o navegar fuera del WebView
     try {
       localStorage.setItem('kia_backup_lead', JSON.stringify({ ...leadPayload, sent_at: new Date().toISOString() }));
     } catch {
       // ignorar fallo de almacenamiento local
     }
+    enqueuePendingLead(leadPayload);
 
-    // 2. Envío garantizado al servidor con keepalive
+    // 2. Envío esperado (await) con timeout de 5s para evitar que el WebView mate la petición al abrir WhatsApp
+    let savedOk = false;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     try {
-      fetch('/api/leads', {
+      const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(leadPayload),
+        body: jsonPayload,
         keepalive: true,
-      }).catch((err) => console.error('Background leads save:', err));
+        signal: controller.signal,
+      });
+      if (res.ok) {
+        savedOk = true;
+        dequeuePendingLead(leadId);
+        trackClarity('event', 'lead_guardado_servidor');
+      }
     } catch (err) {
       console.error('Error enviando al admin:', err);
+    } finally {
+      clearTimeout(timeoutId);
     }
 
-    // 3. Abrir WhatsApp de inmediato
+    if (!savedOk) {
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+          navigator.sendBeacon('/api/leads', new Blob([jsonPayload], { type: 'application/json' }));
+        }
+      } catch {
+        // ignorar
+      }
+      trackClarity('event', 'lead_guardado_fallo');
+    }
+
+    // 3. Abrir WhatsApp SOLO después de confirmar o intentar el guardado
     try {
       if (typeof window !== 'undefined') {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);

@@ -39,7 +39,7 @@ const OFFICIAL_FICHAS = [
     slug: 'carnival',
     category: 'Gran Utility Vehicle Familiar',
     pdf: '/docs/fichas/ficha_carnival.pdf',
-    image: '/assets/models/carnival.png',
+    image: '/assets/models/carnival-v2.png',
   },
   {
     name: 'Seltos',

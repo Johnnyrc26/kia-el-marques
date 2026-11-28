@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { MapPin, Star, ExternalLink } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -22,6 +23,39 @@ export default function Footer() {
               <span style={{ fontWeight: 700, color: 'var(--g100)', fontSize: '15px', letterSpacing: '-0.01em' }}>Kia El Marqués</span>
               <span style={{ color: 'var(--g40)', fontSize: '14px' }}>· Caracas, Venezuela</span>
             </div>
+          </div>
+
+          {/* Enlaces Oficiales de Google (Negocio y Reseñas) */}
+          <div className="footer-google-group">
+            <a
+              href="https://share.google/Vl1ICkXSSjf0ITEP2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-google-badge"
+              title="Ver perfil oficial de Kia El Marqués en Google"
+            >
+              <MapPin size={13} className="footer-google-pin-icon" aria-hidden="true" />
+              <span>Ver en Google</span>
+              <ExternalLink size={11} className="footer-external-icon" aria-hidden="true" />
+            </a>
+
+            <a
+              href="https://g.page/r/CbEgGMt-MUbwECA/review"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-google-badge"
+              title="Dejar una reseña sobre Kia El Marqués en Google"
+            >
+              <span className="footer-google-stars" aria-hidden="true">
+                <Star size={11} fill="#f59e0b" stroke="#f59e0b" />
+                <Star size={11} fill="#f59e0b" stroke="#f59e0b" />
+                <Star size={11} fill="#f59e0b" stroke="#f59e0b" />
+                <Star size={11} fill="#f59e0b" stroke="#f59e0b" />
+                <Star size={11} fill="#f59e0b" stroke="#f59e0b" />
+              </span>
+              <span>Opiniones en Google</span>
+              <ExternalLink size={11} className="footer-external-icon" aria-hidden="true" />
+            </a>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '12px' }}>

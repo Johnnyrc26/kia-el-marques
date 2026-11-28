@@ -80,7 +80,7 @@ export default function LocationContact() {
               />
               <div className="map-external-cta">
                 <a
-                  href="https://maps.app.goo.gl/VSse49KmZ6AMWpnZ8"
+                  href="https://share.google/Vl1ICkXSSjf0ITEP2"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline btn-block"
