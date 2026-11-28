@@ -58,12 +58,30 @@ export function Resumen360View({
   const assignedPercentage = totalLeads > 0 ? Math.round((assignedLeadsCount / totalLeads) * 100) : 100;
 
   // Calculos de Meta Ads reales (sincronizados con Centro de Anuncios y Publicaciones Promocionadas)
-  const adSpendUSD = metaData?.adAccount?.amountSpent ? Number(metaData.adAccount.amountSpent) : (metaData?.crossChannelSummary?.adSpendUSD || 56.06);
-  const metaReach = metaData?.crossChannelSummary?.totalReachSocial ? Number(metaData.crossChannelSummary.totalReachSocial) : 46518;
-  const metaImpressions = metaData?.crossChannelSummary?.adImpressions ? Number(metaData.crossChannelSummary.adImpressions) : 65975;
-  const metaLinkClicks = metaData?.crossChannelSummary?.linkClicksToWebsite ? Number(metaData.crossChannelSummary.linkClicksToWebsite) : 2087;
-  const cplUSD = totalLeads > 0 ? (adSpendUSD / totalLeads).toFixed(2) : '2.34';
-  const cpcUSD = metaLinkClicks > 0 ? (adSpendUSD / metaLinkClicks).toFixed(3) : '0.026';
+  const adSpendUSD: number | null =
+    typeof metaData?.adAccount?.amountSpent === 'number'
+      ? metaData.adAccount.amountSpent
+      : typeof metaData?.crossChannelSummary?.adSpendUSD === 'number'
+      ? metaData.crossChannelSummary.adSpendUSD
+      : null;
+  const metaReach: number | null =
+    typeof metaData?.crossChannelSummary?.totalReachSocial === 'number'
+      ? metaData.crossChannelSummary.totalReachSocial
+      : null;
+  const metaImpressions: number | null =
+    typeof metaData?.crossChannelSummary?.adImpressions === 'number'
+      ? metaData.crossChannelSummary.adImpressions
+      : null;
+  const metaLinkClicks: number | null =
+    typeof metaData?.crossChannelSummary?.linkClicksToWebsite === 'number'
+      ? metaData.crossChannelSummary.linkClicksToWebsite
+      : null;
+  const cplUSD: string | null =
+    adSpendUSD !== null && totalLeads > 0 ? (adSpendUSD / totalLeads).toFixed(2) : null;
+  const cpcUSD: string | null =
+    adSpendUSD !== null && metaLinkClicks !== null && metaLinkClicks > 0
+      ? (adSpendUSD / metaLinkClicks).toFixed(3)
+      : null;
 
   // Calculos de Clarity oficiales y en vivo
   const rawClarity =
@@ -77,9 +95,9 @@ export function Resumen360View({
       ? rawClarity
       : OFFICIAL_CLARITY_BENCHMARK;
 
-  let totalSessions = clarityBenchmark.summary.totalSessions || 2340;
+  let totalSessions = clarityBenchmark.summary.totalSessions || 5136;
   let deadClicksPct = `${clarityBenchmark.summary.deadClicksPct.toString().replace('.', ',')}%`;
-  let deadClicksSessions = clarityBenchmark.summary.deadClicksCount || 50;
+  let deadClicksSessions = clarityBenchmark.summary.deadClicksCount || 152;
 
   if (Array.isArray(clarityData) && !clarityData.find((m: any) => m.metricName === 'OfficialBenchmark')) {
     const trafficMetric = clarityData.find((m: any) => m.metricName === 'Traffic');
@@ -249,6 +267,9 @@ export function Resumen360View({
               Ver bandeja →
             </span>
           </div>
+          <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '6px', lineHeight: 1.35 }}>
+            Clarity &apos;Submit form&apos; cuenta intentos de envío (incluye errores de validación); el dato comparable es &apos;quiz_completado_exitoso&apos;.
+          </div>
         </div>
 
         {/* KPI 2: Meta Ads */}
@@ -280,7 +301,7 @@ export function Resumen360View({
                 Pauta Meta Ads
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                ${adSpendUSD.toFixed(2)} USD
+                {adSpendUSD !== null ? `$${adSpendUSD.toFixed(2)} USD` : '—'}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#fdf2f8', borderRadius: '8px', color: '#db2777' }}>
@@ -289,7 +310,7 @@ export function Resumen360View({
           </div>
           <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
             <span style={{ fontSize: '11.5px', color: '#db2777', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {metaLinkClicks.toLocaleString()} clics · ${cpcUSD}
+              {metaLinkClicks !== null ? `${metaLinkClicks.toLocaleString()} clics` : '—'} · {cpcUSD !== null ? `$${cpcUSD}` : '—'}
             </span>
             <span style={{ color: '#db2777', background: '#fdf2f8', border: '1px solid #fce7f3', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap', flexShrink: 0 }}>
               Ver pauta →
@@ -476,13 +497,13 @@ export function Resumen360View({
             <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '6px 12px', textAlign: 'right' }}>
               <div style={{ fontSize: '10px', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>CPL Estimado</div>
               <div style={{ fontSize: '15px', fontWeight: 800, color: '#15803d' }}>
-                ${cplUSD} USD / Lead
+                {cplUSD !== null ? `$${cplUSD} USD / Lead` : '—'}
               </div>
             </div>
             <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '6px 12px', textAlign: 'right' }}>
               <div style={{ fontSize: '10px', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Conv. Global (Web a Lead)</div>
               <div style={{ fontSize: '15px', fontWeight: 800, color: '#1d4ed8' }}>
-                {((totalLeads / totalSessions) * 100).toFixed(2)}%
+                {totalSessions > 0 ? `${((totalLeads / totalSessions) * 100).toFixed(2)}%` : '—'}
               </div>
             </div>
           </div>
@@ -510,15 +531,15 @@ export function Resumen360View({
               </span>
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
-              {metaImpressions.toLocaleString()}
+              {metaImpressions !== null ? metaImpressions.toLocaleString() : '—'}
             </div>
             <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
-              Vistas en 5 Publicaciones Promocionadas (Soluto, Tasman & Seltos)
+              Vistas en Publicaciones Promocionadas
             </div>
             <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px dashed #e2e8f0', fontSize: '11px', color: '#475569' }}>
-              <div>Inversión: <strong>${adSpendUSD.toFixed(2)} USD</strong></div>
-              <div>Alcance: <strong>{metaReach.toLocaleString()} personas</strong></div>
-              <div>Clics al Sitio: <strong>{metaLinkClicks.toLocaleString()} (${cpcUSD} CPC)</strong></div>
+              <div>Inversión: <strong>{adSpendUSD !== null ? `$${adSpendUSD.toFixed(2)} USD` : '—'}</strong></div>
+              <div>Alcance (28d): <strong>{metaReach !== null ? `${metaReach.toLocaleString()} personas` : '—'}</strong></div>
+              <div>Clics al Sitio: <strong>{metaLinkClicks !== null ? metaLinkClicks.toLocaleString() : '—'} ({cpcUSD !== null ? `$${cpcUSD} CPC` : '—'})</strong></div>
             </div>
           </div>
 
@@ -876,82 +897,107 @@ export function Resumen360View({
               </button>
             </div>
 
-            {/* 5 Campañas Reales de Publicaciones Promocionadas en Meta */}
+            {/* Campañas de Publicaciones Promocionadas en Meta */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
-              {/* Tasman Redefine (20 Nov · Activo) */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Tasman: Redefine Pickup (20 Nov)</span>
-                  <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '9.5px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
-                    ACTIVO
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                  <span>Reel · Presupuesto $16/día</span>
-                  <strong style={{ color: '#0284c7' }}>142 clics</strong>
-                  <strong style={{ color: '#0f172a' }}>$3.21 USD</strong>
-                </div>
-              </div>
+              {(metaData?.adAccount?.campaigns && metaData.adAccount.campaigns.length > 0
+                ? metaData.adAccount.campaigns
+                : [
+                    {
+                      id: 'boost_soluto_nov17',
+                      name: 'Soluto: Rutina Familiar (17 Nov)',
+                      status: 'Paused',
+                      mediaType: 'Reel',
+                      dailyBudget: 10,
+                      resultCount: 1945,
+                      resultType: 'clics',
+                      amountSpent: 46.62,
+                    },
+                    {
+                      id: 'boost_tasman_nov20',
+                      name: 'Tasman: Redefine Pickup (20 Nov)',
+                      status: 'Paused',
+                      mediaType: 'Reel',
+                      dailyBudget: 16,
+                      resultCount: 142,
+                      resultType: 'clics',
+                      amountSpent: 3.21,
+                    },
+                    {
+                      id: 'boost_tasman_nov12',
+                      name: 'Tasman: Lanzamiento Sede (12 Nov)',
+                      status: 'Paused',
+                      mediaType: 'Post',
+                      dailyBudget: 16,
+                      resultCount: 1540,
+                      resultType: 'visitas',
+                      amountSpent: 50.66,
+                    },
+                    {
+                      id: 'boost_tasman_nov19',
+                      name: 'Tasman: Perfil Instagram (19 Nov)',
+                      status: 'Paused',
+                      mediaType: 'Reel',
+                      dailyBudget: 10,
+                      resultCount: 75,
+                      resultType: 'visitas',
+                      amountSpent: 6.23,
+                    },
+                    {
+                      id: 'boost_seltos_nov17',
+                      name: 'Seltos: Movilidad Urbana (17 Nov)',
+                      status: 'Paused',
+                      mediaType: 'Post',
+                      dailyBudget: 10,
+                      resultCount: 185,
+                      resultType: 'clics',
+                      amountSpent: 5.92,
+                    },
+                  ]
+              ).map((camp: any) => {
+                const isAct = camp.status === 'Active';
+                const statusBadgeBg = isAct ? '#dcfce7' : '#f1f5f9';
+                const statusBadgeColor = isAct ? '#15803d' : '#64748b';
+                const statusLabel = isAct ? 'ACTIVO' : 'PAUSADO';
 
-              {/* Soluto Familiar (17 Nov · Activo) */}
-              <div style={{ background: '#faf5ff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Soluto: Rutina Familiar (17 Nov)</span>
-                  <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '9.5px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
-                    ACTIVO
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                  <span>Reel · Presupuesto $10/día</span>
-                  <strong style={{ color: '#16a34a' }}>1,945 clics</strong>
-                  <strong style={{ color: '#0f172a' }}>$46.62 USD</strong>
-                </div>
-              </div>
-
-              {/* Tasman Lanzamiento (12 Nov · Pausado) */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Tasman: Lanzamiento Sede (12 Nov)</span>
-                  <span style={{ background: '#f1f5f9', color: '#64748b', fontSize: '9.5px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
-                    PAUSADO
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                  <span>Post · Presupuesto $16/día</span>
-                  <strong style={{ color: '#7c3aed' }}>1,540 visitas</strong>
-                  <strong style={{ color: '#0f172a' }}>$50.66 USD</strong>
-                </div>
-              </div>
-
-              {/* Tasman Pickup (19 Nov · Pausado) */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Tasman: Perfil Instagram (19 Nov)</span>
-                  <span style={{ background: '#f1f5f9', color: '#64748b', fontSize: '9.5px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
-                    PAUSADO
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                  <span>Reel · Presupuesto $10/día</span>
-                  <strong style={{ color: '#7c3aed' }}>75 visitas</strong>
-                  <strong style={{ color: '#0f172a' }}>$6.23 USD</strong>
-                </div>
-              </div>
-
-              {/* Seltos Urbano (17 Nov · Pausado) */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>Seltos: Movilidad Urbana (17 Nov)</span>
-                  <span style={{ background: '#f1f5f9', color: '#64748b', fontSize: '9.5px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px' }}>
-                    PAUSADO
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                  <span>Post · Presupuesto $10/día</span>
-                  <strong style={{ color: '#0284c7' }}>185 clics</strong>
-                  <strong style={{ color: '#0f172a' }}>$5.92 USD</strong>
-                </div>
-              </div>
+                return (
+                  <div
+                    key={camp.id}
+                    style={{
+                      background: isAct ? '#f0fdf4' : '#f8fafc',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: isAct ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>
+                        {camp.name}
+                      </span>
+                      <span
+                        style={{
+                          background: statusBadgeBg,
+                          color: statusBadgeColor,
+                          fontSize: '9.5px',
+                          fontWeight: 800,
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
+                      <span>{camp.mediaType || 'Reel'} · Presupuesto ${camp.dailyBudget || 10}/día</span>
+                      <strong style={{ color: '#0284c7' }}>
+                        {camp.resultCount ? `${Number(camp.resultCount).toLocaleString()} ${camp.resultType || 'resultados'}` : '—'}
+                      </strong>
+                      <strong style={{ color: '#0f172a' }}>
+                        ${Number(camp.amountSpent || 0).toFixed(2)} USD
+                      </strong>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

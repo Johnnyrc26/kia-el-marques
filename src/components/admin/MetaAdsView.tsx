@@ -29,20 +29,53 @@ interface MetaAdsViewProps {
 
 export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProps) {
   const adAccount = data?.adAccount;
-  const activeAd = adAccount?.activeAd;
   const instagram = data?.instagram;
   const posts = instagram?.posts || [];
   const totals = instagram?.totals;
+  const sync = data?.sync;
+  const igLive = Boolean(sync?.igLive);
+  const adsLive = Boolean(sync?.adsLive);
+  const syncWarnings: string[] = Array.isArray(sync?.warnings) ? sync.warnings : [];
+  const fetchedTimeLabel = sync?.fetchedAt
+    ? new Date(sync.fetchedAt).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })
+    : null;
 
   const campaignsList: any[] = adAccount?.campaigns || [];
-  const totalSpentUSD = adAccount?.amountSpent ? Number(adAccount.amountSpent) : (data?.crossChannelSummary?.adSpendUSD || 56.06);
-  const totalViews = data?.crossChannelSummary?.totalViewsAll || data?.instagram?.nativeInsights?.totalViews || 274372;
-  const totalReach = data?.crossChannelSummary?.totalReachSocial || 136732;
-  const totalLinkClicks = data?.crossChannelSummary?.totalLinkClicksAll || 7600;
-  const adLinkClicks = data?.crossChannelSummary?.linkClicksToWebsite || 2087;
-  const avgCpc = adLinkClicks > 0 ? (totalSpentUSD / adLinkClicks).toFixed(3) : '0.026';
-  const nativeInsights = data?.instagram?.nativeInsights;
+  const totalSpentUSD: number | null =
+    typeof adAccount?.amountSpent === 'number'
+      ? adAccount.amountSpent
+      : typeof data?.crossChannelSummary?.adSpendUSD === 'number'
+      ? data.crossChannelSummary.adSpendUSD
+      : null;
+  const totalViews: number | null =
+    typeof data?.crossChannelSummary?.totalViewsAll === 'number'
+      ? data.crossChannelSummary.totalViewsAll
+      : typeof instagram?.nativeInsights?.totalViews === 'number'
+      ? instagram.nativeInsights.totalViews
+      : null;
+  const totalReach: number | null =
+    typeof data?.crossChannelSummary?.totalReachSocial === 'number'
+      ? data.crossChannelSummary.totalReachSocial
+      : typeof instagram?.nativeInsights?.uniqueViewers === 'number'
+      ? instagram.nativeInsights.uniqueViewers
+      : null;
+  const totalLinkClicks: number | null =
+    typeof data?.crossChannelSummary?.totalLinkClicksAll === 'number'
+      ? data.crossChannelSummary.totalLinkClicksAll
+      : null;
+  const adLinkClicks: number | null =
+    typeof data?.crossChannelSummary?.linkClicksToWebsite === 'number'
+      ? data.crossChannelSummary.linkClicksToWebsite
+      : null;
+  const avgCpc: string | null =
+    typeof totalSpentUSD === 'number' && typeof adLinkClicks === 'number' && adLinkClicks > 0
+      ? (totalSpentUSD / adLinkClicks).toFixed(3)
+      : typeof data?.crossChannelSummary?.avgCpcUSD === 'number'
+      ? Number(data.crossChannelSummary.avgCpcUSD).toFixed(3)
+      : null;
+  const nativeInsights = instagram?.nativeInsights;
   const benchmark = nativeInsights?.benchmark;
+  const demographics = nativeInsights?.demographics;
 
   return (
     <div>
@@ -166,6 +199,65 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
         </div>
       </div>
 
+      {/* Estado de Sincronización en Vivo (Instagram + Pauta) */}
+      {data && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+          {igLive && (
+            <div
+              style={{
+                background: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+                borderRadius: '10px',
+                padding: '12px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px',
+                color: '#166534',
+                fontSize: '12.5px',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div>
+                <strong>● Instagram en vivo</strong> · actualizado {fetchedTimeLabel || 'recientemente'} (ventana últimos {sync?.windowDays || 28} días)
+              </div>
+              {adsLive && (
+                <span style={{ fontWeight: 700, background: '#dcfce7', padding: '2px 8px', borderRadius: '6px' }}>
+                  ● Pauta Meta Ads en vivo
+                </span>
+              )}
+            </div>
+          )}
+
+          {!adsLive && (
+            <div
+              style={{
+                background: '#fffbeb',
+                border: '1px solid #fde68a',
+                borderRadius: '10px',
+                padding: '14px 18px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                color: '#92400e',
+                fontSize: '12.5px',
+                lineHeight: 1.5,
+              }}
+            >
+              <AlertTriangle size={18} color="#d97706" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong>Pauta en Snapshot Manual:</strong>{' '}
+                {syncWarnings[0] ||
+                  'La cuenta publicitaria que paga los boosts no está asignada al usuario del sistema; mostrando snapshot manual del 27-nov-2026.'}
+                <div style={{ marginTop: '4px', fontSize: '12px', color: '#78350f' }}>
+                  Para activarla en vivo: <strong>Business Settings → Usuarios del sistema → El Marqués → Asignar activos → Cuentas publicitarias → (la cuenta con la que se promocionan los posts) → Ver rendimiento</strong>.
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Error Banner si existe */}
       {error && (
         <div
@@ -203,10 +295,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Alcance Total Campaña (Meta)
+                Alcance Instagram ({sync?.windowDays || 28}d)
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {totalReach.toLocaleString()}
+                {totalReach !== null ? totalReach.toLocaleString() : '—'}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#eff6ff', borderRadius: '8px', color: '#2563eb' }}>
@@ -214,7 +306,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#2563eb', marginTop: '8px', fontWeight: 600 }}>
-            {totalViews.toLocaleString()} vistas totales (+154K%)
+            {totalViews !== null ? `${totalViews.toLocaleString()} vistas en 28 días` : '—'}
           </div>
         </div>
 
@@ -226,7 +318,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 Comunidad @kiaelmarques
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {instagram?.followersCount || 627}
+                {typeof instagram?.followersCount === 'number' ? instagram.followersCount.toLocaleString() : '—'}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#faf5ff', borderRadius: '8px', color: '#7c3aed' }}>
@@ -234,7 +326,9 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#7c3aed', marginTop: '8px', fontWeight: 600 }}>
-            +584 ganados en 28 días (+4.8K%)
+            {typeof nativeInsights?.newFollowers28Days === 'number'
+              ? `+${nativeInsights.newFollowers28Days.toLocaleString()} ganados en 28 días`
+              : '—'}
           </div>
         </div>
 
@@ -243,10 +337,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Clics de Enlace Totales
+                Clics de Enlace ({adsLive ? 'En vivo' : 'Pauta + Bio'})
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                {totalLinkClicks.toLocaleString()}
+                {totalLinkClicks !== null ? totalLinkClicks.toLocaleString() : '—'}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#f0fdf4', borderRadius: '8px', color: '#16a34a' }}>
@@ -254,7 +348,9 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '8px', fontWeight: 600 }}>
-            {adLinkClicks.toLocaleString()} clics en ads (${avgCpc} CPC)
+            {adLinkClicks !== null && avgCpc !== null
+              ? `${adLinkClicks.toLocaleString()} clics en ads ($${avgCpc} CPC)`
+              : '—'}
           </div>
         </div>
 
@@ -263,10 +359,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                Inversión en Meta Ads
+                Inversión en Meta Ads {!adsLive && '· Snapshot'}
               </span>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-                ${totalSpentUSD.toFixed(2)} USD
+                {totalSpentUSD !== null ? `$${totalSpentUSD.toFixed(2)} USD` : '—'}
               </div>
             </div>
             <div style={{ padding: '8px', background: '#fdf2f8', borderRadius: '8px', color: '#db2777' }}>
@@ -274,7 +370,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
             </div>
           </div>
           <div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', fontWeight: 600 }}>
-            {campaignsList.length} publicaciones promocionadas activas
+            {campaignsList.length} publicaciones promocionadas registradas
           </div>
         </div>
       </div>
@@ -319,10 +415,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
 
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 700, padding: '6px 12px', borderRadius: '8px', border: '1px solid #bbf7d0', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <DollarSign size={14} /> Total: ${totalSpentUSD.toFixed(2)} USD
+              <DollarSign size={14} /> Total: {totalSpentUSD !== null ? `$${totalSpentUSD.toFixed(2)} USD` : '—'}
             </span>
             <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: 700, padding: '6px 12px', borderRadius: '8px', border: '1px solid #bfdbfe', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <Eye size={14} /> {totalViews.toLocaleString()} Vistas
+              <Eye size={14} /> {totalViews !== null ? `${totalViews.toLocaleString()} Vistas IG` : '—'}
             </span>
           </div>
         </div>
@@ -707,10 +803,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                           letterSpacing: '-0.02em',
                         }}
                       >
-                        ${Number(camp.amountSpent).toFixed(2)}
+                        {typeof camp.amountSpent === 'number' ? `$${Number(camp.amountSpent).toFixed(2)}` : '—'}
                       </div>
                       <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>
-                        de ${Number(camp.dailyBudget || 10).toFixed(0)}/día
+                        {typeof camp.dailyBudget === 'number' ? `de $${Number(camp.dailyBudget).toFixed(0)}/día` : 'Pauta acumulada'}
                       </div>
                     </div>
                   </div>
@@ -722,7 +818,10 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
 
         {/* Banner de Correlación Meta Ads ➔ Microsoft Clarity */}
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '14px 18px', borderRadius: '8px', fontSize: '12.5px', color: '#166534', lineHeight: 1.5 }}>
-          <strong>Atribución Cruzada Confirmada:</strong> Se han invertido un total acumulado de <strong>${totalSpentUSD.toFixed(2)} USD</strong> en {campaignsList.length} publicaciones promocionadas en Meta/Instagram, generando <strong>{adLinkClicks.toLocaleString()} clics de enlace pagados directos</strong> dentro de un ecosistema global de <strong>7.600 clics de enlace totales en Instagram</strong> que alimentan el tráfico analizado en Microsoft Clarity y los prospectos cualificados por los asesores.
+          <strong>Atribución Cruzada Confirmada:</strong> Se registra una inversión de{' '}
+          <strong>{totalSpentUSD !== null ? `$${totalSpentUSD.toFixed(2)} USD` : '—'}</strong> en {campaignsList.length} publicaciones promocionadas, generando{' '}
+          <strong>{adLinkClicks !== null ? `${adLinkClicks.toLocaleString()} clics de enlace en pauta` : '—'}</strong> dentro de{' '}
+          <strong>{totalLinkClicks !== null ? `${totalLinkClicks.toLocaleString()} clics de enlace totales` : '—'}</strong> en Instagram ({adsLive ? 'pauta en vivo' : 'snapshot manual'}).
         </div>
       </div>
 
@@ -741,7 +840,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
               <span
                 style={{
                   background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
@@ -759,19 +858,32 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 }}
               >
                 <Sparkles size={12} color="#16a34a" />
-                Meta Business Insights Oficial
+                Instagram Insights & Benchmark
+              </span>
+              <span
+                style={{
+                  background: '#fef3c7',
+                  color: '#92400e',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '3px 8px',
+                  borderRadius: '10px',
+                  border: '1px solid #fde68a',
+                }}
+              >
+                Snapshot manual ({benchmark?.source === 'manual_snapshot_2026-11-24' ? '24 Nov 2026' : 'Benchmark sector'})
               </span>
               <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
-                Periodo: 25 Octubre – 23 Noviembre
+                Métricas de cuenta en vivo: últimos {sync?.windowDays || 28} días
               </span>
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
-              Inteligencia Orgánica & Benchmark Oficial de Concesionarios
+              Inteligencia Orgánica & Benchmark de Concesionarios
             </h3>
           </div>
 
           <span style={{ background: '#f8fafc', color: '#0f172a', fontSize: '12px', fontWeight: 700, padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            Categoría: <strong>Vehicle Dealerships</strong>
+            Categoría: <strong>Vehicle Dealerships</strong> · Snapshot manual
           </span>
         </div>
 
@@ -986,7 +1098,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
               </div>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0' }}>
-                627
+                {(typeof instagram?.followersCount === 'number' ? instagram.followersCount : benchmark?.instagramFollowers?.count || 647).toLocaleString()}
               </div>
               <div style={{ marginBottom: '4px' }}>
                 <span style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '10.5px', fontWeight: 700, padding: '2px 8px', borderRadius: '9999px' }}>
@@ -994,7 +1106,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 </span>
               </div>
               <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                Typically: <strong>1,147</strong>
+                Typically: <strong>{benchmark?.instagramFollowers?.typical?.toLocaleString() || '1,147'}</strong>
               </div>
             </div>
 
@@ -1005,7 +1117,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
               </div>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0' }}>
-                581
+                {(typeof nativeInsights?.newFollowers28Days === 'number' ? nativeInsights.newFollowers28Days : benchmark?.followsGained?.count || 617).toLocaleString()}
               </div>
               <div style={{ marginBottom: '4px' }}>
                 <span style={{ background: '#dcfce7', color: '#166534', fontSize: '10.5px', fontWeight: 800, padding: '2px 8px', borderRadius: '9999px' }}>
@@ -1013,7 +1125,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 </span>
               </div>
               <div style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 600 }}>
-                Typically: <strong>25</strong> (+2.224% vs sector)
+                Typically: <strong>{benchmark?.followsGained?.typical || 25}</strong> (+2.224% vs sector)
               </div>
             </div>
 
@@ -1024,7 +1136,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 <span style={{ fontSize: '11px', color: '#94a3b8' }}>ⓘ</span>
               </div>
               <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', margin: '4px 0' }}>
-                3,122
+                {(typeof instagram?.totals?.totalInteractions === 'number' ? instagram.totals.totalInteractions : benchmark?.contentInteractions?.count || 3216).toLocaleString()}
               </div>
               <div style={{ marginBottom: '4px' }}>
                 <span style={{ background: '#dcfce7', color: '#166534', fontSize: '10.5px', fontWeight: 800, padding: '2px 8px', borderRadius: '9999px' }}>
@@ -1032,7 +1144,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
                 </span>
               </div>
               <div style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 600 }}>
-                Typically: <strong>295</strong> (+958% vs sector)
+                Typically: <strong>{benchmark?.contentInteractions?.typical || 295}</strong> (+958% vs sector)
               </div>
             </div>
           </div>
@@ -1044,28 +1156,38 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ background: '#ffffff', borderRadius: '10px', padding: '20px', border: '1px solid #e2e8f0' }}>
             <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <TrendingUp size={16} color="#0284c7" />
-              Métricas Macroscópicas de Cuenta (@kiaelmarques)
+              Métricas de Cuenta en Vivo (@kiaelmarques · {sync?.windowDays || 28}d)
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
                 <span style={{ color: '#64748b' }}>Reproducciones de Contenido (Views):</span>
-                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>274.372 views (+154K%)</strong>
+                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>
+                  {typeof nativeInsights?.totalViews === 'number' ? `${nativeInsights.totalViews.toLocaleString()} views` : '—'}
+                </strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
-                <span style={{ color: '#64748b' }}>Cuentas Únicas Alcanzadas (Viewers):</span>
-                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>136.732 cuentas (+166K%)</strong>
+                <span style={{ color: '#64748b' }}>Cuentas Alcanzadas (Reach):</span>
+                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>
+                  {typeof nativeInsights?.uniqueViewers === 'number' ? `${nativeInsights.uniqueViewers.toLocaleString()} cuentas` : '—'}
+                </strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
-                <span style={{ color: '#64748b' }}>Clics en Enlaces (Bio + Stories + Ads):</span>
-                <strong style={{ color: '#16a34a', fontFamily: 'monospace' }}>7.600 clics (+100%)</strong>
+                <span style={{ color: '#64748b' }}>Taps en Enlace de Perfil (Bio):</span>
+                <strong style={{ color: '#16a34a', fontFamily: 'monospace' }}>
+                  {typeof nativeInsights?.linkClicks === 'number' ? `${nativeInsights.linkClicks.toLocaleString()} clics` : '—'}
+                </strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
                 <span style={{ color: '#64748b' }}>Visitas al Perfil de Instagram:</span>
-                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>2.900 visitas (+1.4K%)</strong>
+                <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>
+                  {typeof nativeInsights?.profileVisits === 'number' ? `${nativeInsights.profileVisits.toLocaleString()} visitas` : '—'}
+                </strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12.5px' }}>
-                <span style={{ color: '#64748b' }}>Composición de Audiencia:</span>
-                <strong style={{ color: '#7c3aed' }}>97,0% No Seguidores (Viralidad pura)</strong>
+                <span style={{ color: '#64748b' }}>Interacciones Totales (28d):</span>
+                <strong style={{ color: '#7c3aed', fontFamily: 'monospace' }}>
+                  {typeof totals?.totalInteractions === 'number' ? `${totals.totalInteractions.toLocaleString()} interacciones` : '—'}
+                </strong>
               </div>
             </div>
           </div>
@@ -1074,7 +1196,7 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
           <div style={{ background: '#ffffff', borderRadius: '10px', padding: '20px', border: '1px solid #e2e8f0' }}>
             <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Users size={16} color="#7c3aed" />
-              Perfil Demográfico del Comprador (Venezuela)
+              Perfil Demográfico de Seguidores (En Vivo)
             </h4>
 
             {/* Género y Rango Clave */}
@@ -1082,40 +1204,36 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
               <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>DISTRIBUCIÓN GÉNERO</div>
                 <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
-                  72,4% H · 27,6% M
+                  {typeof demographics?.menPct === 'number' && typeof demographics?.womenPct === 'number'
+                    ? `${demographics.menPct}% H · ${demographics.womenPct}% M`
+                    : '—'}
                 </div>
               </div>
               <div style={{ background: '#eff6ff', padding: '10px 12px', borderRadius: '8px', textAlign: 'center', border: '1px solid #bfdbfe' }}>
                 <div style={{ fontSize: '11px', color: '#1d4ed8', fontWeight: 700 }}>EDAD CON PODER DE COMPRA</div>
                 <div style={{ fontSize: '16px', fontWeight: 800, color: '#1d4ed8', marginTop: '2px' }}>
-                  60,4% (35 a 54 años)
+                  {typeof demographics?.primeBuyersPct === 'number' ? `${demographics.primeBuyersPct}% (35 a 54 años)` : '—'}
                 </div>
               </div>
             </div>
 
             {/* Top Ciudades */}
             <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px', fontWeight: 700 }}>
-              Top Ciudades en Venezuela (94,4% del total):
+              Top Ciudades (Seguidores @kiaelmarques):
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                📍 Caracas: <strong>42,3%</strong>
-              </span>
-              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                📍 Barquisimeto: <strong>5,6%</strong>
-              </span>
-              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                📍 Valencia: <strong>4,3%</strong>
-              </span>
-              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                📍 Guatire / Guarenas: <strong>5,1%</strong>
-              </span>
-              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                📍 Margarita: <strong>2,7%</strong>
-              </span>
-              <span style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                📍 Los Teques: <strong>1,3%</strong>
-              </span>
+              {Array.isArray(demographics?.topLocations) && demographics.topLocations.length > 0 ? (
+                demographics.topLocations.slice(0, 8).map((loc: any) => (
+                  <span
+                    key={loc.city}
+                    style={{ fontSize: '11.5px', background: '#f1f5f9', color: '#0f172a', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}
+                  >
+                    📍 {loc.city}: <strong>{loc.pct}%</strong>
+                  </span>
+                ))
+              ) : (
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>— Sin datos demográficos disponibles</span>
+              )}
             </div>
           </div>
         </div>
@@ -1138,12 +1256,12 @@ export function MetaAdsView({ data, loading, error, onRefresh }: MetaAdsViewProp
               Publicaciones Recientes de Instagram (@kiaelmarques)
             </h3>
             <span style={{ fontSize: '12px', color: '#64748b' }}>
-              {posts.length || 11} publicaciones sincronizadas · {totals?.likes || 332} likes · {totals?.comments || 39} comentarios
+              {posts.length} publicaciones sincronizadas · {typeof totals?.likes === 'number' ? totals.likes : '—'} likes · {typeof totals?.comments === 'number' ? totals.comments : '—'} comentarios
             </span>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <span style={{ background: '#f1f5f9', color: '#334155', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px' }}>
-              ER Promedio: {totals?.averageER || 6.19}%
+              ER Promedio: {typeof totals?.averageER === 'number' ? `${totals.averageER}%` : '—'}
             </span>
           </div>
         </div>

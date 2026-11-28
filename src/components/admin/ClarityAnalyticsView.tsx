@@ -70,19 +70,17 @@ export function ClarityAnalyticsView({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const saved = localStorage.getItem('kia_clarity_custom_report_v6');
+        localStorage.removeItem('kia_clarity_custom_report_v4');
+        localStorage.removeItem('kia_clarity_custom_report_v5');
+        localStorage.removeItem('kia_clarity_custom_report_v6');
+        const saved = localStorage.getItem('kia_clarity_custom_report_v7');
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed?.summary && parsed.summary.totalSessions >= OFFICIAL_CLARITY_BENCHMARK.summary.totalSessions) {
             setLocalReport(parsed);
           } else {
-            localStorage.removeItem('kia_clarity_custom_report_v4');
-            localStorage.removeItem('kia_clarity_custom_report_v5');
-            localStorage.removeItem('kia_clarity_custom_report_v6');
+            localStorage.removeItem('kia_clarity_custom_report_v7');
           }
-        } else {
-          localStorage.removeItem('kia_clarity_custom_report_v4');
-          localStorage.removeItem('kia_clarity_custom_report_v5');
         }
       } catch {}
     }
@@ -134,7 +132,7 @@ export function ClarityAnalyticsView({
     setLocalReport(parsed);
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('kia_clarity_custom_report_v6', JSON.stringify(parsed));
+        localStorage.setItem('kia_clarity_custom_report_v7', JSON.stringify(parsed));
       } catch {}
     }
     onUpdateCustomReport?.(parsed);
@@ -1040,13 +1038,13 @@ export function ClarityAnalyticsView({
               onChange={(e) => setPastedText(e.target.value)}
               placeholder="Ejemplo:
 Sesiones
-2055
-17 sesiones de bot excluidas
-Páginas por sesión 1,15
-Usuarios únicos 1974
+5136
+73 sesiones de bot excluidas
+Páginas por sesión 1,19
+Usuarios únicos 4787
 ...
-https://kiaelmarques.com/modelos/tasman 1248
-https://kiaelmarques.com/modelos/soluto 791"
+https://kiaelmarques.com/modelos/tasman 2535
+https://kiaelmarques.com/modelos/soluto 2511"
               rows={10}
               style={{
                 width: '100%',

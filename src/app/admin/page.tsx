@@ -115,13 +115,24 @@ export default function AdminPage() {
     }
   }, []);
 
-  // Cargar métricas de Clarity y Meta automáticamente al autenticarse
+  // Cargar métricas de Clarity y Meta automáticamente al autenticarse y refrescar Meta + Leads cada 5 min
   useEffect(() => {
     if (typeof window !== 'undefined' && isAuthenticated) {
       const savedToken = localStorage.getItem('kia_clarity_token') || '';
       if (savedToken) setClarityToken(savedToken);
+      const activePass = sessionStorage.getItem('kia_admin_pass') || password || '';
       fetchClarityMetrics(savedToken || undefined);
-      fetchMetaData();
+      fetchMetaData(false, activePass);
+
+      const intervalId = setInterval(() => {
+        const currentPass = sessionStorage.getItem('kia_admin_pass') || password || '';
+        if (currentPass) {
+          fetchLeads(currentPass);
+          fetchMetaData(false, currentPass);
+        }
+      }, 5 * 60 * 1000);
+
+      return () => clearInterval(intervalId);
     }
   }, [isAuthenticated]);
 
@@ -136,37 +147,23 @@ export default function AdminPage() {
           localStorage.removeItem('kia_clarity_cache_data_v2');
           localStorage.removeItem('kia_clarity_cache_data_v3');
           localStorage.removeItem('kia_clarity_cache_data_v4');
+          localStorage.removeItem('kia_clarity_cache_data_v5');
+          localStorage.removeItem('kia_clarity_custom_report_v4');
+          localStorage.removeItem('kia_clarity_custom_report_v5');
+          localStorage.removeItem('kia_clarity_custom_report_v6');
         } catch {}
 
         // 1. Revisar si hay un reporte personalizado pegado por el usuario
-        const savedCustomReport = localStorage.getItem('kia_clarity_custom_report_v6');
+        const savedCustomReport = localStorage.getItem('kia_clarity_custom_report_v7');
         if (savedCustomReport) {
           try {
             const parsedCustom = JSON.parse(savedCustomReport);
-            if (parsedCustom?.summary && parsedCustom.summary.totalSessions >= 2340) {
+            if (parsedCustom?.summary && parsedCustom.summary.totalSessions >= 5136) {
               setClarityData(parsedCustom);
               setClarityLoading(false);
               return;
             } else {
-              localStorage.removeItem('kia_clarity_custom_report_v4');
-              localStorage.removeItem('kia_clarity_custom_report_v5');
-              localStorage.removeItem('kia_clarity_custom_report_v6');
-            }
-          } catch {}
-        } else {
-          localStorage.removeItem('kia_clarity_custom_report_v4');
-          localStorage.removeItem('kia_clarity_custom_report_v5');
-        }
-
-        const cachedData = localStorage.getItem('kia_clarity_cache_data_v5');
-        const cachedTime = localStorage.getItem('kia_clarity_cache_time_v5');
-        if (cachedData && cachedTime && Date.now() - Number(cachedTime) < 2 * 60 * 60 * 1000) {
-          try {
-            const parsed = JSON.parse(cachedData);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setClarityData(parsed);
-              setClarityLoading(false);
-              return;
+              localStorage.removeItem('kia_clarity_custom_report_v7');
             }
           } catch {}
         }
@@ -221,11 +218,18 @@ export default function AdminPage() {
     if (clean) fetchClarityMetrics(clean, true);
   };
 
-  const fetchMetaData = async (force = false) => {
+  const fetchMetaData = async (force = false, passOverride?: string) => {
     setMetaLoading(true);
     setMetaError(null);
     try {
-      const res = await fetch(`/api/meta?${force ? 'refresh=true&' : ''}_t=${Date.now()}`, { cache: 'no-store' });
+      const activePass = passOverride ?? (typeof window !== 'undefined' ? sessionStorage.getItem('kia_admin_pass') : null) ?? password;
+      const res = await fetch(
+        `/api/meta?${force ? 'refresh=true&' : ''}adminKey=${encodeURIComponent(activePass || '')}&_t=${Date.now()}`,
+        {
+          headers: activePass ? { Authorization: `Bearer ${activePass}` } : undefined,
+          cache: 'no-store',
+        }
+      );
       const rawText = await res.text();
       let data: any = null;
       try {

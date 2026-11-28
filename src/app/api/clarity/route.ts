@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { OFFICIAL_CLARITY_BENCHMARK } from '@/data/clarityBenchmark';
 
-const CACHE_FILE = path.join('/tmp', 'clarity_cache_v5.json');
+const CACHE_FILE = path.join('/tmp', 'clarity_cache_v7.json');
 const CACHE_DURATION_MS = 2 * 60 * 60 * 1000; // 2 horas de caché para no superar el límite de 10 peticiones/día de Clarity
 
 const NO_CACHE_HEADERS = {

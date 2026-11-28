@@ -28,16 +28,21 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const authHeader = req.headers.get('authorization') || searchParams.get('adminKey');
-  const expectedPassword = process.env.ADMIN_PASSWORD || 'kia2026';
+  try {
+    const { searchParams } = new URL(req.url);
+    const authHeader = req.headers.get('authorization') || searchParams.get('adminKey');
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'kia2026';
 
-  if (authHeader !== expectedPassword && authHeader !== `Bearer ${expectedPassword}`) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (authHeader !== expectedPassword && authHeader !== `Bearer ${expectedPassword}`) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const leads = await getLeads();
+    return NextResponse.json({ success: true, leads }, { headers: NO_CACHE_HEADERS });
+  } catch (err: any) {
+    console.error('API GET /api/leads error:', err);
+    return NextResponse.json({ error: err?.message || 'Error cargando prospectos.' }, { status: 500, headers: NO_CACHE_HEADERS });
   }
-
-  const leads = await getLeads();
-  return NextResponse.json({ success: true, leads }, { headers: NO_CACHE_HEADERS });
 }
 
 export async function PATCH(req: Request) {
@@ -61,7 +66,10 @@ export async function PATCH(req: Request) {
     if (advisor_name !== undefined) updates.advisor_name = advisor_name || undefined;
     if (advisor_slug !== undefined) updates.advisor_slug = advisor_slug || undefined;
 
-    await updateLead(id, updates);
+    const updated = await updateLead(id, updates);
+    if (!updated) {
+      return NextResponse.json({ error: 'Prospecto no encontrado' }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

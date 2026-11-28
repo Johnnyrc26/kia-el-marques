@@ -10,8 +10,103 @@ const NO_CACHE_HEADERS = {
   Pragma: 'no-cache',
 };
 
+const MANUAL_ADS_SNAPSHOT = [
+  {
+    id: 'boost_soluto_nov17',
+    name: 'Boosted Instagram reel - Soluto (Familiar)',
+    caption:
+      'Cuando un vehículo responde tanto a la rutina familiar como a tus compromisos laborales, el espacio y la seguridad no se negocian. Nuestro Soluto ofrece un amplio maletero para equipaje, compras o herramientas...',
+    vehicle: 'Soluto',
+    status: 'Paused',
+    statusLabel: 'Pausado',
+    mediaType: 'reel',
+    date: '17 nov – 27 nov',
+    views: 111898,
+    viewers: 62336,
+    resultType: 'Link Clicks',
+    resultCount: 3454,
+    amountSpent: 86.39,
+    dailyBudget: 10.0,
+    costPerResult: 0.025,
+    permalink: 'https://www.instagram.com/p/DCejqf7u77B/',
+  },
+  {
+    id: 'boost_tasman_nov20',
+    name: 'Boosted Instagram reel - Tasman (Redefine Pickup)',
+    caption:
+      'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados, sino un espacio donde la arquitectura interior y la ergonomía compiten con los SUV más reconocidos...',
+    vehicle: 'Tasman',
+    status: 'Paused',
+    statusLabel: 'Pausado',
+    mediaType: 'reel',
+    date: '20 nov – 24 nov',
+    views: 118600,
+    viewers: 82526,
+    resultType: 'Link Clicks',
+    resultCount: 3213,
+    amountSpent: 70.8,
+    dailyBudget: 20.0,
+    costPerResult: 0.022,
+    permalink: 'https://www.instagram.com/reel/DCmQnSvuWbH/',
+  },
+  {
+    id: 'boost_tasman_nov19',
+    name: 'Boosted Instagram post - Tasman (Perfil)',
+    caption:
+      'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados, sino un espacio donde la arquitectura interior y la ergonomía compiten con los SUV más reconocidos...',
+    vehicle: 'Tasman',
+    status: 'Paused',
+    statusLabel: 'Pausado',
+    mediaType: 'post',
+    date: '19 nov – 23 nov',
+    views: 2215,
+    viewers: 1888,
+    resultType: 'Instagram profile visits',
+    resultCount: 79,
+    amountSpent: 6.32,
+    dailyBudget: 10.0,
+    costPerResult: 0.08,
+    permalink: 'https://www.instagram.com/reel/DCmQnSvuWbH/',
+  },
+];
+
+const MANUAL_BENCHMARK_SNAPSHOT = {
+  source: 'manual_snapshot_2026-11-24',
+  publishedContent: {
+    count: 32,
+    typical: 21,
+    status: 'Similar to others',
+    percentiles: { p25: 9, p50: 21, mine: 32, p75: 43 },
+    feedback:
+      'Over the last 28 days, you typically published the same amount of posts and stories compared to other businesses in this category. Well done! Stay on track by creating a new post or scheduling in advance.',
+  },
+  instagramFollowers: { count: 628, typical: 1147, status: 'Similar to others' },
+  followsGained: { count: 581, typical: 25, status: 'Higher than others', multiplier: 23 },
+  contentInteractions: { count: 3122, typical: 295, status: 'Higher than others', multiplier: 10.5 },
+};
+
+function detectVehicle(text?: string | null): string {
+  const lower = (text || '').toLowerCase();
+  if (lower.includes('tasman')) return 'Tasman';
+  if (lower.includes('soluto')) return 'Soluto';
+  if (lower.includes('sportage')) return 'Sportage';
+  if (lower.includes('seltos')) return 'Seltos';
+  if (lower.includes('sonet')) return 'Sonet';
+  if (lower.includes('picanto')) return 'Picanto';
+  if (lower.includes('sorento')) return 'Sorento';
+  if (lower.includes('carnival')) return 'Carnival';
+  return 'Otro';
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const authHeader = request.headers.get('authorization') || searchParams.get('adminKey');
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'kia2026';
+
+  if (authHeader !== expectedPassword && authHeader !== `Bearer ${expectedPassword}`) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401, headers: NO_CACHE_HEADERS });
+  }
+
   const forceRefresh = searchParams.get('refresh') === 'true';
 
   const now = Date.now();
@@ -39,6 +134,10 @@ export async function GET(request: Request) {
     );
   }
 
+  const warnings: string[] = [];
+  const untilSec = Math.floor(now / 1000);
+  const sinceSec = untilSec - 28 * 86400;
+
   try {
     // 1. Scopes y validez del token en Meta
     let scopes: string[] = [];
@@ -61,8 +160,8 @@ export async function GET(request: Request) {
     let pageData: any = {
       id: pageId,
       name: 'Kia El Marqués',
-      followers_count: 0,
-      fan_count: 0,
+      followers_count: null,
+      fan_count: null,
       link: `https://www.facebook.com/${pageId}`,
     };
     try {
@@ -78,129 +177,124 @@ export async function GET(request: Request) {
       console.warn('Meta page fetch error:', e);
     }
 
-    // 3. Información de la Cuenta de Anuncios y Reels Promocionados (Centro de Anuncios de Meta)
-    const VERIFIED_BOOSTED_REELS = [
-      {
-        id: 'boost_soluto_nov17',
-        name: 'Boosted Instagram reel',
-        caption: 'Cuando un vehículo responde tanto a la rutina familiar como a tus compromisos laborales, el espacio y la seguridad no se negocian. Nuestro Soluto ofrece un amplio maletero para equipaje, compras o herramientas...',
-        vehicle: 'Soluto',
-        status: 'Active',
-        statusLabel: 'En Circulación (Activo)',
-        mediaType: 'reel',
-        date: '17 nov',
-        views: 59240,
-        viewers: 40680,
-        resultType: 'Link Clicks',
-        resultCount: 1945,
-        amountSpent: 46.62,
-        dailyBudget: 10.00,
-        costPerResult: 0.024,
-        permalink: 'https://www.instagram.com/p/DCejqf7u77B/',
-      },
-      {
-        id: 'boost_tasman_nov20',
-        name: 'Boosted Instagram reel',
-        caption: 'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados, sino un espacio donde la arquitectura interior y la ergonomía compiten con los SUV más reconocidos...',
-        vehicle: 'Tasman',
-        status: 'Active',
-        statusLabel: 'En Circulación (Activo)',
-        mediaType: 'reel',
-        date: '20 nov',
-        views: 4520,
-        viewers: 3950,
-        resultType: 'Link Clicks',
-        resultCount: 142,
-        amountSpent: 3.21,
-        dailyBudget: 16.00,
-        costPerResult: 0.023,
-        permalink: 'https://www.instagram.com/reel/DCmQnSvuWbH/',
-      },
-      {
-        id: 'boost_tasman_nov19',
-        name: 'Boosted Instagram reel',
-        caption: 'Tasman redefine lo que puede ser una pickup: no solo es una herramienta imbatible para trabajos pesados, sino un espacio donde la arquitectura interior y la ergonomía compiten con los SUV más reconocidos...',
-        vehicle: 'Tasman',
-        status: 'Paused',
-        statusLabel: 'Pausado',
-        mediaType: 'reel',
-        date: '19 nov',
-        views: 2215,
-        viewers: 1888,
-        resultType: 'Instagram profile visits',
-        resultCount: 75,
-        amountSpent: 6.23,
-        dailyBudget: 10.00,
-        costPerResult: 0.083,
-        permalink: 'https://www.instagram.com/reel/DCmQnSvuWbH/',
-      },
-    ];
+    // 3. Autodescubrimiento de cuentas publicitarias asignadas al System User y lectura de anuncios en vivo
+    let adsLive = false;
+    let liveCampaigns: any[] = [];
+    let liveSpendTotal = 0;
+    let discoveredAccountId = adAccountId;
+    let discoveredAccountName = 'KiaELMarqués';
+    let discoveredCurrency = 'USD';
 
-    let adData: any = {
-      id: adAccountId,
-      name: 'KiaELMarqués',
-      currency: 'USD',
-      amount_spent: 56.06,
-      balance: 0,
-      campaigns_count: VERIFIED_BOOSTED_REELS.length,
-      campaigns: VERIFIED_BOOSTED_REELS,
-    };
     try {
-      const aRes = await fetch(
-        `https://graph.facebook.com/v21.0/${adAccountId}?fields=name,currency,amount_spent,balance&access_token=${encodeURIComponent(token)}`,
+      const accRes = await fetch(
+        `https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,currency,amount_spent&access_token=${encodeURIComponent(token)}`,
         { cache: 'no-store' }
       );
-      if (aRes.ok) {
-        const aJson = await aRes.json();
-        adData.name = aJson.name || adData.name;
-        adData.currency = aJson.currency || 'USD';
-        if (Number(aJson.amount_spent) > 0) {
-          adData.amount_spent = Number(aJson.amount_spent);
+      if (accRes.ok) {
+        const accJson = await accRes.json();
+        const accounts: any[] = Array.isArray(accJson.data) ? accJson.data : [];
+        if (accounts.length > 0) {
+          discoveredAccountId = accounts[0].id || adAccountId;
+          discoveredAccountName = accounts[0].name || discoveredAccountName;
+          discoveredCurrency = accounts[0].currency || 'USD';
         }
-        adData.balance = Number(aJson.balance || 0);
-      }
 
-      // Consultar si existen campañas adicionales configuradas en Ads Manager
-      const cRes = await fetch(
-        `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,effective_status,daily_budget,lifetime_budget,insights{spend,impressions,reach,clicks,cpc}&access_token=${encodeURIComponent(token)}`,
-        { cache: 'no-store' }
-      );
-      if (cRes.ok) {
-        const cJson = await cRes.json();
-        if (Array.isArray(cJson.data) && cJson.data.length > 0) {
-          const apiCampaigns = cJson.data.map((c: any) => {
-            const ins = c.insights?.data?.[0] || {};
-            return {
-              id: c.id,
-              name: c.name,
-              status: c.status === 'ACTIVE' ? 'Active' : 'Paused',
-              statusLabel: c.status === 'ACTIVE' ? 'Activo' : 'Pausado',
-              dailyBudget: c.daily_budget ? Number(c.daily_budget) / 100 : null,
-              amountSpent: Number(ins.spend || 0),
-              views: Number(ins.impressions || 0),
-              viewers: Number(ins.reach || 0),
-              resultType: 'Link Clicks',
-              resultCount: Number(ins.clicks || 0),
-              costPerResult: ins.cpc ? Number(ins.cpc) : 0,
-            };
-          });
-          adData.campaigns = [...VERIFIED_BOOSTED_REELS, ...apiCampaigns];
-          adData.campaigns_count = adData.campaigns.length;
+        for (const acc of accounts) {
+          const insRes = await fetch(
+            `https://graph.facebook.com/v21.0/${acc.id}/insights?level=ad&date_preset=maximum&fields=ad_id,ad_name,campaign_name,spend,impressions,reach,inline_link_clicks,cost_per_inline_link_click,date_start,date_stop&limit=100&access_token=${encodeURIComponent(token)}`,
+            { cache: 'no-store' }
+          );
+          if (insRes.ok) {
+            const insJson = await insRes.json();
+            const rows: any[] = Array.isArray(insJson.data) ? insJson.data : [];
+            for (const row of rows) {
+              const spend = Number(row.spend || 0);
+              liveSpendTotal += spend;
+              const clicks = Number(row.inline_link_clicks || 0);
+              const impressions = Number(row.impressions || 0);
+              const reach = Number(row.reach || 0);
+              const cpc =
+                row.cost_per_inline_link_click !== undefined
+                  ? Number(row.cost_per_inline_link_click)
+                  : clicks > 0
+                  ? Number((spend / clicks).toFixed(3))
+                  : 0;
+              liveCampaigns.push({
+                id: row.ad_id || `${acc.id}_${liveCampaigns.length}`,
+                name: row.ad_name || row.campaign_name || 'Anuncio Meta',
+                caption: row.campaign_name || row.ad_name || '',
+                vehicle: detectVehicle(`${row.ad_name || ''} ${row.campaign_name || ''}`),
+                status: 'Active',
+                statusLabel: 'Sincronizado en vivo',
+                mediaType: 'reel',
+                date: row.date_start && row.date_stop ? `${row.date_start} – ${row.date_stop}` : '',
+                views: impressions,
+                viewers: reach,
+                resultType: 'Link Clicks',
+                resultCount: clicks,
+                amountSpent: spend,
+                dailyBudget: null,
+                costPerResult: cpc,
+                permalink: '',
+              });
+            }
+          }
         }
+
+        if (liveSpendTotal > 0 && liveCampaigns.length > 0) {
+          adsLive = true;
+          liveSpendTotal = Number(liveSpendTotal.toFixed(2));
+        }
+      } else {
+        warnings.push('No se pudo consultar me/adaccounts en Meta Graph API.');
       }
     } catch (e) {
-      console.warn('Meta ad account fetch error:', e);
+      console.warn('Meta ad accounts discovery error:', e);
+      warnings.push('Error consultando cuentas publicitarias de Meta.');
     }
 
-    // 4. Datos Reales de Instagram (@kiaelmarques)
-    let instagramData: any = {
+    if (!adsLive) {
+      warnings.push(
+        'La cuenta publicitaria que paga los boosts no está asignada al usuario del sistema; mostrando snapshot manual del 27-nov-2026'
+      );
+    }
+
+    const activeCampaigns = adsLive ? liveCampaigns : MANUAL_ADS_SNAPSHOT;
+    const manualSpendTotal = Number(
+      MANUAL_ADS_SNAPSHOT.reduce((sum, c) => sum + Number(c.amountSpent || 0), 0).toFixed(2)
+    );
+    const adSpendUSD = adsLive ? liveSpendTotal : manualSpendTotal;
+
+    const adData = {
+      id: discoveredAccountId,
+      name: discoveredAccountName,
+      currency: discoveredCurrency,
+      amount_spent: adSpendUSD,
+      balance: 0,
+      campaigns_count: activeCampaigns.length,
+      campaigns: activeCampaigns,
+    };
+
+    // 4. Datos Reales de Instagram (@kiaelmarques) en vivo
+    let igLive = false;
+    let instagramProfile: any = {
       id: igId,
       username: 'kiaelmarques',
       name: 'KIA EL MARQUÉS | Concesionario Oficial',
-      followers_count: 539,
-      media_count: 12,
+      followers_count: null,
+      media_count: null,
       profile_picture_url: '',
     };
+
+    let igReach28d: number | null = null;
+    let igViews28d: number | null = null;
+    let igProfileViews28d: number | null = null;
+    let igWebsiteClicks28d: number | null = null;
+    let igAccountsEngaged28d: number | null = null;
+    let igTotalInteractions28d: number | null = null;
+    let newFollowers28Days: number | null = null;
+    let demographics: any = null;
+
     let instagramPosts: any[] = [];
     let totalRealLikes = 0;
     let totalRealComments = 0;
@@ -209,20 +303,164 @@ export async function GET(request: Request) {
     let totalRealInteractions = 0;
 
     try {
+      // 4a. Perfil IG
       const igRes = await fetch(
         `https://graph.facebook.com/v21.0/${igId}?fields=id,username,name,followers_count,media_count,profile_picture_url&access_token=${encodeURIComponent(token)}`,
         { cache: 'no-store' }
       );
       if (igRes.ok) {
         const igJson = await igRes.json();
-        if (igJson.username) instagramData = igJson;
+        if (igJson.username) {
+          instagramProfile = igJson;
+          igLive = true;
+        }
+      } else {
+        warnings.push('No se pudo leer el perfil de Instagram en vivo.');
       }
 
-      // Publicaciones reales de Instagram con métricas (Insights)
-      const mediaRes = await fetch(
-        `https://graph.facebook.com/v21.0/${igId}/media?fields=id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count,insights.metric(reach,total_interactions,saved)&limit=25&access_token=${encodeURIComponent(token)}`,
+      // 4b. Insights de cuenta (ventana 28 días)
+      const insUrl = `https://graph.facebook.com/v21.0/${igId}/insights?metric=reach,views,profile_views,website_clicks,accounts_engaged,total_interactions&period=day&metric_type=total_value&since=${sinceSec}&until=${untilSec}&access_token=${encodeURIComponent(token)}`;
+      const insRes = await fetch(insUrl, { cache: 'no-store' });
+      if (insRes.ok) {
+        const insJson = await insRes.json();
+        if (Array.isArray(insJson.data)) {
+          igLive = true;
+          for (const m of insJson.data) {
+            const val = typeof m.total_value?.value === 'number' ? m.total_value.value : null;
+            if (m.name === 'reach') igReach28d = val;
+            if (m.name === 'views') igViews28d = val;
+            if (m.name === 'profile_views') igProfileViews28d = val;
+            if (m.name === 'website_clicks') igWebsiteClicks28d = val;
+            if (m.name === 'accounts_engaged') igAccountsEngaged28d = val;
+            if (m.name === 'total_interactions') igTotalInteractions28d = val;
+          }
+        }
+      } else {
+        warnings.push('No se pudieron leer las métricas de rendimiento de Instagram (28 días).');
+      }
+
+      // 4c. Nuevos seguidores diarios (28 días)
+      const folRes = await fetch(
+        `https://graph.facebook.com/v21.0/${igId}/insights?metric=follower_count&period=day&since=${sinceSec}&until=${untilSec}&access_token=${encodeURIComponent(token)}`,
         { cache: 'no-store' }
       );
+      if (folRes.ok) {
+        const folJson = await folRes.json();
+        const vals: any[] = folJson.data?.[0]?.values || [];
+        if (Array.isArray(vals) && vals.length > 0) {
+          newFollowers28Days = vals.reduce((acc, v) => acc + Number(v.value || 0), 0);
+        }
+      }
+
+      // 4d. Demografía de seguidores (edad, género y ciudades)
+      try {
+        const [ageGenderRes, cityRes] = await Promise.all([
+          fetch(
+            `https://graph.facebook.com/v21.0/${igId}/insights?metric=follower_demographics&period=lifetime&metric_type=total_value&breakdown=age,gender&access_token=${encodeURIComponent(token)}`,
+            { cache: 'no-store' }
+          ),
+          fetch(
+            `https://graph.facebook.com/v21.0/${igId}/insights?metric=follower_demographics&period=lifetime&metric_type=total_value&breakdown=city&access_token=${encodeURIComponent(token)}`,
+            { cache: 'no-store' }
+          ),
+        ]);
+
+        let menPct: number | null = null;
+        let womenPct: number | null = null;
+        let primeBuyersPct: number | null = null;
+        let ageBreakdown: Array<{ range: string; pct: number; menPct: number; womenPct: number }> = [];
+        let topLocations: Array<{ city: string; pct: number }> = [];
+
+        if (ageGenderRes.ok) {
+          const agJson = await ageGenderRes.json();
+          const results: any[] = agJson.data?.[0]?.total_value?.breakdowns?.[0]?.results || [];
+          if (results.length > 0) {
+            let totalAll = 0;
+            let totalMen = 0;
+            let totalWomen = 0;
+            const byAge: Record<string, { total: number; men: number; women: number }> = {};
+
+            for (const r of results) {
+              const [age, gender] = r.dimension_values || [];
+              const count = Number(r.value || 0);
+              totalAll += count;
+              if (!byAge[age]) byAge[age] = { total: 0, men: 0, women: 0 };
+              byAge[age].total += count;
+              if (gender === 'M') {
+                totalMen += count;
+                byAge[age].men += count;
+              } else if (gender === 'F') {
+                totalWomen += count;
+                byAge[age].women += count;
+              }
+            }
+
+            const knownGenderTotal = totalMen + totalWomen;
+            if (knownGenderTotal > 0) {
+              menPct = Number(((totalMen / knownGenderTotal) * 100).toFixed(1));
+              womenPct = Number(((totalWomen / knownGenderTotal) * 100).toFixed(1));
+            }
+
+            if (totalAll > 0) {
+              const primeCount = (byAge['35-44']?.total || 0) + (byAge['45-54']?.total || 0);
+              primeBuyersPct = Number(((primeCount / totalAll) * 100).toFixed(1));
+              const orderedRanges = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+              ageBreakdown = orderedRanges.map((range) => {
+                const b = byAge[range] || { total: 0, men: 0, women: 0 };
+                return {
+                  range,
+                  pct: Number(((b.total / totalAll) * 100).toFixed(1)),
+                  menPct: Number(((b.men / totalAll) * 100).toFixed(1)),
+                  womenPct: Number(((b.women / totalAll) * 100).toFixed(1)),
+                };
+              });
+            }
+          }
+        } else {
+          warnings.push('No se pudo obtener el desglose demográfico por edad y género de Instagram.');
+        }
+
+        if (cityRes.ok) {
+          const cityJson = await cityRes.json();
+          const cityResults: any[] = cityJson.data?.[0]?.total_value?.breakdowns?.[0]?.results || [];
+          const cityTotal = cityResults.reduce((acc, r) => acc + Number(r.value || 0), 0);
+          if (cityTotal > 0) {
+            topLocations = [...cityResults]
+              .sort((a, b) => Number(b.value || 0) - Number(a.value || 0))
+              .slice(0, 10)
+              .map((r) => ({
+                city: r.dimension_values?.[0] || 'Desconocida',
+                pct: Number(((Number(r.value || 0) / cityTotal) * 100).toFixed(1)),
+              }));
+          }
+        }
+
+        if (ageBreakdown.length > 0 || topLocations.length > 0) {
+          demographics = {
+            menPct,
+            womenPct,
+            primeBuyersPct,
+            ageBreakdown,
+            topLocations,
+            topCountries: null,
+          };
+        }
+      } catch (demoErr) {
+        console.warn('IG demographics error:', demoErr);
+        warnings.push('No se pudieron cargar los datos demográficos de seguidores.');
+      }
+
+      // 4e. Publicaciones recientes (con fallback de métricas si alguna da 400)
+      let mediaRes = await fetch(
+        `https://graph.facebook.com/v21.0/${igId}/media?fields=id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count,insights.metric(reach,total_interactions,saved,views,shares)&limit=25&access_token=${encodeURIComponent(token)}`,
+        { cache: 'no-store' }
+      );
+      if (mediaRes.status === 400) {
+        mediaRes = await fetch(
+          `https://graph.facebook.com/v21.0/${igId}/media?fields=id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count,insights.metric(reach,total_interactions,saved)&limit=25&access_token=${encodeURIComponent(token)}`,
+          { cache: 'no-store' }
+        );
+      }
 
       if (mediaRes.ok) {
         const mediaJson = await mediaRes.json();
@@ -235,6 +473,8 @@ export async function GET(request: Request) {
 
             let reach = 0;
             let saves = 0;
+            let views = 0;
+            let shares = 0;
             let interactions = likes + comments;
 
             if (item.insights?.data && Array.isArray(item.insights.data)) {
@@ -242,6 +482,8 @@ export async function GET(request: Request) {
                 const val = m.values?.[0]?.value || 0;
                 if (m.name === 'reach') reach = val;
                 if (m.name === 'saved') saves = val;
+                if (m.name === 'views') views = val;
+                if (m.name === 'shares') shares = val;
                 if (m.name === 'total_interactions') interactions = val;
               });
             }
@@ -263,35 +505,26 @@ export async function GET(request: Request) {
               likeCount: likes,
               commentsCount: comments,
               reach,
+              views,
+              shares,
               saves,
               interactions,
-              // Detección automática del modelo Kia en el copy
-              vehicle: item.caption?.toLowerCase().includes('tasman')
-                ? 'Tasman'
-                : item.caption?.toLowerCase().includes('soluto')
-                ? 'Soluto'
-                : item.caption?.toLowerCase().includes('sportage')
-                ? 'Sportage'
-                : item.caption?.toLowerCase().includes('seltos')
-                ? 'Seltos'
-                : item.caption?.toLowerCase().includes('sonet')
-                ? 'Sonet'
-                : null,
+              vehicle: detectVehicle(item.caption),
             };
           });
         }
       }
     } catch (e) {
       console.warn('Instagram fetch error:', e);
+      warnings.push('Error de red leyendo estadísticas de Instagram.');
     }
 
-    const effectiveReach = totalRealReach > 0 ? totalRealReach : 6717;
     const avgER =
-      effectiveReach > 0
-        ? Number((((totalRealLikes + totalRealComments + totalRealSaves) / effectiveReach) * 100).toFixed(2))
-        : 7.58;
+      totalRealReach > 0
+        ? Number((((totalRealLikes + totalRealComments + totalRealSaves) / totalRealReach) * 100).toFixed(2))
+        : null;
 
-    // Totales agregados de pauta publicitaria (Reels Promocionados)
+    // Totales agregados de pauta publicitaria (Reels/Posts Promocionados)
     let totalAdViews = 0;
     let totalAdViewers = 0;
     let totalLinkClicks = 0;
@@ -309,17 +542,31 @@ export async function GET(request: Request) {
       totalResults += Number(c.resultCount || 0);
     });
 
+    const totalLinkClicksAll = totalLinkClicks + (igWebsiteClicks28d ?? 0);
+    const avgCpcUSD =
+      totalLinkClicks > 0 ? Number((adData.amount_spent / totalLinkClicks).toFixed(3)) : null;
+
     const payload = {
       connected: true,
-      sourceOfTruth: 'Meta Graph API v21.0 & Centro de Anuncios (En Vivo)',
+      sourceOfTruth: adsLive
+        ? 'Meta Graph API v21.0 (Instagram y Pauta en Vivo)'
+        : 'Meta Graph API v21.0 (Instagram en Vivo) + Snapshot Manual de Pauta',
       timestamp: new Date().toISOString(),
+      sync: {
+        fetchedAt: new Date().toISOString(),
+        igLive,
+        adsLive,
+        adsSource: adsLive ? 'live' : 'manual_snapshot',
+        windowDays: 28,
+        warnings,
+      },
       tokenValid,
       tokenScopes: scopes,
       page: {
         id: pageData.id,
         name: pageData.name,
-        followersCount: pageData.followers_count || 0,
-        fanCount: pageData.fan_count || 0,
+        followersCount: pageData.followers_count,
+        fanCount: pageData.fan_count,
         link: pageData.link,
       },
       adAccount: {
@@ -332,89 +579,51 @@ export async function GET(request: Request) {
         campaigns: adData.campaigns || [],
       },
       instagram: {
-        id: instagramData.id || igId,
-        username: instagramData.username || 'kiaelmarques',
-        name: instagramData.name || 'KIA EL MARQUÉS | Concesionario Oficial',
-        followersCount: instagramData.followers_count || 627,
-        mediaCount: instagramData.media_count || 32,
-        profilePic: instagramData.profile_picture_url || '',
+        id: instagramProfile.id || igId,
+        username: instagramProfile.username || 'kiaelmarques',
+        name: instagramProfile.name || 'KIA EL MARQUÉS | Concesionario Oficial',
+        followersCount: instagramProfile.followers_count,
+        mediaCount: instagramProfile.media_count,
+        profilePic: instagramProfile.profile_picture_url || '',
         posts: instagramPosts,
         totals: {
-          likes: totalRealLikes || 361,
-          comments: totalRealComments || 43,
-          reach: 136732,
-          saves: totalRealSaves || 20,
+          likes: totalRealLikes,
+          comments: totalRealComments,
+          reach: igReach28d ?? (totalRealReach > 0 ? totalRealReach : null),
+          saves: totalRealSaves,
           averageER: avgER,
-          totalInteractions: 3122,
+          totalInteractions: igTotalInteractions28d ?? (totalRealInteractions > 0 ? totalRealInteractions : null),
         },
         nativeInsights: {
-          totalViews: 274372,
-          viewsGrowthPct: 154000,
-          uniqueViewers: 136732,
-          nonFollowersPct: 97.0,
-          followersPct: 3.0,
-          linkClicks: 7600,
-          profileVisits: 2900,
-          newFollowers28Days: 584,
-          totalFollowers: 627,
-          unfollows: 1,
-          demographics: {
-            menPct: 72.4,
-            womenPct: 27.6,
-            primeBuyersPct: 60.4, // 35 a 54 años
-            ageBreakdown: [
-              { range: '18-24', pct: 2.4, menPct: 1.6, womenPct: 0.8 },
-              { range: '25-34', pct: 15.9, menPct: 9.9, womenPct: 6.0 },
-              { range: '35-44', pct: 28.7, menPct: 21.3, womenPct: 7.4 },
-              { range: '45-54', pct: 31.7, menPct: 23.9, womenPct: 7.8 },
-              { range: '55-64', pct: 15.3, menPct: 11.3, womenPct: 4.0 },
-              { range: '65+', pct: 6.0, menPct: 4.4, womenPct: 1.6 },
-            ],
-            topLocations: [
-              { city: 'Caracas, Distrito Capital', pct: 42.3 },
-              { city: 'Barquisimeto, Lara', pct: 5.6 },
-              { city: 'Valencia, Carabobo', pct: 4.3 },
-              { city: 'Guatire, Miranda', pct: 3.3 },
-              { city: 'Margarita, Miranda', pct: 2.7 },
-              { city: 'Maracay, Aragua', pct: 1.9 },
-              { city: 'Guarenas, Miranda', pct: 1.8 },
-              { city: 'Maturín, Monagas', pct: 1.4 },
-              { city: 'Los Teques, Miranda', pct: 1.3 },
-              { city: 'Barcelona, Anzoátegui', pct: 1.3 },
-            ],
-            topCountries: [
-              { country: 'Venezuela', pct: 94.4 },
-            ],
-          },
-          benchmark: {
-            publishedContent: {
-              count: 32,
-              typical: 21,
-              status: 'Similar to others',
-              percentiles: { p25: 9, p50: 21, mine: 32, p75: 43 },
-              feedback: 'Over the last 28 days, you typically published the same amount of posts and stories compared to other businesses in this category. Well done! Stay on track by creating a new post or scheduling in advance.',
-            },
-            instagramFollowers: { count: 627, typical: 1147, status: 'Similar to others' },
-            followsGained: { count: 581, typical: 25, status: 'Higher than others', multiplier: 23 },
-            contentInteractions: { count: 3122, typical: 295, status: 'Higher than others', multiplier: 10.5 },
-          },
+          totalViews: igViews28d,
+          uniqueViewers: igReach28d,
+          accountsEngaged: igAccountsEngaged28d,
+          nonFollowersPct: null,
+          followersPct: null,
+          linkClicks: igWebsiteClicks28d,
+          profileVisits: igProfileViews28d,
+          newFollowers28Days,
+          totalFollowers: instagramProfile.followers_count,
+          unfollows: null,
+          demographics,
+          benchmark: MANUAL_BENCHMARK_SNAPSHOT,
         },
       },
       crossChannelSummary: {
-        totalReachSocial: 136732,
-        totalOrganicReach: 90214,
-        adImpressions: 65975,
-        totalViewsAll: 274372,
-        adReach: 46518,
-        linkClicksToWebsite: 2087,
-        totalLinkClicksAll: 7600,
-        profileVisits: 2900,
-        totalResults: 2162,
-        totalLikes: 361,
-        totalComments: 43,
-        totalInteractions: 3122,
-        adSpendUSD: adData.amount_spent || 56.06,
-        avgCpcUSD: totalResults > 0 ? Number((adData.amount_spent / totalResults).toFixed(3)) : 0.026,
+        totalReachSocial: igReach28d,
+        totalOrganicReach: null,
+        adImpressions: totalAdViews,
+        totalViewsAll: igViews28d,
+        adReach: totalAdViewers,
+        linkClicksToWebsite: totalLinkClicks,
+        totalLinkClicksAll,
+        profileVisits: igProfileViews28d,
+        totalResults,
+        totalLikes: totalRealLikes,
+        totalComments: totalRealComments,
+        totalInteractions: igTotalInteractions28d ?? totalRealInteractions,
+        adSpendUSD: adData.amount_spent,
+        avgCpcUSD,
       },
     };
 
